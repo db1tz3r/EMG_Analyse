@@ -9,7 +9,7 @@ public class ModellManager {
     // Example usage
     public static void main(String[] args) {
         try {
-            String csvPath = "C:/Users/bitzer/IdeaProjects/EMG_Analyse_Server/Data/rfiris.csv";
+            String csvPath = "src/Data/rfiris.csv";
 
             //Initalisieren und Starten des Model-Trainings
             DataTraining dataTraining = new DataTraining();
