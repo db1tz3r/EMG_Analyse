@@ -1,0 +1,56 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class ReceiveData {
+
+    private Datenspeicher datenspeicher;
+
+    private int dataPort;
+
+    public ReceiveData(Datenspeicher datenspeicher, int dataPort) {
+        this.datenspeicher = datenspeicher;
+        this.dataPort = dataPort;
+    }
+
+    // Hauptmethode zum Empfangen von Daten
+    public void receiveDatafromClient() {
+
+        try (ServerSocket serverSocket = new ServerSocket(dataPort)) {
+            System.out.println("Server läuft und wartet auf Verbindungen...");
+
+            while (true) {
+                // Auf eingehende Verbindungen warten
+                try {
+                    Socket socket = serverSocket.accept();
+                    System.out.println("Verbindung akzeptiert: " + socket.getRemoteSocketAddress());
+
+                    // Für jede Verbindung einen neuen Thread starten
+                    new Thread(() -> handleClient(socket)).start();
+                } catch (IOException e) {
+                    System.err.println("Fehler bei der Verbindung: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Fehler beim Starten des Servers: " + e.getMessage());
+        }
+    }
+
+    // Methode, die den Input für den Client verarbeitet
+    private void handleClient(Socket socket) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            String line;
+            // Lies die Daten vom Client und verarbeite sie
+            while ((line = reader.readLine()) != null) {
+                //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
+                // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
+                datenspeicher.setInputData(Double.valueOf(line));
+                datenspeicher.start();
+            }
+        } catch (IOException e) {
+            System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());
+        }
+    }
+}

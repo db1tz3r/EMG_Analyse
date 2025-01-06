@@ -1,0 +1,142 @@
+package Merkmalsextraktion;
+
+import java.util.ArrayList;
+
+public class Merkmalsextraktion implements Runnable {
+
+    private int zyklusArrayWertErgebnisSeizeOld;
+    private PolynomialeApproximation polynomialeApproximation;
+    private FastFourierTransformation fastfouriertransformation;
+
+    private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>();
+    private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();
+    private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
+
+    public Merkmalsextraktion(PolynomialeApproximation polynomialeApproximation, FastFourierTransformation fft) {
+        this.polynomialeApproximation = polynomialeApproximation;
+        this.fastfouriertransformation = fft;
+    }
+
+
+
+    @Override
+    public void run() {
+        if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
+            if (zyklusArrayWertErgebnis.size() % 4 == 0) {
+
+                // Hole die 4 Werte ab dem Index i
+                double val1 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 4);
+                double val2 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 3);
+                double val3 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 2);
+                double val4 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
+
+                //System.out.println("val1: " + val1 + " val2: " + val2 + " val3: " + val3 + " val4: " + val4); //Zur Analyse der Ergebnisse
+
+                // Überprüfe die Bedingungen und starte Berechnungen
+                if (val1 < val2 && val3 > val4) {
+                    System.out.println("Muskelausschlag nach oben");
+                    //System.out.println(zyklusArrayInput); //Analyse für Fehlerbehebung
+
+                    // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
+                    startePolynomialeApproximationAnfang(val1, val2);
+
+                    // Starte die Polynomiale Approximation dem Mittelpunktwerten zwischen Steigung und Senkung aus der Peak Normalisierung
+                    startePolynomialeApproximationMitte(val2, val3);
+
+                    // Starte die Polynomiale Approximation der Senkung mit den Werten aus der Peak Normalisierung
+                    startePolynomialeApproximationEnde(val3, val4);
+
+                    // Starte die Polynomiale Approximation des gesamten Zyklus mit den Werten aus der Peak Normalisierung
+                    startePolynomialeApproximationGesamterZyklus(val1, val4);
+
+                    //Starte die Merkmalsextraktion.Merkmalsextraktion.FastFourierTransformation
+                    starteFFT(val1, val4);
+
+                } else if (val1 > val2 && val3 > val4) {
+                    System.out.println("Konstante Muskelaktivität nach oben");
+                } else if (val1 > val2 && val3 < val4) {
+                    System.out.println("Muskelausschlag nach unten");
+                } else if (val1 < val2 && val3 < val4) {
+                    System.out.println("Konstante Muskelaktivität nach unten");
+                } else {
+                    System.out.println("Keine der Bedingungen erfüllt.");
+                }
+            }
+        }
+        zyklusArrayWertErgebnisSeizeOld = zyklusArrayWertErgebnis.size();
+    }
+
+    private void startePolynomialeApproximationAnfang(double value1, double value2) {
+        System.out.println("Steigungsformel");
+        // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
+        polynomialeApproximation.setBeginningValue(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3)) - 1; i++) {
+            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
+        }
+        polynomialeApproximation.setEndValue(value2);
+        polynomialeApproximation.run();
+    }
+    private void startePolynomialeApproximationMitte(double value1, double value2) {
+        int schleifeAusgelöst = 0;
+        System.out.println("Mittelformel");
+        // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
+        polynomialeApproximation.setBeginningValue(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2)) - 1; i++) {
+            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i));
+            schleifeAusgelöst++;
+        }
+        polynomialeApproximation.setEndValue(value2);
+        if (schleifeAusgelöst == 0){
+            System.out.println("Mittelformel nicht berechenbar, da nur 2 oder weniger Werte");
+        }else {
+            polynomialeApproximation.run();
+        }
+    }
+    private void startePolynomialeApproximationEnde(double value1, double value2) {
+        System.out.println("Senkungsformel");
+        // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
+        polynomialeApproximation.setBeginningValue(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
+            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
+        }
+        polynomialeApproximation.setEndValue(value2);
+        polynomialeApproximation.run();
+    }
+
+    private void startePolynomialeApproximationGesamterZyklus(double value1, double value4) {
+        System.out.println("Formel gesamter Zyklus");
+        // Starte die Polynomiale Approximation des gesamten Zyklus mit den Werten aus der Peak Normalisierung
+        polynomialeApproximation.setBeginningValue(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
+            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
+        }
+        polynomialeApproximation.setEndValue(value4);
+        polynomialeApproximation.run();
+    }
+
+
+    // Starten der FFT
+    private void starteFFT(double value1, double value4){
+        //Arraylist für das Senden der fft Werte
+        ArrayList<Double> fftInputArrayList = new ArrayList<>();
+
+        System.out.println("FFT: ");
+
+        fftInputArrayList.add(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
+            fftInputArrayList.add(zyklusArrayInput.get(i + 1));
+        }
+        fftInputArrayList.add(value4);
+
+        fastfouriertransformation.setInput(fftInputArrayList);
+        fastfouriertransformation.run();
+    }
+
+
+    // Befüllen der Arrays der Klasse
+    public void setArraysZyklenerkennung(ArrayList<Double> zyklusArrayWertErgebnis, ArrayList<Integer> zyklusArrayZeitErgebnis, ArrayList<Double> zyklusArrayInput) {
+        this.zyklusArrayWertErgebnis = zyklusArrayWertErgebnis;
+        this.zyklusArrayZeitErgebnis = zyklusArrayZeitErgebnis;
+        this.zyklusArrayInput = zyklusArrayInput;
+    }
+}
