@@ -17,13 +17,13 @@ public class Merkmal_Speicher {
     //                      Mittelformel a, Mittelformel b, Mittelformel c,
     //                      Gesamtformel a, Gesamtformel b, Gesamtformel c,
     //                      FFT RealTeil, FFT ImgTeil,
-    private String csvFileName;
     private boolean createCsvFile;
+    private String fileName;
 
     //Konstruktor
     public Merkmal_Speicher(String csvFileName, boolean createCsvFile) {
-        this.csvFileName = csvFileName;
         this.createCsvFile = createCsvFile;
+        fileName = getNextFileName(csvFileName);
     }
 
 
@@ -59,17 +59,14 @@ public class Merkmal_Speicher {
                     String.valueOf(senkungA), String.valueOf(senkungB), String.valueOf(senkungC),
                     String.valueOf(mittelA), String.valueOf(mittelB), String.valueOf(mittelC),
                     String.valueOf(gesamtA), String.valueOf(gesamtB), String.valueOf(gesamtC),
-                    String.valueOf(fftRealTeil), String.valueOf(fftImgTeil)}, csvFileName);
+                    String.valueOf(fftRealTeil), String.valueOf(fftImgTeil)});
         }
     }
 
     // Erstellen und befüllen der csv-Datei
-    public void createCSVFile(String[] rowData, String baseFileName){
+    public void createCSVFile(String[] rowData){
         // Erstellen der csv-Datei
         try {
-            // Finde den nächsten verfügbaren Dateinamen
-            String fileName = getNextFileName(baseFileName);
-
             // Überprüfe, ob die Datei existiert
             boolean fileExists = Files.exists(Paths.get(fileName));
 
