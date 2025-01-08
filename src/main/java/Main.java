@@ -14,6 +14,8 @@ public class Main {
         int port = 12345; // Port, auf dem der Server lauscht
         int maxWertPeakNormalisierung = 1024;   // maximaler Wert, der vom Arduino/Sensor erreicht werden kann
         int hz = 77;    // Zahl der Hz in dem die Daten übertragen werden
+        boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
+        String csvFileName = "src/Data/Merkmale.csv"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
 
 
 
@@ -34,7 +36,7 @@ public class Main {
         Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
 
         //Starten des Merkmalsspeichers
-        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher();
+        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile);
 
         // Starten der PolynomialApproximation
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
