@@ -1,4 +1,4 @@
-import Merkmalsextraktion.Merkmalsextraktion;
+import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import Merkmalsextraktion.PolynomialeApproximation;
 import Merkmalsextraktion.FastFourierTransformation;
 
@@ -35,10 +35,10 @@ public class Main {
         FastFourierTransformation fft = new FastFourierTransformation();
 
         //Starten der Zykluseintilung
-        Merkmalsextraktion merkmalsextraktion = new Merkmalsextraktion(polynomialeApproximation, fft);
+        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(polynomialeApproximation, fft);
 
         // Starten der allgemeinen Speicherklasse
-        Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktion);
+        Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager);
 
         //Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(datenspeicher, port);

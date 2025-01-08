@@ -1,4 +1,4 @@
-import Merkmalsextraktion.Merkmalsextraktion;
+import Merkmalsextraktion.Merkmalsextraktion_Manager;
 
 import java.util.ArrayList;
 
@@ -8,7 +8,7 @@ public class Datenspeicher {
     private Rms rms;
     private PeakNormalisierung peakNormalisierung;
     private Zyklenerkennung zykluserkennung;
-    private Merkmalsextraktion merkmalsextraktion;
+    private Merkmalsextraktion_Manager merkmalsextraktionManager;
 
     //Imlementierung der Speicher/Arrays
     //private ArrayList<Double> ergebnisALl = new ArrayList<Double>();   //Array für engültiges Ergebnis/dauerhafte Erweiterung
@@ -24,14 +24,18 @@ public class Datenspeicher {
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();  //Array zum Berechnen eines Zyklus
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>();  //Arraylist mit Ergebnissen der Zyklengrenzen Wert
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Arraylist mit Ergebnissen der Zyklengrenzen Zeit
+    // Merkmals-Speicher
+    private double[] merkmaleArray = new double[5]; //Array mit Merkmale (erster Wert, Wert MaximumSteigung, Steigungsformel,
+                                                    //                      letzter Wert, Wert MaximumSenkung, Senkungsformel,
+                                                    //                      Mittelformel
 
     //Konstruktor
-    public Datenspeicher(UpdatePlotter updatePlotter, Rms rms, PeakNormalisierung peakNormalisierung, Zyklenerkennung zyklenerkennung, Merkmalsextraktion merkmalsextraktion) {
+    public Datenspeicher(UpdatePlotter updatePlotter, Rms rms, PeakNormalisierung peakNormalisierung, Zyklenerkennung zyklenerkennung, Merkmalsextraktion_Manager merkmalsextraktionManager) {
         this.updatePlotter = updatePlotter;
         this.rms = rms;
         this.peakNormalisierung = peakNormalisierung;
         this.zykluserkennung = zyklenerkennung;
-        this.merkmalsextraktion = merkmalsextraktion;
+        this.merkmalsextraktionManager = merkmalsextraktionManager;
     }
 
 
@@ -56,8 +60,8 @@ public class Datenspeicher {
             }
         }
 
-        merkmalsextraktion.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
-        merkmalsextraktion.run();
+        merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
+        merkmalsextraktionManager.run();
 
         startIndex++;
     }

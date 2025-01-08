@@ -2,7 +2,7 @@ package Merkmalsextraktion;
 
 import java.util.ArrayList;
 
-public class Merkmalsextraktion implements Runnable {
+public class Merkmalsextraktion_Manager implements Runnable {
 
     private int zyklusArrayWertErgebnisSeizeOld;
     private PolynomialeApproximation polynomialeApproximation;
@@ -12,7 +12,7 @@ public class Merkmalsextraktion implements Runnable {
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
 
-    public Merkmalsextraktion(PolynomialeApproximation polynomialeApproximation, FastFourierTransformation fft) {
+    public Merkmalsextraktion_Manager(PolynomialeApproximation polynomialeApproximation, FastFourierTransformation fft) {
         this.polynomialeApproximation = polynomialeApproximation;
         this.fastfouriertransformation = fft;
     }
