@@ -25,8 +25,8 @@ public class Datenspeicher {
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>();  //Arraylist mit Ergebnissen der Zyklengrenzen Wert
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Arraylist mit Ergebnissen der Zyklengrenzen Zeit
     // Merkmals-Speicher
-    private double[] merkmaleArray = new double[5]; //Array mit Merkmale (erster Wert, Wert MaximumSteigung, Steigungsformel,
-                                                    //                      letzter Wert, Wert MaximumSenkung, Senkungsformel,
+    private double[] merkmaleArray = new double[5]; //Array mit Merkmale (erster Wert, Wert MaximumSteigung, Steigungsformel a, Steigungsformel b, Steigungsformel c,
+                                                    //                      letzter Wert, Wert MaximumSenkung, Senkungsformel a, Senkungsformel b, Senkungsformel c,
                                                     //                      Mittelformel
 
     //Konstruktor
@@ -178,4 +178,11 @@ public class Datenspeicher {
     public void setInputData(Double inputDataValue) {
         this.inputData.add(inputDataValue);
     }
+
+    // Start der Merkmalsspeicherung
+    public void setMerkmale(Double merkmalsWert, Integer merkmalsIndexArray) {
+        merkmaleArray[merkmalsIndexArray] = merkmalsWert;
+    }
+    // Ende der Merkmalsspeicherung
+
 }
