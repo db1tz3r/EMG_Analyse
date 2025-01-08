@@ -33,7 +33,7 @@ public class Main {
         Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher();
 
         // Starten der PolynomialApproximation
-        PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation();
+        PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
 
         // starten der FFT
         FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
