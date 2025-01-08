@@ -49,9 +49,7 @@ public class Merkmal_Speicher {
     }
 
     // Set-Methode für die FFT-Werte und ggf befüllung der csv-Datei
-    public void setFFTValues(Double realTeil, Double imgTeil){
-        fftRealTeil = realTeil;
-        fftImgTeil = imgTeil;
+    public void setFFTValues(double[] fftValues){
         // Befüllung der csv-Datei
         if (createCsvFile) {
             createCSVFile(new String[]{String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
@@ -59,7 +57,7 @@ public class Merkmal_Speicher {
                     String.valueOf(senkungA), String.valueOf(senkungB), String.valueOf(senkungC),
                     String.valueOf(mittelA), String.valueOf(mittelB), String.valueOf(mittelC),
                     String.valueOf(gesamtA), String.valueOf(gesamtB), String.valueOf(gesamtC),
-                    String.valueOf(fftRealTeil), String.valueOf(fftImgTeil)});
+                    String.join(",", Arrays.stream(fftValues).mapToObj(String::valueOf).toArray(String[]::new))});
         }
     }
 

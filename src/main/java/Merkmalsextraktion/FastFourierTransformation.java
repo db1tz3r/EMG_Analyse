@@ -81,12 +81,20 @@ public class FastFourierTransformation extends Thread {
         Complex[] fftResult = fft(input);
 
         // Ausgabe von Real- und Imaginärteil
+        double[] fftErgebnis = new double[fftResult.length * 2];
+        int counter = 0;
         for (int i = 0; i < fftResult.length; i++) {
             double real = fftResult[i].real;
             double imag = fftResult[i].imag;
-            merkmalSpeicher.setFFTValues( real, imag);
+            // Speichern der Werte in ein Arrray zur Weiterverarbeitung
+            for (int j = 0; j < 2; j++) {
+                fftErgebnis[counter] = real;
+                fftErgebnis[counter + 1] = imag;
+            }
             System.out.printf("Index %d: Realteil: %.5f, Imaginärteil: %.5f%n", i, real, imag);
+            counter = counter + 2;
         }
+        merkmalSpeicher.setFFTValues(fftErgebnis);
     }
 
     public void setInput(ArrayList<Double> inputArrayList) {

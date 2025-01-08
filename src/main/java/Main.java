@@ -15,7 +15,7 @@ public class Main {
         int maxWertPeakNormalisierung = 1024;   // maximaler Wert, der vom Arduino/Sensor erreicht werden kann
         int hz = 77;    // Zahl der Hz in dem die Daten übertragen werden
         boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
-        String csvFileName = "src/Data/Merkmale.csv"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
+        String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
 
 
 
