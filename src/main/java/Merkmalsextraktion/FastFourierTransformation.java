@@ -5,21 +5,15 @@ import java.util.ArrayList;
 public class FastFourierTransformation extends Thread {
     // Variablen
     private double[] inputArray;
-    private double sampleRate;
 
     // Konstruktor
-    public FastFourierTransformation(double sampleRate) {
-        this.sampleRate = sampleRate;
-    }
+    public FastFourierTransformation() {}
 
     // Thread zur parallelen Berechnung der FFT
     @Override
     public void run() {
-        calculateFFT(this.inputArray, this.sampleRate);
+        calculateFFT(this.inputArray);
     }
-
-
-
 
     // Klasse zur Darstellung komplexer Zahlen
     public static class Complex {
@@ -39,16 +33,12 @@ public class FastFourierTransformation extends Thread {
             return new Complex(this.real * b.real - this.imag * b.imag,
                     this.real * b.imag + this.imag * b.real);
         }
-
-        public double abs() {
-            return Math.hypot(real, imag);
-        }
     }
 
     // FFT-Methode (rekursiv) für ein Array komplexer Zahlen
     public static Complex[] fft(Complex[] x) {
         int n = x.length;
-        if (n == 1) return new Complex[] { x[0] };
+        if (n == 1) return new Complex[]{x[0]};
 
         Complex[] even = new Complex[n / 2];
         Complex[] odd = new Complex[n / 2];
@@ -82,21 +72,19 @@ public class FastFourierTransformation extends Thread {
         return fft(x);  // FFT auf gepolstertes Array anwenden
     }
 
-    // Methode zur Berechnung der Frequenzen in Hz und deren Amplituden
-    public static void calculateFFT(double[] input, double sampleRate) {
+    // Methode zur Berechnung der FFT und Ausgabe von Real- und Imaginärteil
+    public static void calculateFFT(double[] input) {
         Complex[] fftResult = fft(input);
-        int n = fftResult.length;
 
-        // Ausgabe der Frequenzen und deren Amplituden
-        for (int i = 0; i < n / 2; i++) {
-            double frequency = i * sampleRate / n;
-            double magnitude = fftResult[i].abs();
-            System.out.printf("Frequenz: %.2f Hz, Amplitude: %.5f%n", frequency, magnitude);
+        // Ausgabe von Real- und Imaginärteil
+        for (int i = 0; i < fftResult.length; i++) {
+            double real = fftResult[i].real;
+            double imag = fftResult[i].imag;
+            System.out.printf("Index %d: Realteil: %.5f, Imaginärteil: %.5f%n", i, real, imag);
         }
     }
 
-    public void setInput(ArrayList inputArrayList) {
+    public void setInput(ArrayList<Double> inputArrayList) {
         this.inputArray = inputArrayList.stream().mapToDouble(i -> (double) i).toArray();
     }
-
 }

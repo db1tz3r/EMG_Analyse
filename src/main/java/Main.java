@@ -32,7 +32,7 @@ public class Main {
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation();
 
         // starten der FFT
-        FastFourierTransformation fft = new FastFourierTransformation(hz);
+        FastFourierTransformation fft = new FastFourierTransformation();
 
         //Starten der Zykluseintilung
         Merkmalsextraktion merkmalsextraktion = new Merkmalsextraktion(polynomialeApproximation, fft);
