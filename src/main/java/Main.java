@@ -2,6 +2,10 @@ import Merkmalsextraktion.Merkmal_Speicher;
 import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import Merkmalsextraktion.PolynomialeApproximation;
 import Merkmalsextraktion.FastFourierTransformation;
+import Normalisierung.PeakNormalisierung;
+import Normalisierung.Rms;
+import UI.RealTimePlotter;
+import UI.UpdatePlotter;
 
 import javax.swing.*;
 

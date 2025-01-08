@@ -1,3 +1,5 @@
+package UI;
+
 import java.util.ArrayList;
 
 public class UpdatePlotter implements Runnable {

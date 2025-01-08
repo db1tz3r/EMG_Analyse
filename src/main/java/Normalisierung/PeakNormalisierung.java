@@ -1,3 +1,5 @@
+package Normalisierung;
+
 public class PeakNormalisierung {
 
     private double max;

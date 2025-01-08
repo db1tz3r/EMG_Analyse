@@ -1,3 +1,5 @@
+package Normalisierung;
+
 public class Rms {
 
     public double rmsCalculation(double[] rmsArrayValuesInput){
