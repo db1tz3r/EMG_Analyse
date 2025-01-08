@@ -176,10 +176,4 @@ public class Datenspeicher {
         this.inputData.add(inputDataValue);
     }
 
-    // Start der Merkmalsspeicherung
-    public void setMerkmale(Double merkmalsWert, Integer merkmalsIndexArray) {
-        merkmaleArray[merkmalsIndexArray] = merkmalsWert;
-    }
-    // Ende der Merkmalsspeicherung
-
 }
