@@ -74,6 +74,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
             polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
         }
         polynomialeApproximation.setEndValue(value2);
+        polynomialeApproximation.setFormelTyp(0);
         polynomialeApproximation.run();
     }
     private void startePolynomialeApproximationMitte(double value1, double value2) {
@@ -89,6 +90,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
         if (schleifeAusgelöst == 0){
             System.out.println("Mittelformel nicht berechenbar, da nur 2 oder weniger Werte");
         }else {
+            polynomialeApproximation.setFormelTyp(1);
             polynomialeApproximation.run();
         }
     }
@@ -100,6 +102,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
             polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
         }
         polynomialeApproximation.setEndValue(value2);
+        polynomialeApproximation.setFormelTyp(2);
         polynomialeApproximation.run();
     }
 
@@ -111,6 +114,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
             polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
         }
         polynomialeApproximation.setEndValue(value4);
+        polynomialeApproximation.setFormelTyp(3);
         polynomialeApproximation.run();
     }
 
@@ -134,7 +138,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
 
 
     // Befüllen der Arrays der Klasse
-    public void setArraysZyklenerkennung(ArrayList<Double> zyklusArrayWertErgebnis, ArrayList<Integer> zyklusArrayZeitErgebnis, ArrayList<Double> zyklusArrayInput) {
+    public void setArraysZyklenerkennung (ArrayList<Double> zyklusArrayWertErgebnis, ArrayList<Integer> zyklusArrayZeitErgebnis, ArrayList<Double> zyklusArrayInput) {
         this.zyklusArrayWertErgebnis = zyklusArrayWertErgebnis;
         this.zyklusArrayZeitErgebnis = zyklusArrayZeitErgebnis;
         this.zyklusArrayInput = zyklusArrayInput;

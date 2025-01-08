@@ -25,6 +25,14 @@ public class PolynomialeApproximation implements Runnable {
 
     private static ArrayList<Double> yValues = new ArrayList<Double>();
     private static ArrayList<Double> coefficientsArrayList = new ArrayList<Double>();
+    private int formelTyp = 0;
+
+    private Merkmal_Speicher merkmalSpeicher;
+
+    public PolynomialeApproximation(Merkmal_Speicher merkmalSpeicher) {
+        this.merkmalSpeicher = merkmalSpeicher;
+    }
+
 
     public void run() {
         //System.out.println(yValues);  //Analyse für Fehlerfindung
@@ -68,8 +76,17 @@ public class PolynomialeApproximation implements Runnable {
         for (int i = 0; i <= degree; i++) {
             coefficientsArrayList.add(B.get(i, 0));
         }
+
+        double[] coefficients = new double[coefficientsArrayList.size()];
+        for (int i = 0; i < coefficientsArrayList.size(); i++) {
+            coefficients[i] = coefficientsArrayList.get(i);
+        }
+        merkmalSpeicher.setPolynomialeApproximation(coefficients[0], coefficients[1], coefficients[2], formelTyp);
+
+
         System.out.print("Polynom: f(x) = ");
         for (int i = 0; i < coefficientsArrayList.size(); i++) {
+
             System.out.printf("%.4f", coefficientsArrayList.get(i));
             if (i > 0) {
                 System.out.print(" * x^" + i);
@@ -94,4 +111,6 @@ public class PolynomialeApproximation implements Runnable {
     public void setEndValue(double value2){
         yValues.add(value2);
     }
+
+    public void setFormelTyp(int formelTyp){ this.formelTyp = formelTyp; }
 }

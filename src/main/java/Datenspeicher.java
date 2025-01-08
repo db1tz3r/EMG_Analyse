@@ -24,10 +24,7 @@ public class Datenspeicher {
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();  //Array zum Berechnen eines Zyklus
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>();  //Arraylist mit Ergebnissen der Zyklengrenzen Wert
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Arraylist mit Ergebnissen der Zyklengrenzen Zeit
-    // Merkmals-Speicher
-    private double[] merkmaleArray = new double[5]; //Array mit Merkmale (erster Wert, Wert MaximumSteigung, Steigungsformel a, Steigungsformel b, Steigungsformel c,
-                                                    //                      letzter Wert, Wert MaximumSenkung, Senkungsformel a, Senkungsformel b, Senkungsformel c,
-                                                    //                      Mittelformel
+
 
     //Konstruktor
     public Datenspeicher(UpdatePlotter updatePlotter, Rms rms, PeakNormalisierung peakNormalisierung, Zyklenerkennung zyklenerkennung, Merkmalsextraktion_Manager merkmalsextraktionManager) {

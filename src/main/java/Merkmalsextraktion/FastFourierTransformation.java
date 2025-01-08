@@ -3,11 +3,15 @@ package Merkmalsextraktion;
 import java.util.ArrayList;
 
 public class FastFourierTransformation extends Thread {
+
     // Variablen
     private double[] inputArray;
+    private static Merkmal_Speicher merkmalSpeicher;
 
     // Konstruktor
-    public FastFourierTransformation() {}
+    public FastFourierTransformation(Merkmal_Speicher merkmalSpeicher) {
+        this.merkmalSpeicher = merkmalSpeicher;
+    }
 
     // Thread zur parallelen Berechnung der FFT
     @Override
@@ -80,6 +84,7 @@ public class FastFourierTransformation extends Thread {
         for (int i = 0; i < fftResult.length; i++) {
             double real = fftResult[i].real;
             double imag = fftResult[i].imag;
+            merkmalSpeicher.setFFTValues( real, imag);
             System.out.printf("Index %d: Realteil: %.5f, Imaginärteil: %.5f%n", i, real, imag);
         }
     }

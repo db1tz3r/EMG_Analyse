@@ -1,3 +1,4 @@
+import Merkmalsextraktion.Merkmal_Speicher;
 import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import Merkmalsextraktion.PolynomialeApproximation;
 import Merkmalsextraktion.FastFourierTransformation;
@@ -28,11 +29,14 @@ public class Main {
         //Starten der Zykluserkennung
         Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
 
+        //Starten des Merkmalsspeichers
+        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher();
+
         // Starten der PolynomialApproximation
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation();
 
         // starten der FFT
-        FastFourierTransformation fft = new FastFourierTransformation();
+        FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
 
         //Starten der Zykluseintilung
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(polynomialeApproximation, fft);
