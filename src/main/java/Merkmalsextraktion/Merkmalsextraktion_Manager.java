@@ -7,14 +7,16 @@ public class Merkmalsextraktion_Manager implements Runnable {
     private int zyklusArrayWertErgebnisSeizeOld;
     private PolynomialeApproximation polynomialeApproximation;
     private FastFourierTransformation fastfouriertransformation;
+    private Merkmal_Speicher merkmalSpeicher;
 
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>();
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
 
-    public Merkmalsextraktion_Manager(PolynomialeApproximation polynomialeApproximation, FastFourierTransformation fft) {
+    public Merkmalsextraktion_Manager(PolynomialeApproximation polynomialeApproximation, FastFourierTransformation fft, Merkmal_Speicher merkmalSpeicher) {
         this.polynomialeApproximation = polynomialeApproximation;
         this.fastfouriertransformation = fft;
+        this.merkmalSpeicher = merkmalSpeicher;
     }
 
 
@@ -36,6 +38,9 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 if (val1 < val2 && val3 > val4) {
                     System.out.println("Muskelausschlag nach oben");
                     //System.out.println(zyklusArrayInput); //Analyse für Fehlerbehebung
+
+                    //Setzen der Ersten Werte für die CSV und Merkmale in den Speicher
+                    merkmalSpeicher.setMinMaxValues(val1, val2, val3, val4);
 
                     // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
                     startePolynomialeApproximationAnfang(val1, val2);

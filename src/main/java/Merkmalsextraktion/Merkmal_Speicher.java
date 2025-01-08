@@ -8,15 +8,14 @@ public class Merkmal_Speicher {
 
     // Merkmals-Speicher
     private double minimumSteigungWert, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert
-            , steigungA, steigungB, steigungC, senkungA, senkungB, senkungC, mittelA, mittelB, mittelC, gesamtA, gesamtB, gesamtC
-            , fftRealTeil, fftImgTeil;
+            , steigungA, steigungB, steigungC, senkungA, senkungB, senkungC, mittelA, mittelB, mittelC, gesamtA, gesamtB, gesamtC;
 
     //Array mit Merkmale (erster Wert, Wert MaximumSteigung, letzter Wert, Wert MaximumSenkung,
     //                      Steigungsformel a, Steigungsformel b, Steigungsformel c,
     //                      Senkungsformel a, Senkungsformel b, Senkungsformel c,
     //                      Mittelformel a, Mittelformel b, Mittelformel c,
     //                      Gesamtformel a, Gesamtformel b, Gesamtformel c,
-    //                      FFT RealTeil, FFT ImgTeil,
+    //                      FFT wird direkt bei Aufruf übergeben,
     private boolean createCsvFile;
     private String fileName;
 
@@ -26,6 +25,14 @@ public class Merkmal_Speicher {
         fileName = getNextFileName(csvFileName);
     }
 
+
+    // Set-Methode für die Min- und Max-Werte
+    public void setMinMaxValues(double minimumSteigungWert, double maximumSteigungWert, double minimumSenkungWert, double maximumSenkungWert){
+        this.minimumSteigungWert = minimumSteigungWert;
+        this.maximumSteigungWert = maximumSteigungWert;
+        this.maximumSenkungWert = minimumSenkungWert;
+        this.minimumSenkungWert = maximumSenkungWert;
+    }
 
     // Set-Methode für die Polynomiale Approximation
     public void setPolynomialeApproximation (Double aValue, Double bValue, Double cValue, Integer formelTyp){
@@ -77,7 +84,7 @@ public class Merkmal_Speicher {
                             "senkungA,senkungB,senkungC," +
                             "mittelA,mittelB,mittelC," +
                             "gesamtA,gesamtB,gesamtC," +
-                            "fftRealTeil,fftImgTeil"); // Header der CSV
+                            "fftRealTeil,fftImgTeil,Weitere FFT (real;imag)"); // Header der CSV
                     writer.newLine();
                 }
 

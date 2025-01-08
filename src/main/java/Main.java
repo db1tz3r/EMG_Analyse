@@ -45,7 +45,7 @@ public class Main {
         FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
 
         //Starten der Zykluseintilung
-        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(polynomialeApproximation, fft);
+        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(polynomialeApproximation, fft, merkmalSpeicher);
 
         // Starten der allgemeinen Speicherklasse
         Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager);
