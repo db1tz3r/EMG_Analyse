@@ -56,7 +56,7 @@ public class LiveDataPrediction {
             // Vorhersagen für live eingehende Daten
             while (true) {
                 double[] liveInstance = (double[]) liveDataQueue.take(); // Hole die nächste Instanz aus der Queue
-                System.out.println(Arrays.toString(liveInstance));
+                //System.out.println(Arrays.toString(liveInstance));
 
                 int i = 0;
                 while (liveInstance.length != fields.size()) {
