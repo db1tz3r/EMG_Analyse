@@ -59,7 +59,7 @@ public class Merkmal_Speicher {
     public void setFFTValues(double[] fftValues){
         // Befüllung der csv-Datei
         if (createCsvFile) {
-            createCSVFile(new String[]{String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
+            createCSVFile(new String[]{"", String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
                     String.valueOf(steigungA), String.valueOf(steigungB), String.valueOf(steigungC),
                     String.valueOf(senkungA), String.valueOf(senkungB), String.valueOf(senkungC),
                     String.valueOf(mittelA), String.valueOf(mittelB), String.valueOf(mittelC),
@@ -79,7 +79,7 @@ public class Merkmal_Speicher {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
                 // Falls die Datei neu ist, füge die Header hinzu
                 if (!fileExists) {
-                    writer.write("minimumSteigungWert,maximumSteigungWert,minimumSenkungWert,maximumSenkungWert," +
+                    writer.write("Klasse,minimumSteigungWert,maximumSteigungWert,minimumSenkungWert,maximumSenkungWert," +
                             "steigungA,steigungB,steigungC," +
                             "senkungA,senkungB,senkungC," +
                             "mittelA,mittelB,mittelC," +

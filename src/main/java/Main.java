@@ -4,6 +4,7 @@ import Merkmalsextraktion.PolynomialeApproximation;
 import Merkmalsextraktion.FastFourierTransformation;
 import Normalisierung.PeakNormalisierung;
 import Normalisierung.Rms;
+import RandomForest.ModellManager;
 import UI.RealTimePlotter;
 import UI.UpdatePlotter;
 
@@ -14,10 +15,18 @@ public class Main {
         int port = 12345; // Port, auf dem der Server lauscht
         int maxWertPeakNormalisierung = 1024;   // maximaler Wert, der vom Arduino/Sensor erreicht werden kann
         int hz = 77;    // Zahl der Hz in dem die Daten übertragen werden
-        boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
+        boolean createCsvFile = false; // Soll eine CSV-Datei erstellt werden
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
+        boolean useRamdomForest = true;
 
 
+        // Starten des Random Forest Modells
+        if (!createCsvFile && useRamdomForest){
+            ModellManager modellManager = new ModellManager();
+        }else {
+            System.out.println("Bitte entweder CSV-Generieren oder Modell verwenden");
+            System.exit(0);
+        }
 
         // Starten des Plotters
         RealTimePlotter plotter = new RealTimePlotter(hz);
@@ -50,7 +59,7 @@ public class Main {
         // Starten der allgemeinen Speicherklasse
         Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager);
 
-        //Starten der Übertragung des Clients/Sensors
+        // Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(datenspeicher, port);
         receiveData.receiveDatafromClient();
 

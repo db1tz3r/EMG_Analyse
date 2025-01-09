@@ -1,12 +1,19 @@
 package RandomForest;
 
+import org.apache.commons.csv.CSVFormat;
 import smile.classification.RandomForest;
 import smile.data.Tuple;
 import smile.data.type.DataTypes;
 import smile.data.type.StructField;
 import smile.data.type.StructType;
+import org.apache.commons.csv.CSVParser;
 
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.io.FileReader;
 
 public class LiveDataPrediction {
 
@@ -16,16 +23,31 @@ public class LiveDataPrediction {
      * @param rf            Das trainierte RandomForest-Modell
      * @param liveDataQueue Die Queue mit eingehenden Live-Daten
      */
-    public static void predictLiveData(RandomForest rf, ArrayBlockingQueue<Object> liveDataQueue) {
+    public static void predictLiveData(RandomForest rf, ArrayBlockingQueue<Object> liveDataQueue, String csvPath) {
         try {
-            // Struktur definieren: gleiche Merkmale wie beim Training
-            StructType schema = new StructType(
-                    new StructField("feature1", DataTypes.DoubleType),
-                    new StructField("feature2", DataTypes.DoubleType),
-                    new StructField("feature3", DataTypes.DoubleType),
-                    new StructField("feature4", DataTypes.DoubleType),
-                    new StructField("class", DataTypes.StringType)
-            );
+            // Start: Struktur automatisch aus dem Header auslesen
+            // Lese den Header der CSV-Datei
+            CSVParser parser = CSVParser.parse(new FileReader(csvPath), CSVFormat.DEFAULT.withHeader());
+            List<String> headers = new ArrayList<>(parser.getHeaderMap().keySet());
+
+            // Liste der StructFields basierend auf den Headern
+            List<StructField> fields = new ArrayList<>();
+            for (String header : headers) {
+                StructField field;
+
+                // Beispiel: Datentypen basierend auf Headernamen bestimmen (anpassbar)
+                if (header.toLowerCase().contains("class")) {
+                    field = new StructField(header, DataTypes.StringType); // Klassenname als String
+                } else {
+                    field = new StructField(header, DataTypes.DoubleType); // Features als Double
+                }
+
+                fields.add(field);
+            }
+
+            // Erstelle das StructType-Schema
+            StructType schema = new StructType(fields.toArray(new StructField[0]));
+            // Ende: Struktur aus dem Header auslesen
 
             // Vorhersagen für live eingehende Daten
             while (true) {
@@ -42,6 +64,8 @@ public class LiveDataPrediction {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -70,9 +94,9 @@ public class LiveDataPrediction {
 
     //Random Werte zwischen 0 und 7 generieren
     public static double[] generateRandomValues() {
-        double[] randomValues = new double[4];
-        for (int i = 0; i < 4; i++) {
-            randomValues[i] = Math.random() * 10;
+        double[] randomValues = new double[17];
+        for (int i = 0; i < 17; i++) {
+            randomValues[i] = Math.random() * 1024;
         }
         return randomValues;
     }

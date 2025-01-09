@@ -9,7 +9,7 @@ public class ModellManager {
     // Example usage
     public static void main(String[] args) {
         try {
-            String csvPath = "src/Data/rfiris.csv";
+            String csvPath = "src/Data/Merkmale.csv";
 
             //Initalisieren und Starten des Model-Trainings
             DataTraining dataTraining = new DataTraining();
@@ -29,7 +29,7 @@ public class ModellManager {
                 LiveDataPrediction.simulateLiveData(liveDataQueue);
 
                 // Vorhersagen basierend auf Live-Daten
-                LiveDataPrediction.predictLiveData(trainedModel, liveDataQueue);
+                LiveDataPrediction.predictLiveData(trainedModel, liveDataQueue, csvPath);
 
             } else {
                 System.out.println("Failed to train the model.");
