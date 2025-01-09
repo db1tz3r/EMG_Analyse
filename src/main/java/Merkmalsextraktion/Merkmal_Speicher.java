@@ -1,13 +1,19 @@
 package Merkmalsextraktion;
 
+import RandomForest.LiveDataPrediction;
+import smile.regression.RandomForest;
+
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.DoubleStream;
 
 public class Merkmal_Speicher {
 
     // Merkmals-Speicher
-    private double minimumSteigungWert, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert
+    protected double minimumSteigungWert, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert
             , steigungA, steigungB, steigungC, senkungA, senkungB, senkungC, mittelA, mittelB, mittelC, gesamtA, gesamtB, gesamtC;
 
     //Array mit Merkmale (erster Wert, Wert MaximumSteigung, letzter Wert, Wert MaximumSenkung,
@@ -17,12 +23,15 @@ public class Merkmal_Speicher {
     //                      Gesamtformel a, Gesamtformel b, Gesamtformel c,
     //                      FFT wird direkt bei Aufruf übergeben,
     private boolean createCsvFile;
+    // Weitere Variablen
     private String fileName;
+    private final ArrayBlockingQueue<Object> liveDataQueue;
 
     //Konstruktor
-    public Merkmal_Speicher(String csvFileName, boolean createCsvFile) {
+    public Merkmal_Speicher(String csvFileName, boolean createCsvFile, ArrayBlockingQueue<Object> liveDataQueue) {
         this.createCsvFile = createCsvFile;
-        fileName = getNextFileName(csvFileName);
+        this.fileName = getNextFileName(csvFileName);
+        this.liveDataQueue = liveDataQueue;
     }
 
 
@@ -56,8 +65,8 @@ public class Merkmal_Speicher {
     }
 
     // Set-Methode für die FFT-Werte und ggf befüllung der csv-Datei
-    public void setFFTValues(double[] fftValues){
-        // Befüllung der csv-Datei
+    public void setFFTValues(double[] fftValues) throws InterruptedException {
+        // Befüllung der csv-Datei oder senden der Live Daten
         if (createCsvFile) {
             createCSVFile(new String[]{"", String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
                     String.valueOf(steigungA), String.valueOf(steigungB), String.valueOf(steigungC),
@@ -65,7 +74,20 @@ public class Merkmal_Speicher {
                     String.valueOf(mittelA), String.valueOf(mittelB), String.valueOf(mittelC),
                     String.valueOf(gesamtA), String.valueOf(gesamtB), String.valueOf(gesamtC),
                     String.join(",", Arrays.stream(fftValues).mapToObj(String::valueOf).toArray(String[]::new))});
+        } else {
+            double[] combinedArray = DoubleStream.concat(
+                    DoubleStream.of(new double[]{
+                            Double.NaN, minimumSteigungWert, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert,
+                            steigungA, steigungB, steigungC, senkungA, senkungB, senkungC, mittelA, mittelB, mittelC,
+                            gesamtA, gesamtB, gesamtC
+                    }),
+                    DoubleStream.of(fftValues)
+            ).toArray();
+
+// In die Queue einfügen
+            liveDataQueue.put(combinedArray);
         }
+
     }
 
     // Erstellen und befüllen der csv-Datei
@@ -84,7 +106,7 @@ public class Merkmal_Speicher {
                             "senkungA,senkungB,senkungC," +
                             "mittelA,mittelB,mittelC," +
                             "gesamtA,gesamtB,gesamtC," +
-                            "fftRealTeil,fftImgTeil,Weitere FFT (real;imag)"); // Header der CSV
+                            "fftRealTeil,fftImgTeil"); // Header der CSV
                     writer.newLine();
                 }
 

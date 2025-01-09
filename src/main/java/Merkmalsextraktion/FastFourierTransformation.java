@@ -16,7 +16,11 @@ public class FastFourierTransformation extends Thread {
     // Thread zur parallelen Berechnung der FFT
     @Override
     public void run() {
-        calculateFFT(this.inputArray);
+        try {
+            calculateFFT(this.inputArray);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Klasse zur Darstellung komplexer Zahlen
@@ -77,7 +81,7 @@ public class FastFourierTransformation extends Thread {
     }
 
     // Methode zur Berechnung der FFT und Ausgabe von Real- und Imaginärteil
-    public static void calculateFFT(double[] input) {
+    public static void calculateFFT(double[] input) throws InterruptedException {
         Complex[] fftResult = fft(input);
 
         // Ausgabe von Real- und Imaginärteil

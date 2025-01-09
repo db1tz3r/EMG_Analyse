@@ -9,6 +9,7 @@ import UI.RealTimePlotter;
 import UI.UpdatePlotter;
 
 import javax.swing.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class Main {
     public static void main(String[] args) {
@@ -21,8 +22,11 @@ public class Main {
 
 
         // Starten des Random Forest Modells
+        // Starten der LiveQue
+        ArrayBlockingQueue<Object> liveDataQueue = new ArrayBlockingQueue<>(10);
+        // Starten des eigentlichen Programms
         if (!createCsvFile && useRamdomForest){
-            ModellManager modellManager = new ModellManager(csvFileName);
+            ModellManager modellManager = new ModellManager(csvFileName, liveDataQueue);
             Thread modellThread = new Thread(modellManager);
             modellThread.start();
         }else {
@@ -47,7 +51,7 @@ public class Main {
         Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
 
         //Starten des Merkmalsspeichers
-        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile);
+        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile, liveDataQueue);
 
         // Starten der PolynomialApproximation
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);

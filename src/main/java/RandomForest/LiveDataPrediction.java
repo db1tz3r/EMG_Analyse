@@ -10,7 +10,9 @@ import org.apache.commons.csv.CSVParser;
 
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.io.FileReader;
@@ -23,6 +25,8 @@ public class LiveDataPrediction {
      * @param rf            Das trainierte RandomForest-Modell
      * @param liveDataQueue Die Queue mit eingehenden Live-Daten
      */
+
+
     public static void predictLiveData(RandomForest rf, ArrayBlockingQueue<Object> liveDataQueue, String csvPath) {
         try {
             // Start: Struktur automatisch aus dem Header auslesen
@@ -52,6 +56,7 @@ public class LiveDataPrediction {
             // Vorhersagen für live eingehende Daten
             while (true) {
                 double[] liveInstance = (double[]) liveDataQueue.take(); // Hole die nächste Instanz aus der Queue
+                System.out.println(Arrays.toString(liveInstance));
 
                 // Konvertiere das double[] in ein Tuple
                 Tuple tupleInstance = Tuple.of(liveInstance, schema);

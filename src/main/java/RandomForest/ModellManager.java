@@ -2,16 +2,17 @@ package RandomForest;
 
 import smile.classification.RandomForest;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 public class ModellManager implements Runnable {
 
     // Variablen festlegen
     private String csvPath;
+    private final ArrayBlockingQueue<Object> liveDataQueue;
 
     // Konstruktor
-    public ModellManager(String csvPath) {
+    public ModellManager(String csvPath, ArrayBlockingQueue<Object> liveDataQueue) {
         this.csvPath = csvPath + ".csv";
+        this.liveDataQueue = liveDataQueue;
     }
 
 
@@ -30,10 +31,6 @@ public class ModellManager implements Runnable {
 
                 // Initialisieren der LiveDataPrediction
                 LiveDataPrediction liveDataPrediction = new LiveDataPrediction();
-
-                // Live-Daten simulieren
-                ArrayBlockingQueue<Object> liveDataQueue = new ArrayBlockingQueue<>(10);
-                LiveDataPrediction.simulateLiveData(liveDataQueue);
 
                 // Vorhersagen basierend auf Live-Daten
                 LiveDataPrediction.predictLiveData(trainedModel, liveDataQueue, csvPath);
