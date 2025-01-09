@@ -22,7 +22,9 @@ public class Main {
 
         // Starten des Random Forest Modells
         if (!createCsvFile && useRamdomForest){
-            ModellManager modellManager = new ModellManager();
+            ModellManager modellManager = new ModellManager(csvFileName);
+            Thread modellThread = new Thread(modellManager);
+            modellThread.start();
         }else {
             System.out.println("Bitte entweder CSV-Generieren oder Modell verwenden");
             System.exit(0);
