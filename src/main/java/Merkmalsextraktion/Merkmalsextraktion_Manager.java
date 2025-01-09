@@ -72,7 +72,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
     }
 
     private void startePolynomialeApproximationAnfang(double value1, double value2) {
-        System.out.println("Steigungsformel");
+        //System.out.println("Steigungsformel");
         // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
         polynomialeApproximation.setBeginningValue(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3)) - 1; i++) {
@@ -84,7 +84,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
     }
     private void startePolynomialeApproximationMitte(double value1, double value2) {
         int schleifeAusgelöst = 0;
-        System.out.println("Mittelformel");
+        //System.out.println("Mittelformel");
         // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
         polynomialeApproximation.setBeginningValue(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2)) - 1; i++) {
@@ -100,7 +100,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
         }
     }
     private void startePolynomialeApproximationEnde(double value1, double value2) {
-        System.out.println("Senkungsformel");
+        //System.out.println("Senkungsformel");
         // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
         polynomialeApproximation.setBeginningValue(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
@@ -112,7 +112,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
     }
 
     private void startePolynomialeApproximationGesamterZyklus(double value1, double value4) {
-        System.out.println("Formel gesamter Zyklus");
+        //System.out.println("Formel gesamter Zyklus");
         // Starte die Polynomiale Approximation des gesamten Zyklus mit den Werten aus der Peak Normalisierung
         polynomialeApproximation.setBeginningValue(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
@@ -129,7 +129,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
         //Arraylist für das Senden der fft Werte
         ArrayList<Double> fftInputArrayList = new ArrayList<>();
 
-        System.out.println("FFT: ");
+        //System.out.println("FFT: ");
 
         fftInputArrayList.add(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {

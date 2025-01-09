@@ -76,7 +76,7 @@ public class Merkmal_Speicher {
                     String.join(",", Arrays.stream(fftValues).mapToObj(String::valueOf).toArray(String[]::new))});
         } else {
             double[] combinedArray = DoubleStream.concat(
-                    DoubleStream.of(minimumSteigungWert, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert,
+                    DoubleStream.of(Double.NaN, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert,
                             steigungA, steigungB, steigungC, senkungA, senkungB, senkungC, mittelA, mittelB, mittelC,
                             gesamtA, gesamtB, gesamtC),
                     DoubleStream.of(fftValues)

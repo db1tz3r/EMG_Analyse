@@ -95,7 +95,7 @@ public class FastFourierTransformation extends Thread {
                 fftErgebnis[counter] = real;
                 fftErgebnis[counter + 1] = imag;
             }
-            System.out.printf("Index %d: Realteil: %.5f, Imaginärteil: %.5f%n", i, real, imag);
+            //System.out.printf("Index %d: Realteil: %.5f, Imaginärteil: %.5f%n", i, real, imag);
             counter = counter + 2;
         }
         merkmalSpeicher.setFFTValues(fftErgebnis);

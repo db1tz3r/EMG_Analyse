@@ -84,18 +84,18 @@ public class PolynomialeApproximation implements Runnable {
         merkmalSpeicher.setPolynomialeApproximation(coefficients[0], coefficients[1], coefficients[2], formelTyp);
 
 
-        System.out.print("Polynom: f(x) = ");
-        for (int i = 0; i < coefficientsArrayList.size(); i++) {
-
-            System.out.printf("%.4f", coefficientsArrayList.get(i));
-            if (i > 0) {
-                System.out.print(" * x^" + i);
-            }
-            if (i < coefficientsArrayList.size() - 1) {
-                System.out.print(" + ");
-            }
-        }
-        System.out.println();
+//        System.out.print("Polynom: f(x) = ");
+//        for (int i = 0; i < coefficientsArrayList.size(); i++) {
+//
+//            System.out.printf("%.4f", coefficientsArrayList.get(i));
+//            if (i > 0) {
+//                System.out.print(" * x^" + i);
+//            }
+//            if (i < coefficientsArrayList.size() - 1) {
+//                System.out.print(" + ");
+//            }
+//        }
+//        System.out.println();
     }
 
 

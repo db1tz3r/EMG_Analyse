@@ -79,14 +79,14 @@ public class Datenspeicher {
         double[] ergebnis = zykluserkennung.starteZyklenerkennung(zyklusArrayInput);
         if (ergebnis[0] != 0) {
             if (ergebnis[2] == 2) {
-                System.out.println("Zyklenwert: " + ergebnis[0]);
+                //System.out.println("Zyklenwert: " + ergebnis[0]);
                 zyklusArrayWertErgebnis.add(ergebnis[0]);
-                System.out.println("Zyklenzeitpunkt:" + ergebnis[1]);
+                //System.out.println("Zyklenzeitpunkt:" + ergebnis[1]);
                 zyklusArrayZeitErgebnis.add((int) (ergebnis[1]));
             }
-            System.out.println("Zyklenwert: " + ergebnis[0]);
+            //System.out.println("Zyklenwert: " + ergebnis[0]);
             zyklusArrayWertErgebnis.add(ergebnis[0]);
-            System.out.println("Zyklenzeitpunkt:" + ergebnis[1]);
+            //System.out.println("Zyklenzeitpunkt:" + ergebnis[1]);
             zyklusArrayZeitErgebnis.add((int) (ergebnis[1]));
         }
     }

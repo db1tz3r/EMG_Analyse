@@ -39,8 +39,8 @@ public class LiveDataPrediction {
             for (String header : headers) {
                 StructField field;
 
-                // Beispiel: Datentypen basierend auf Headernamen bestimmen (anpassbar)
-                if (header.toLowerCase().contains("class")) {
+                // Header-Typ bestimmen: "Klasse" als String, Rest als Double
+                if ("Klasse".equals(header)) {
                     field = new StructField(header, DataTypes.StringType); // Klassenname als String
                 } else {
                     field = new StructField(header, DataTypes.DoubleType); // Features als Double
@@ -58,6 +58,24 @@ public class LiveDataPrediction {
                 double[] liveInstance = (double[]) liveDataQueue.take(); // Hole die nächste Instanz aus der Queue
                 System.out.println(Arrays.toString(liveInstance));
 
+                int i = 0;
+                while (liveInstance.length != fields.size()) {
+                    if (liveInstance.length < fields.size()) {
+                        // Neues Array erstellen, wenn liveInstance zu klein ist
+                        double[] temp = new double[fields.size()];
+                        System.arraycopy(liveInstance, 0, temp, 0, liveInstance.length);
+                        for (int j = liveInstance.length; j < temp.length; j++) {
+                            temp[j] = 0; // Fülle die fehlenden Werte mit 0
+                        }
+                        liveInstance = temp; // Ersetze das ursprüngliche Array
+                    } else {
+                        // Neues Array erstellen, wenn liveInstance zu groß ist
+                        double[] temp = new double[fields.size()];
+                        System.arraycopy(liveInstance, 0, temp, 0, fields.size());
+                        liveInstance = temp; // Ersetze das ursprüngliche Array
+                    }
+                }
+
                 // Konvertiere das double[] in ein Tuple
                 Tuple tupleInstance = Tuple.of(liveInstance, schema);
 
@@ -72,37 +90,5 @@ public class LiveDataPrediction {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Simuliert eingehende Live-Daten.
-     *
-     * @param liveDataQueue Die Queue, in die die simulierten Daten eingefügt werden.
-     */
-    public static void simulateLiveData(ArrayBlockingQueue<Object> liveDataQueue) {
-        new Thread(() -> {
-            try {
-                for (int i = 0; i < 10; i++) {
-                    // Simuliere eingehende Daten
-                    double[] newInstance = generateRandomValues(); // Beispiel-Merkmale
-                    // Ausgabe der simulierten Live-Daten
-                    //System.out.println("Simulierte Live-Daten: " + newInstance[0] + ", " + newInstance[1] + ", " + newInstance[2] + ", " + newInstance[3]);
-                    // Füge die simulierten Daten in die Queue ein
-                    liveDataQueue.put(newInstance); // Füge Daten in die Queue ein
-                    Thread.sleep(1000); // 1 Sekunde Verzögerung
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    //Random Werte zwischen 0 und 7 generieren
-    public static double[] generateRandomValues() {
-        double[] randomValues = new double[17];
-        for (int i = 0; i < 17; i++) {
-            randomValues[i] = Math.random() * 1024;
-        }
-        return randomValues;
     }
 }

@@ -24,7 +24,7 @@ public class DataTraining {
             data = data.merge(StringVector.of("class_fixed", data.column("Klasse").toStringArray()));
 
             // Create a NominalScale for the target variable
-            NominalScale scale = new NominalScale("Ringfinger", "Ringfinger2");
+            NominalScale scale = new NominalScale("Ringfinger1", "Ringfinger2");
 
             // Convert the target variable `class_fixed` to numeric values
             data = data.merge(IntVector.of("class_numeric", data.stringVector("class_fixed").factorize(scale).toIntArray()));
