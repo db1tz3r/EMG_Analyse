@@ -29,7 +29,7 @@ public class Main {
             ModellManager modellManager = new ModellManager(csvFileName, liveDataQueue);
             Thread modellThread = new Thread(modellManager);
             modellThread.start();
-        }else {
+        }else if (createCsvFile && useRamdomForest){
             System.out.println("Bitte entweder CSV-Generieren oder Modell verwenden");
             System.exit(0);
         }
