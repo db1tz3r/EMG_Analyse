@@ -17,7 +17,28 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\Data\Kleinerfinger_alleine.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\Data\Merkmale.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\Ringfinger_Kleinerf_Wechsel.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\Ringfinger_alleine.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
