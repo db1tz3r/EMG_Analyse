@@ -46,7 +46,8 @@ public class ReceiveData {
             while ((line = reader.readLine()) != null) {
                 //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
                 // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
-                datenspeicher.setInputData(Double.valueOf(line));
+                //System.out.println(Math.abs(Double.valueOf(line)));
+                datenspeicher.setInputData(Math.abs(Double.valueOf(line))); //Vollgleichrichten der Werte
                 datenspeicher.start();
             }
         } catch (IOException e) {

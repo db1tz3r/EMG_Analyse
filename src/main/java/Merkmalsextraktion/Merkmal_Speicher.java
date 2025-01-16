@@ -68,7 +68,7 @@ public class Merkmal_Speicher {
     public void setFFTValues(double[] fftValues) throws InterruptedException {
         // Befüllung der csv-Datei oder senden der Live Daten
         if (createCsvFile) {
-            createCSVFile(new String[]{"", String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
+            createCSVFile(new String[]{"Finger1", String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
                     String.valueOf(steigungA), String.valueOf(steigungB), String.valueOf(steigungC),
                     String.valueOf(senkungA), String.valueOf(senkungB), String.valueOf(senkungC),
                     String.valueOf(mittelA), String.valueOf(mittelB), String.valueOf(mittelC),

@@ -123,8 +123,8 @@ public class Datenspeicher {
             peakNormalisierungArrayErgebnis.add(peakNormalisierungErgebnisse[i]);
 
             //Plotter Raw-Daten befüllen und Thread ausführen
-            updatePlotter.setList3((int) peakNormalisierungErgebnisse[i]);
-            updatePlotter.run();
+//            updatePlotter.setList3((int) peakNormalisierungErgebnisse[i]);
+//            updatePlotter.run();
         }
     }
 //Ende Peak-Normalisierungs Methoden
@@ -137,15 +137,15 @@ public class Datenspeicher {
 
     public void fillRMSArray(double value) {
         //Plotter Raw-Daten befüllen und Thread ausführen
-        updatePlotter.setList1((int) value);
-        updatePlotter.run();
+        //updatePlotter.setList1((int) value);
+        //updatePlotter.run();
 
         //Plotter RMS-Daten befüllen und Thread ausführen
-        if (rmsPlotterIndex == 0 || rmsPlotterIndex == 1) {
-            updatePlotter.setList2((int) value);
-            updatePlotter.run();
-            rmsPlotterIndex++;
-        }
+//        if (rmsPlotterIndex == 0 || rmsPlotterIndex == 1) {
+//            updatePlotter.setList2((int) value);
+//            updatePlotter.run();
+//            rmsPlotterIndex++;
+//        }
         // Wenn das Array voll ist (3), löschen wir die älteste Zahl und schreiben einen neuen rein
         if (rmsArrayIndexInput >= rmsArrayValuesInput.length) {
             //Die Werte eins nach vorne schieben, sodass der letzte wert leer wird
@@ -168,8 +168,8 @@ public class Datenspeicher {
         rmsArrayValuesErgebnis.add(rmsErgenis);
 
         //Plotter befüllen und Thread ausführen
-        updatePlotter.setList2((int) rmsErgenis);
-        updatePlotter.run();
+//        updatePlotter.setList2((int) rmsErgenis);
+//        updatePlotter.run();
 
     }
 // Ende der RMS-Berechnungs-Methoden

@@ -60,7 +60,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 } else if (val1 > val2 && val3 > val4) {
                     System.out.println("Konstante Muskelaktivität nach oben");
                 } else if (val1 > val2 && val3 < val4) {
-                    System.out.println("Muskelausschlag nach unten");
+                    //System.out.println("Muskelausschlag nach unten");     //Wird nicht verwendet, da ein Muskelausschlag nur nach oben geht
                 } else if (val1 < val2 && val3 < val4) {
                     System.out.println("Konstante Muskelaktivität nach unten");
                 } else {
