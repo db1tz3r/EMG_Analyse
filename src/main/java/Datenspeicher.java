@@ -4,6 +4,7 @@ import Normalisierung.Rms;
 import UI.UpdatePlotter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Datenspeicher {
     //Einbinden der unterschiedlichen Klassen/Analyseverfahren
@@ -29,8 +30,10 @@ public class Datenspeicher {
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Arraylist mit Ergebnissen der Zyklengrenzen Zeit
 
 
+
     //Konstruktor
-    public Datenspeicher(UpdatePlotter updatePlotter, Rms rms, PeakNormalisierung peakNormalisierung, Zyklenerkennung zyklenerkennung, Merkmalsextraktion_Manager merkmalsextraktionManager) {
+    public Datenspeicher(UpdatePlotter updatePlotter, Rms rms, PeakNormalisierung peakNormalisierung, Zyklenerkennung zyklenerkennung,
+                         Merkmalsextraktion_Manager merkmalsextraktionManager) {
         this.updatePlotter = updatePlotter;
         this.rms = rms;
         this.peakNormalisierung = peakNormalisierung;
@@ -53,11 +56,12 @@ public class Datenspeicher {
             startPeakNormalisierung();
 
             for (int i = 0; i < 5; i++) {
-                fillZyklusArray(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex));
+                zyklusArrayInput.add(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex));
                 //System.out.println(zyklusArrayInput);
                 startZykluserkennung();
                 startZyklenerkennungIndex++;
             }
+
         }
 
         merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
@@ -69,10 +73,6 @@ public class Datenspeicher {
 
 
     //Start der Zyklusmethoden
-    //Befüllen des Input Arrays der Zyklen
-    public void fillZyklusArray(double value) {
-        zyklusArrayInput.add(value);
-    }
 
     //Start der Zyklusberechnung
     public void startZykluserkennung() {
@@ -148,14 +148,22 @@ public class Datenspeicher {
 //        }
         // Wenn das Array voll ist (3), löschen wir die älteste Zahl und schreiben einen neuen rein
         if (rmsArrayIndexInput >= rmsArrayValuesInput.length) {
-            //Die Werte eins nach vorne schieben, sodass der letzte wert leer wird
-            rmsArrayValuesInput[0] = rmsArrayValuesInput[1];
-            rmsArrayValuesInput[1] = rmsArrayValuesInput[2];
-            rmsArrayValuesInput[2] = value;
-            // Setze den Index zurück und lösche die alten Werte
-            //rmsArrayIndexInput = 2;
+            // Überprüfe die Länge des Arrays
+            if (rmsArrayValuesInput.length == 3) {
+                // Wenn das Array genau 3 Elemente hat, schiebe die Werte nach vorne
+                rmsArrayValuesInput[0] = rmsArrayValuesInput[1];
+                rmsArrayValuesInput[1] = rmsArrayValuesInput[2];
+                rmsArrayValuesInput[2] = value;
+            } else if (rmsArrayValuesInput.length > 3) {
+                // Für Arrays mit mehr als 3 Elementen: Schiebe alle Werte um eins nach vorne
+                System.arraycopy(rmsArrayValuesInput, 1, rmsArrayValuesInput, 0, rmsArrayValuesInput.length - 1);
+                rmsArrayValuesInput[rmsArrayValuesInput.length - 1] = value;
+            } else {
+                // Falls das Array weniger als 3 Elemente hat, überschreibe einfach das älteste Element
+                rmsArrayValuesInput[rmsArrayIndexInput % rmsArrayValuesInput.length] = value;
+            }
         } else {
-            // Füge den Wert hinzu
+            // Füge den Wert hinzu, wenn der Index innerhalb der Array-Grenzen liegt
             rmsArrayValuesInput[rmsArrayIndexInput] = value;
             rmsArrayIndexInput++;
         }
@@ -163,6 +171,7 @@ public class Datenspeicher {
 
     //Starten der RMS-Berechnung und Rückgabe in dern Ergebnis Array
     public void startRMSCalculation(double[] rmsArrayValuesInput) {
+        //System.out.println(Arrays.toString(rmsArrayValuesInput));
         double rmsErgenis = rms.rmsCalculation(rmsArrayValuesInput);
         //System.out.println("RMS-Ergebnis: " + rmsErgenis);
         rmsArrayValuesErgebnis.add(rmsErgenis);

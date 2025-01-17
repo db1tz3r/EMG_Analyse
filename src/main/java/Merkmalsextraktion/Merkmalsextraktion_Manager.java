@@ -64,32 +64,6 @@ public class Merkmalsextraktion_Manager implements Runnable {
         }
 
 
-
-
-
-
-
-        /*if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
-            if (zyklusArrayWertErgebnis.size() % 2 == 0) {
-                double val1 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 2);
-                double val2 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
-
-                double amplitude = Math.abs(val2 - val1);
-                double toleranz = val1 * 0.1;
-
-                if (amplitude <= toleranz) {
-                    System.out.println("Kompletter Muskelzyklus erkannt");
-                    System.out.println("val1: " + val1 + " val2: " + val2);
-                    merkmalSpeicher.setMinMaxValues(val1, val2, val2, val1);
-                    startePolynomialeApproximationGesamterZyklus(val1, val2);
-                    starteFFT(val1, val2);
-                } else {
-                    System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
-                }
-            }
-        }*/
-
-
         /*if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
             if (zyklusArrayWertErgebnis.size() % 4 == 0) {
 
