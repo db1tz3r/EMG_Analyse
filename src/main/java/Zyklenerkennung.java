@@ -23,7 +23,9 @@ public class Zyklenerkennung {
         double schwelle = vorherigerWert * (schwelleProzent / 100.0);
 
         // Steigungsphase erkennen und speichern
-        if (aktuellerWert > vorherigerWert + schwelle) {
+        if (aktuellerWert > vorherigerWert + schwelle ||
+                (zyklusIndex + 1 < signal.size() && signal.get(zyklusIndex + 1) > vorherigerWert + schwelle) ||
+                (zyklusIndex + 2 < signal.size() && signal.get(zyklusIndex + 2) > vorherigerWert + schwelle)) {
             if (!merkerSteigung) {
                 merkerSteigung = true;
                 merkerSenkung = false;
@@ -33,7 +35,9 @@ public class Zyklenerkennung {
         }
 
         // Senkungsphase erkennen und speichern
-        if (aktuellerWert < vorherigerWert - schwelle) {
+        if (aktuellerWert < vorherigerWert - schwelle ||
+                (zyklusIndex + 1 < signal.size() && signal.get(zyklusIndex + 1) < vorherigerWert - schwelle) ||
+                (zyklusIndex + 2 < signal.size() && signal.get(zyklusIndex + 2) < vorherigerWert - schwelle)) {
             if (!merkerSenkung) {
                 merkerSenkung = true;
                 merkerSteigung = false;

@@ -25,7 +25,7 @@ public class ReceiveData {
                 // Auf eingehende Verbindungen warten
                 try {
                     Socket socket = serverSocket.accept();
-                    System.out.println("Verbindung akzeptiert: " + socket.getRemoteSocketAddress());
+                    //System.out.println("Verbindung akzeptiert: " + socket.getRemoteSocketAddress());
 
                     // Für jede Verbindung einen neuen Thread starten
                     new Thread(() -> handleClient(socket)).start();
@@ -46,7 +46,7 @@ public class ReceiveData {
             while ((line = reader.readLine()) != null) {
                 //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
                 // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
-                //System.out.println(Math.abs(Double.valueOf(line)));
+                //System.out.println(line);
                 datenspeicher.setInputData(Math.abs(Double.valueOf(line.replace(",",".")))); //Vollgleichrichten der Werte
                 datenspeicher.start();
             }

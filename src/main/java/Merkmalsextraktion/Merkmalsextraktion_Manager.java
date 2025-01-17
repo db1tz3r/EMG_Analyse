@@ -32,18 +32,19 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 double startSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 2);
                 double endeSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
 
-                // Berechne die Differenzen zwischen den Werten
-                double differenzSteigung = endeSteigung - startSteigung;
-                double differenzSenkung = startSenkung - endeSenkung;
-
-                // Berechne das Verhältnis zwischen Steigung und Senkung
-                double verhältnis = differenzSteigung / differenzSenkung;
-
-                // Überprüfe die Symmetrie anhand des Verhältnisses
-                if (verhältnis > 0.9 && verhältnis < 1.1) { // Toleranzbereich für Symmetrie
+                // Überprüfe, ob die Werte gültige Bedingungen für einen Zyklus erfüllen
+                if (endeSteigung > startSteigung && startSenkung > endeSteigung && endeSenkung < startSenkung && endeSteigung > 100) {
                     System.out.println("Kompletter Muskelzyklus erkannt");
                     System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
                             startSteigung, endeSteigung, startSenkung, endeSenkung);
+
+                    // Überprüfe zusätzliche Bedingungen
+                    if (startSteigung < endeSteigung && startSenkung > endeSenkung) {
+                        System.out.println("Zyklus erfüllt zusätzliche Bedingungen: Steigung und Senkung korrekt geordnet.");
+                    } else {
+                        System.out.println("Zyklus erfüllt nicht die zusätzlichen Bedingungen.");
+                        return;
+                    }
 
                     // Speichere die Werte im Merkmalspeicher
                     merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
@@ -57,10 +58,13 @@ public class Merkmalsextraktion_Manager implements Runnable {
                     // Starte die FFT (Fast Fourier Transformation) für den gesamten Zyklus
                     starteFFT(startSteigung, endeSenkung);
                 } else {
-                    System.out.println("Unvollständiger Zyklus oder asymmetrische Bewegung erkannt.");
+                    System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
                 }
             }
         }
+
+
+
 
 
 

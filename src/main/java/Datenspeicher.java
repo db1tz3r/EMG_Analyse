@@ -18,7 +18,7 @@ public class Datenspeicher {
 //Input-Daten
     private ArrayList<Double> inputData = new ArrayList<Double>();
     //RMS-Berechungs-Speicher
-    private final double[] rmsArrayValuesInput = new double[3]; //Array für die Weitergabe der Eingabeergebnisse(unberechnet)
+    private final double[] rmsArrayValuesInput = new double[5]; //Array für die Weitergabe der Eingabeergebnisse(unberechnet)
     private ArrayList<Double> rmsArrayValuesErgebnis = new ArrayList<Double>(); //Arraylist mit Ergebnis aus der RMS Berechnung (berechnet)
     //Peak-Normalisierung-Speicher
     private double[] peakNormaisierungArrayValuesInput = new double[5]; //Array für die Berechnung der Peak-Normalisierung
@@ -44,7 +44,7 @@ public class Datenspeicher {
 
     public void start() {
         fillRMSArray(inputData.get(startIndex));    //Füllen des RMS-Array
-        if (startIndex > 2) {
+        if (startIndex > 4) {
             startRMSCalculation(rmsArrayValuesInput);   //Ausführen der RMS-Calculation, sobald der Array das erste mal gefüllt ist
             fillPeakNormalisierungArray(rmsArrayValuesErgebnis.get(startPeakNormalisierungIndex));
             startPeakNormalisierungIndex++;
@@ -76,7 +76,7 @@ public class Datenspeicher {
 
     //Start der Zyklusberechnung
     public void startZykluserkennung() {
-        double[] ergebnis = zykluserkennung.starteZykluserkennung(zyklusArrayInput,7.0,10.0);
+        double[] ergebnis = zykluserkennung.starteZykluserkennung(zyklusArrayInput,7.0, 10.0);
         if (ergebnis[0] != 0) {
             if (ergebnis[2] == 2) {
                 //System.out.println("Zyklenwert: " + ergebnis[0]);
