@@ -18,7 +18,7 @@ public class Main {
         int hz = 77;    // Zahl der Hz in dem die Daten übertragen werden
         boolean createCsvFile = false; // Soll eine CSV-Datei erstellt werden
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
-        boolean useRamdomForest = true;
+        boolean useRamdomForest = false;
 
 
         // Starten des Random Forest Modells

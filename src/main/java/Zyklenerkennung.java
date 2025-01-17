@@ -1,79 +1,70 @@
-// Ideee: Funktionsweise der Standardabweichung vom vorherigen zum nachherigen Wert mit +-7%
-
-//Hinzufügen von doppelten Extrempunkten, sodass besser zuordbar
-
 import java.util.ArrayList;
 
 public class Zyklenerkennung {
 
     private double vorherigerWert;
     private int zyklusIndex = 0;
-    private boolean merkerHoch = false, merkerRunter = false;
+    private ArrayList<Double> steigung = new ArrayList<>();
+    private ArrayList<Double> senkung = new ArrayList<>();
+    private boolean merkerSteigung = false;
+    private boolean merkerSenkung = false;
 
-    public double[] starteZyklenerkennung(ArrayList arrayListZyklenInput) {
-        if (zyklusIndex == 0) {
-            vorherigerWert = (double) arrayListZyklenInput.get(zyklusIndex);
-            zyklusIndex++;
-        } else {
-            double ergebnisProzentVorherigerWert = vorherigerWert * 0.07;
-//            System.out.println("VorherigerWert: " + vorherigerWert);
-//            System.out.println("untere Grenze: " + (vorherigerWert - ergebnisProzentVorherigerWert));
-//            System.out.println("obere Grenze: " + (vorherigerWert + ergebnisProzentVorherigerWert));
-//            System.out.println("AktuellerWert: " + (double) arrayListZyklenInput.get(zyklusIndex));
-//            System.out.println(merkerHoch);
-
-            // Bedingung wenn es am Steigen ist -> Solange, is nicht mehr am steigen
-            if ((vorherigerWert + ergebnisProzentVorherigerWert) < (double) arrayListZyklenInput.get(zyklusIndex) && !merkerHoch) {
-                vorherigerWert = (double) arrayListZyklenInput.get(zyklusIndex);
-                zyklusIndex++;
-                merkerHoch = true;
-                merkerRunter = false;
-                //System.out.println("Schleife 1"); //Kontrolloutput
-
-                //If bedingung, um zwei Höhepunkte zu haben bei lokaler Extremstelle
-                if ((((double) arrayListZyklenInput.get(zyklusIndex -3) * 0.07) + (double) arrayListZyklenInput.get(zyklusIndex -3))
-                        < (double) arrayListZyklenInput.get(zyklusIndex -2)) {
-                    return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2 , 2};
-                }
-                return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2, 1};
-            } else if (merkerHoch && !merkerRunter &&
-                    (vorherigerWert - ergebnisProzentVorherigerWert) < (double) arrayListZyklenInput.get(zyklusIndex) &&
-                    (double) arrayListZyklenInput.get(zyklusIndex) < (vorherigerWert + ergebnisProzentVorherigerWert)) {
-                vorherigerWert = (double) arrayListZyklenInput.get(zyklusIndex);
-                zyklusIndex++;
-                merkerHoch = false;
-                //System.out.println("Schleife 3"); //Kontrolloutput
-                //ergebnisVorherWert = (double) arrayListZyklenInput.get(zyklusIndex - 1);
-                return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2, 1};
-            }
-
-
-            // Bedingung wenn es am Sinken ist -> Solange, is nicht mehr am sinken
-            else if ((vorherigerWert - ergebnisProzentVorherigerWert) > (double) arrayListZyklenInput.get(zyklusIndex) && !merkerRunter) {
-                vorherigerWert = (double) arrayListZyklenInput.get(zyklusIndex);
-                zyklusIndex++;
-                merkerRunter = true;
-                merkerHoch = false;
-                //System.out.println("Schleife 2"); //Kontrolloutput
-
-                //If bedingung, um zwei Höhepunkte zu haben bei lokaler Extremstelle
-                if ((((double) arrayListZyklenInput.get(zyklusIndex -3) * 0.07) + (double) arrayListZyklenInput.get(zyklusIndex -3)) < (double) arrayListZyklenInput.get(zyklusIndex -2)) {
-                    return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2, 2};
-                }
-                return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2, 1};
-            } else if (!merkerHoch && merkerRunter &&
-                    (vorherigerWert - ergebnisProzentVorherigerWert) < (double) arrayListZyklenInput.get(zyklusIndex) &&
-                    (double) arrayListZyklenInput.get(zyklusIndex) < (vorherigerWert + ergebnisProzentVorherigerWert)) {
-                vorherigerWert = (double) arrayListZyklenInput.get(zyklusIndex);
-                zyklusIndex++;
-                merkerRunter = false;
-                //System.out.println("Schleife 4"); //Kontrolloutput
-                //ergebnisVorherWert = (double) arrayListZyklenInput.get(zyklusIndex - 2);
-                return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2, 1};
-            }
-            vorherigerWert = (double) arrayListZyklenInput.get(zyklusIndex);
-            zyklusIndex++;
+    public double[] starteZykluserkennung(ArrayList<Double> signal, double schwelleProzent, double toleranzProzent) {
+        if (signal == null || signal.isEmpty()) {
+            throw new IllegalArgumentException("Das Signal darf nicht null oder leer sein.");
         }
-        return new double[]{0, 0, 1};
+
+        if (zyklusIndex == 0) {
+            vorherigerWert = signal.get(zyklusIndex++);
+            return new double[]{0, 0, 0, 0}; // Kein Zyklus erkannt
+        }
+
+        double aktuellerWert = signal.get(zyklusIndex);
+        double schwelle = vorherigerWert * (schwelleProzent / 100.0);
+
+        // Steigungsphase erkennen und speichern
+        if (aktuellerWert > vorherigerWert + schwelle) {
+            if (!merkerSteigung) {
+                merkerSteigung = true;
+                merkerSenkung = false;
+                steigung.clear();
+            }
+            steigung.add(aktuellerWert);
+        }
+
+        // Senkungsphase erkennen und speichern
+        if (aktuellerWert < vorherigerWert - schwelle) {
+            if (!merkerSenkung) {
+                merkerSenkung = true;
+                merkerSteigung = false;
+                senkung.clear();
+            }
+            senkung.add(aktuellerWert);
+        }
+
+        // Zyklusprüfung: Sind Steigung und Senkung vollständig?
+        if (!steigung.isEmpty() && !senkung.isEmpty()) {
+            double amplitudeSteigung = steigung.get(steigung.size() - 1) - steigung.get(0);
+            double amplitudeSenkung = senkung.get(0) - senkung.get(senkung.size() - 1);
+            double toleranz = Math.abs(amplitudeSteigung) * (toleranzProzent / 100.0);
+
+            if (Math.abs(amplitudeSteigung - amplitudeSenkung) <= toleranz) {
+                // Zykluswerte berechnen
+                double startSteigung = steigung.get(0);
+                double endeSteigung = steigung.get(steigung.size() - 1);
+                double startSenkung = senkung.get(0);
+                double endeSenkung = senkung.get(senkung.size() - 1);
+
+                // Rückgabe des vollständigen Zyklus
+                zyklusIndex++;
+                steigung.clear();
+                senkung.clear();
+                return new double[]{startSteigung, endeSteigung, startSenkung, endeSenkung};
+            }
+        }
+
+        vorherigerWert = aktuellerWert;
+        zyklusIndex++;
+        return new double[]{0, 0, 0, 0}; // Kein Zyklus erkannt
     }
 }

@@ -23,7 +23,70 @@ public class Merkmalsextraktion_Manager implements Runnable {
 
     @Override
     public void run() {
-        if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
+
+        if (zyklusArrayWertErgebnis.size() >= 4 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
+            if (zyklusArrayWertErgebnis.size() % 4 == 0) {
+                // Extrahiere die letzten vier Werte
+                double startSteigung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 4);
+                double endeSteigung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 3);
+                double startSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 2);
+                double endeSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
+
+                // Berechne die Differenzen zwischen den Werten
+                double differenzSteigung = endeSteigung - startSteigung;
+                double differenzSenkung = startSenkung - endeSenkung;
+
+                // Berechne das Verhältnis zwischen Steigung und Senkung
+                double verhältnis = differenzSteigung / differenzSenkung;
+
+                // Überprüfe die Symmetrie anhand des Verhältnisses
+                if (verhältnis > 0.9 && verhältnis < 1.1) { // Toleranzbereich für Symmetrie
+                    System.out.println("Kompletter Muskelzyklus erkannt");
+                    System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
+                            startSteigung, endeSteigung, startSenkung, endeSenkung);
+
+                    // Speichere die Werte im Merkmalspeicher
+                    merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
+
+                    // Starte die polynomiale Approximation für verschiedene Phasen
+                    startePolynomialeApproximationAnfang(startSteigung, endeSteigung);
+                    startePolynomialeApproximationMitte(endeSteigung, startSenkung);
+                    startePolynomialeApproximationEnde(startSenkung, endeSenkung);
+                    startePolynomialeApproximationGesamterZyklus(startSteigung, endeSenkung);
+
+                    // Starte die FFT (Fast Fourier Transformation) für den gesamten Zyklus
+                    starteFFT(startSteigung, endeSenkung);
+                } else {
+                    System.out.println("Unvollständiger Zyklus oder asymmetrische Bewegung erkannt.");
+                }
+            }
+        }
+
+
+
+
+        /*if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
+            if (zyklusArrayWertErgebnis.size() % 2 == 0) {
+                double val1 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 2);
+                double val2 = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
+
+                double amplitude = Math.abs(val2 - val1);
+                double toleranz = val1 * 0.1;
+
+                if (amplitude <= toleranz) {
+                    System.out.println("Kompletter Muskelzyklus erkannt");
+                    System.out.println("val1: " + val1 + " val2: " + val2);
+                    merkmalSpeicher.setMinMaxValues(val1, val2, val2, val1);
+                    startePolynomialeApproximationGesamterZyklus(val1, val2);
+                    starteFFT(val1, val2);
+                } else {
+                    System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
+                }
+            }
+        }*/
+
+
+        /*if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
             if (zyklusArrayWertErgebnis.size() % 4 == 0) {
 
                 // Hole die 4 Werte ab dem Index i
@@ -35,7 +98,8 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 //System.out.println("val1: " + val1 + " val2: " + val2 + " val3: " + val3 + " val4: " + val4); //Zur Analyse der Ergebnisse
 
                 // Überprüfe die Bedingungen und starte Berechnungen
-                if (val1 < val2 && val3 > val4) {
+                if (val1 < val2 && val3 > val4 &&
+                        (((val1 - val1 * 0.1) <= val4) && ((val1 + val1 * 0.1) >= val4))) {
                     System.out.println("Muskelausschlag nach oben");
                     //System.out.println(zyklusArrayInput); //Analyse für Fehlerbehebung
 
@@ -58,16 +122,17 @@ public class Merkmalsextraktion_Manager implements Runnable {
                     starteFFT(val1, val4);
 
                 } else if (val1 > val2 && val3 > val4) {
-                    System.out.println("Konstante Muskelaktivität nach oben");
+                    //System.out.println("Konstante Muskelaktivität nach unten");
+                    //System.out.println(val1 + " " + val2 + " " + val3 + " " + val4);
                 } else if (val1 > val2 && val3 < val4) {
                     //System.out.println("Muskelausschlag nach unten");     //Wird nicht verwendet, da ein Muskelausschlag nur nach oben geht
                 } else if (val1 < val2 && val3 < val4) {
-                    System.out.println("Konstante Muskelaktivität nach unten");
+                    //System.out.println("Konstante Muskelaktivität nach oben");
                 } else {
-                    System.out.println("Keine der Bedingungen erfüllt.");
+                    //System.out.println("Keine der Bedingungen erfüllt.");
                 }
             }
-        }
+        }*/
         zyklusArrayWertErgebnisSeizeOld = zyklusArrayWertErgebnis.size();
     }
 

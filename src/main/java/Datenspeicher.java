@@ -76,7 +76,7 @@ public class Datenspeicher {
 
     //Start der Zyklusberechnung
     public void startZykluserkennung() {
-        double[] ergebnis = zykluserkennung.starteZyklenerkennung(zyklusArrayInput);
+        double[] ergebnis = zykluserkennung.starteZykluserkennung(zyklusArrayInput,7.0,10.0);
         if (ergebnis[0] != 0) {
             if (ergebnis[2] == 2) {
                 //System.out.println("Zyklenwert: " + ergebnis[0]);
