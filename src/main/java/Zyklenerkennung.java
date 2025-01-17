@@ -31,7 +31,8 @@ public class Zyklenerkennung {
                 //System.out.println("Schleife 1"); //Kontrolloutput
 
                 //If bedingung, um zwei Höhepunkte zu haben bei lokaler Extremstelle
-                if ((((double) arrayListZyklenInput.get(zyklusIndex -3) * 0.07) + (double) arrayListZyklenInput.get(zyklusIndex -3)) < (double) arrayListZyklenInput.get(zyklusIndex -2)) {
+                if ((((double) arrayListZyklenInput.get(zyklusIndex -3) * 0.07) + (double) arrayListZyklenInput.get(zyklusIndex -3))
+                        < (double) arrayListZyklenInput.get(zyklusIndex -2)) {
                     return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2 , 2};
                 }
                 return new double[]{(double) arrayListZyklenInput.get(zyklusIndex - 2), zyklusIndex - 2, 1};
