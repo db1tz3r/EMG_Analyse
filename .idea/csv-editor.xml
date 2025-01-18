@@ -38,13 +38,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\Merlmale.CSV">
-          <value>
-            <Attribute>
-              <option name="separator" value=";" />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\src\Data\rfiris.csv">
           <value>
             <Attribute>

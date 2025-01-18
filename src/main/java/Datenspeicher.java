@@ -46,22 +46,26 @@ public class Datenspeicher {
     private int startIndex = 0, startPeakNormalisierungIndex = 0, startZyklenerkennungIndex = 0;
 
     public void start() {
+        //System.out.println("Input: " + inputData.get(startIndex));
         fillRMSArray(inputData.get(startIndex));    //Füllen des RMS-Array
         if (startIndex > 4) {
             startRMSCalculation(rmsArrayValuesInput);   //Ausführen der RMS-Calculation, sobald der Array das erste mal gefüllt ist
+            //System.out.println("RMS-Ergebnis: " + rmsArrayValuesErgebnis.get(startPeakNormalisierungIndex));
+
             fillPeakNormalisierungArray(rmsArrayValuesErgebnis.get(startPeakNormalisierungIndex));
             startPeakNormalisierungIndex++;
-        }
-        if ((startIndex % 5) == 0 && startIndex != 0) {  //Normalisierungsberechnung und zyklusarray jede 5 Durchgänge neu befüllen
-            startPeakNormalisierung();
 
-            for (int i = 0; i < 5; i++) {
-                zyklusArrayInput.add(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex));
-                //System.out.println(zyklusArrayInput);
-                startZykluserkennung();
-                startZyklenerkennungIndex++;
+            if ((startPeakNormalisierungIndex % 5) == 0 && startPeakNormalisierungIndex != 0) {  //Normalisierungsberechnung und zyklusarray jede 5 Durchgänge neu befüllen
+                startPeakNormalisierung();
+                //System.out.println("Peak-Norm.-Ergebnis:" + peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex));
+
+                for (int i = 0; i < 5; i++) {
+                    zyklusArrayInput.add(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex));
+                    //System.out.println(zyklusArrayInput);
+                    startZykluserkennung();
+                    startZyklenerkennungIndex++;
+                }
             }
-
         }
 
         merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
@@ -95,15 +99,9 @@ public class Datenspeicher {
 
     //Peak-Normalisierung Methoden:
     //Füllen das Input Arrays
-    int peakNormalisierungIndex = 2, peakInitalisierungsIndex = 0;
+    int peakNormalisierungIndex = 0;
 
     public void fillPeakNormalisierungArray(double value) {
-        if (peakInitalisierungsIndex == 0) {
-            for (int i = 0; i < 2; i++) {
-                peakNormaisierungArrayValuesInput[i] = inputData.get(i);
-            }
-            peakInitalisierungsIndex++;
-        }
         if (peakNormalisierungIndex < 5) {
             peakNormaisierungArrayValuesInput[peakNormalisierungIndex] = value;
             peakNormalisierungIndex++;
@@ -112,11 +110,12 @@ public class Datenspeicher {
             peakNormaisierungArrayValuesInput[0] = value;
             peakNormalisierungIndex = 1;
         }
-
+        //System.out.println("Eingang Peak-Norm.: " + Arrays.toString(peakNormaisierungArrayValuesInput));  //Input für die Peak-Normalisierung
     }
 
     //Start Peak-Normalisierung Berechnung
     public void startPeakNormalisierung() {
+        //System.out.println(Arrays.toString(peakNormaisierungArrayValuesInput));
         double[] peakNormalisierungErgebnisse = peakNormalisierung.normalizePeak(peakNormaisierungArrayValuesInput);
         for (int i = 0; i < peakNormalisierungErgebnisse.length; i++) {
             //System.out.println("Peak-Norm-Ergebnis: " + peakNormalisierungErgebnisse[i]);

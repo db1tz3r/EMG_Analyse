@@ -9,8 +9,8 @@ public class Merkmalsextraktion_Manager implements Runnable {
     private FastFourierTransformation fastfouriertransformation;
     private Merkmal_Speicher merkmalSpeicher;
 
-    private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>();
-    private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();
+    private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>(); //Speicher für die Werte der Zykluserkennung
+    private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Speicher für die Zeitwerte der Zykluserkennung
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
 
     public Merkmalsextraktion_Manager(PolynomialeApproximation polynomialeApproximation, FastFourierTransformation fft, Merkmal_Speicher merkmalSpeicher) {
@@ -33,18 +33,10 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 double endeSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
 
                 // Überprüfe, ob die Werte gültige Bedingungen für einen Zyklus erfüllen
-                if (endeSteigung > startSteigung && startSenkung > endeSteigung && endeSenkung < startSenkung && endeSteigung > 100) {
+                if (endeSteigung > startSteigung && startSenkung > endeSteigung && endeSenkung < startSenkung && endeSteigung > 25) {
                     System.out.println("Kompletter Muskelzyklus erkannt");
                     System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
                             startSteigung, endeSteigung, startSenkung, endeSenkung);
-
-                    // Überprüfe zusätzliche Bedingungen
-                    if (startSteigung < endeSteigung && startSenkung > endeSenkung) {
-                        System.out.println("Zyklus erfüllt zusätzliche Bedingungen: Steigung und Senkung korrekt geordnet.");
-                    } else {
-                        System.out.println("Zyklus erfüllt nicht die zusätzlichen Bedingungen.");
-                        return;
-                    }
 
                     // Speichere die Werte im Merkmalspeicher
                     merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
@@ -58,10 +50,11 @@ public class Merkmalsextraktion_Manager implements Runnable {
                     // Starte die FFT (Fast Fourier Transformation) für den gesamten Zyklus
                     starteFFT(startSteigung, endeSenkung);
                 } else {
-                    System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
+                    //System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
                 }
             }
         }
+        zyklusArrayWertErgebnisSeizeOld = zyklusArrayWertErgebnis.size();
 
 
         /*if (zyklusArrayWertErgebnis.size() >= 1 && zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld) {
@@ -111,7 +104,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 }
             }
         }*/
-        zyklusArrayWertErgebnisSeizeOld = zyklusArrayWertErgebnis.size();
+        //zyklusArrayWertErgebnisSeizeOld = zyklusArrayWertErgebnis.size();
     }
 
     private void startePolynomialeApproximationAnfang(double value1, double value2) {
@@ -119,6 +112,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
         // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
         polynomialeApproximation.setBeginningValue(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3)) - 1; i++) {
+            //System.out.println(zyklusArrayInput.get(i + 1));
             polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
         }
         polynomialeApproximation.setEndValue(value2);
