@@ -13,12 +13,11 @@ public class Datenspeicher {
     private Zyklenerkennung zykluserkennung;
     private Merkmalsextraktion_Manager merkmalsextraktionManager;
 
-    private ArrayList<Double> inputData = new ArrayList<>();
+    private ArrayList<Double> rawData = new ArrayList<>();
     private final double[] rmsArrayValuesInput = new double[5];
     private ArrayList<Double> rmsArrayValuesErgebnis = new ArrayList<>();
     private double[] peakNormaisierungArrayValuesInput = new double[5];
     private ArrayList<Double> peakNormalisierungArrayErgebnis = new ArrayList<>();
-    private ArrayList<Double> zyklusArrayInput = new ArrayList<>();
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<>();
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<>();
 
@@ -34,7 +33,7 @@ public class Datenspeicher {
     private int startIndex = 0, startPeakNormalisierungIndex = 0, startZyklenerkennungIndex = 0;
 
     public void start() {
-        fillRMSArray(inputData.get(startIndex));
+        fillRMSArray(Math.abs(rawData.get(startIndex))); // Nur positive Werte für RMS und Peak-Normalisierung
         if (startIndex > 4) {
             startRMSCalculation(rmsArrayValuesInput);
             fillPeakNormalisierungArray(rmsArrayValuesErgebnis.get(startPeakNormalisierungIndex));
@@ -43,24 +42,30 @@ public class Datenspeicher {
             if ((startPeakNormalisierungIndex % 5) == 0) {
                 startPeakNormalisierung();
                 for (int i = 0; i < 5; i++) {
-                    startZykluserkennung(startZyklenerkennungIndex);
+                    startZykluserkennung(startZyklenerkennungIndex, startZyklenerkennungIndex);
                     startZyklenerkennungIndex++;
                 }
             }
         }
-
-        //merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
-        //merkmalsextraktionManager.run();
+        //System.out.println(zyklusArrayWertErgebnis);
+        merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, peakNormalisierungArrayErgebnis, rawData);
+        merkmalsextraktionManager.run();
 
         startIndex++;
     }
 
-    public void startZykluserkennung(int startZyklenerkennungIndex) {
-        double[] ergebnis = zykluserkennung.starteZykluserkennung(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), 7.0);
+    public void startZykluserkennung(int startZyklenerkennungIndex, int globalerZeitpunkt) {
+        double[] ergebnis = zykluserkennung.starteZykluserkennung(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), 7.0, globalerZeitpunkt);
         if (ergebnis[0] != 0) {
-            for (int i = 0; i < ergebnis.length; i++) {
+            for (int i = 0; i < 4; i++) {
                 zyklusArrayWertErgebnis.add(ergebnis[i]);
+                //System.out.println("Zykluswert: " + ergebnis[i]);
             }
+            for (int i = 4; i < 8; i++) {
+                zyklusArrayZeitErgebnis.add((int) ergebnis[i]);
+                //System.out.println("Zykluszeit: " + ergebnis[i]);
+            }
+        } else {
         }
     }
 
@@ -102,6 +107,6 @@ public class Datenspeicher {
     }
 
     public void setInputData(Double inputDataValue) {
-        this.inputData.add(inputDataValue);
+        this.rawData.add(inputDataValue);
     }
 }
