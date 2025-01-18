@@ -9,23 +9,19 @@ public class Zyklenerkennung {
     private boolean merkerSteigung = false;
     private boolean merkerSenkung = false;
 
-    public double[] starteZykluserkennung(ArrayList<Double> signal, double schwelleProzent, double toleranzProzent) {
-        if (signal == null || signal.isEmpty()) {
-            throw new IllegalArgumentException("Das Signal darf nicht null oder leer sein.");
+    public double[] starteZykluserkennung(double aktuellerWert, double schwelleProzent, double toleranzProzent) {
+        if (aktuellerWert == 0.0) {
+            return new double[]{0, 0, 0, 0}; // Ignoriere 0.0-Werte
         }
 
-        if (zyklusIndex == 0) {
-            vorherigerWert = signal.get(zyklusIndex++);
-            return new double[]{0, 0, 0, 0}; // Kein Zyklus erkannt
-        }
+        double durchschnittAmplitude = (vorherigerWert + aktuellerWert) / 2.0;
+        double adaptiveSchwelle = durchschnittAmplitude * (schwelleProzent / 100.0);
 
-        double aktuellerWert = signal.get(zyklusIndex);
-        double schwelle = vorherigerWert * (schwelleProzent / 100.0);
+        int minPunkte = 5; // Mindestens 5 Punkte pro Phase
+        double minGesamtabweichung = 20.0; // Mindestamplitude für eine gültige Phase
 
-        // Steigungsphase erkennen und speichern
-        if (aktuellerWert > vorherigerWert + schwelle ||
-                (zyklusIndex + 1 < signal.size() && signal.get(zyklusIndex + 1) > vorherigerWert + schwelle) ||
-                (zyklusIndex + 2 < signal.size() && signal.get(zyklusIndex + 2) > vorherigerWert + schwelle)) {
+        // Steigungsphase erkennen
+        if ((aktuellerWert > vorherigerWert + adaptiveSchwelle) && Math.abs(aktuellerWert - vorherigerWert) > minGesamtabweichung) {
             if (!merkerSteigung) {
                 merkerSteigung = true;
                 merkerSenkung = false;
@@ -34,10 +30,8 @@ public class Zyklenerkennung {
             steigung.add(aktuellerWert);
         }
 
-        // Senkungsphase erkennen und speichern
-        if (aktuellerWert < vorherigerWert - schwelle ||
-                (zyklusIndex + 1 < signal.size() && signal.get(zyklusIndex + 1) < vorherigerWert - schwelle) ||
-                (zyklusIndex + 2 < signal.size() && signal.get(zyklusIndex + 2) < vorherigerWert - schwelle)) {
+        // Senkungsphase erkennen
+        if ((aktuellerWert < vorherigerWert - adaptiveSchwelle) && Math.abs(vorherigerWert - aktuellerWert) > minGesamtabweichung) {
             if (!merkerSenkung) {
                 merkerSenkung = true;
                 merkerSteigung = false;
@@ -46,29 +40,27 @@ public class Zyklenerkennung {
             senkung.add(aktuellerWert);
         }
 
-        // Zyklusprüfung: Sind Steigung und Senkung vollständig?
-        if (!steigung.isEmpty() && !senkung.isEmpty()) {
-            double amplitudeSteigung = steigung.get(steigung.size() - 1) - steigung.get(0);
-            double amplitudeSenkung = senkung.get(0) - senkung.get(senkung.size() - 1);
-            double toleranz = Math.abs(amplitudeSteigung) * (toleranzProzent / 100.0);
+        // Zyklusprüfung
+        if (steigung.size() >= minPunkte && senkung.size() >= minPunkte) {
+            double startSteigung = steigung.get(0);
+            double endeSteigung = steigung.get(steigung.size() - 1);
+            double startSenkung = senkung.get(0);
+            double endeSenkung = senkung.get(senkung.size() - 1);
 
-            if (Math.abs(amplitudeSteigung - amplitudeSenkung) <= toleranz) {
-                // Zykluswerte berechnen
-                double startSteigung = steigung.get(0);
-                double endeSteigung = steigung.get(steigung.size() - 1);
-                double startSenkung = senkung.get(0);
-                double endeSenkung = senkung.get(senkung.size() - 1);
-
-                // Rückgabe des vollständigen Zyklus
-                zyklusIndex++;
+            if ((endeSteigung - startSteigung) > minGesamtabweichung && (startSenkung - endeSenkung) > minGesamtabweichung) {
+                System.out.printf("Zyklus erkannt: Start Steigung=%.2f, Ende Steigung=%.2f, Start Senkung=%.2f, Ende Senkung=%.2f%n",
+                        startSteigung, endeSteigung, startSenkung, endeSenkung);
                 steigung.clear();
                 senkung.clear();
+                merkerSteigung = false;
+                merkerSenkung = false;
+                vorherigerWert = aktuellerWert;
                 return new double[]{startSteigung, endeSteigung, startSenkung, endeSenkung};
             }
         }
 
         vorherigerWert = aktuellerWert;
-        zyklusIndex++;
-        return new double[]{0, 0, 0, 0}; // Kein Zyklus erkannt
+        return new double[]{0, 0, 0, 0}; // Kein vollständiger Zyklus erkannt
     }
+
 }

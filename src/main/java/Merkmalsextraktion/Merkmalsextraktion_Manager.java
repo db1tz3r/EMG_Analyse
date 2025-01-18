@@ -33,22 +33,23 @@ public class Merkmalsextraktion_Manager implements Runnable {
                 double endeSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
 
                 // Überprüfe, ob die Werte gültige Bedingungen für einen Zyklus erfüllen
-                if (endeSteigung > startSteigung && startSenkung > endeSteigung && endeSenkung < startSenkung && endeSteigung > 25) {
+                if (endeSteigung > startSteigung && startSenkung > endeSteigung && endeSenkung < startSenkung) {
                     System.out.println("Kompletter Muskelzyklus erkannt");
                     System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
                             startSteigung, endeSteigung, startSenkung, endeSenkung);
+                    System.out.println(zyklusArrayWertErgebnis);
 
                     // Speichere die Werte im Merkmalspeicher
                     merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
 
-                    // Starte die polynomiale Approximation für verschiedene Phasen
-                    startePolynomialeApproximationAnfang(startSteigung, endeSteigung);
-                    startePolynomialeApproximationMitte(endeSteigung, startSenkung);
-                    startePolynomialeApproximationEnde(startSenkung, endeSenkung);
-                    startePolynomialeApproximationGesamterZyklus(startSteigung, endeSenkung);
-
-                    // Starte die FFT (Fast Fourier Transformation) für den gesamten Zyklus
-                    starteFFT(startSteigung, endeSenkung);
+//                    // Starte die polynomiale Approximation für verschiedene Phasen
+//                    startePolynomialeApproximationAnfang(startSteigung, endeSteigung);
+//                    startePolynomialeApproximationMitte(endeSteigung, startSenkung);
+//                    startePolynomialeApproximationEnde(startSenkung, endeSenkung);
+//                    startePolynomialeApproximationGesamterZyklus(startSteigung, endeSenkung);
+//
+//                    // Starte die FFT (Fast Fourier Transformation) für den gesamten Zyklus
+//                    starteFFT(startSteigung, endeSenkung);
                 } else {
                     //System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
                 }
