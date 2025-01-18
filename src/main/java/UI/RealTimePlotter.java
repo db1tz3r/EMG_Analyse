@@ -19,45 +19,45 @@ public class RealTimePlotter extends JFrame {
 
     // Konstruktor
     public RealTimePlotter(int hzInput) {
-        //Erstellen des Plotters
-        // Titel für das Fenster
-        super("Data Plotter");
-
-        // Erstellen einer XYSeries, um Daten zu speichern
-        seriesRaw = new XYSeries("Raw-Daten");
-        seriesRms = new XYSeries("RMS-Daten");
-        seriesPeakNormalisierung = new XYSeries("Peak-Normailsierung-Daten");
-
-        // Hinzufügen der Serien zu einem XYSeriesCollection
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(seriesRaw);
-        dataset.addSeries(seriesRms);
-        dataset.addSeries(seriesPeakNormalisierung);
-
-        // Erstellen des Diagramms
-        JFreeChart chart = ChartFactory.createXYLineChart(
-                "Daten Plotter", // Titel des Diagramms
-                "Zeit",          // X-Achsen-Beschriftung
-                "Wert",          // Y-Achsen-Beschriftung
-                dataset,         // Datenquelle
-                PlotOrientation.VERTICAL, // Orientierung des Diagramms
-                true,            // Legende anzeigen
-                true,            // Tooltips anzeigen
-                false            // URLs deaktivieren
-        );
-
-        // Erstellen des Panels für das Diagramm
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
-
-        // Hinzufügen des Panels zum Fenster
-        setLayout(new BorderLayout());
-        add(chartPanel, BorderLayout.CENTER);
-
-
-        // Weitere Konstruktor Deklarationen
-        // Berechnen der Zeit anhand der Frequenz in der Main Methode
-        timeVariable = (double) 1 / hzInput;
+//        //Erstellen des Plotters
+//        // Titel für das Fenster
+//        super("Data Plotter");
+//
+//        // Erstellen einer XYSeries, um Daten zu speichern
+//        seriesRaw = new XYSeries("Raw-Daten");
+//        seriesRms = new XYSeries("RMS-Daten");
+//        seriesPeakNormalisierung = new XYSeries("Peak-Normailsierung-Daten");
+//
+//        // Hinzufügen der Serien zu einem XYSeriesCollection
+//        XYSeriesCollection dataset = new XYSeriesCollection();
+//        dataset.addSeries(seriesRaw);
+//        dataset.addSeries(seriesRms);
+//        dataset.addSeries(seriesPeakNormalisierung);
+//
+//        // Erstellen des Diagramms
+//        JFreeChart chart = ChartFactory.createXYLineChart(
+//                "Daten Plotter", // Titel des Diagramms
+//                "Zeit",          // X-Achsen-Beschriftung
+//                "Wert",          // Y-Achsen-Beschriftung
+//                dataset,         // Datenquelle
+//                PlotOrientation.VERTICAL, // Orientierung des Diagramms
+//                true,            // Legende anzeigen
+//                true,            // Tooltips anzeigen
+//                false            // URLs deaktivieren
+//        );
+//
+//        // Erstellen des Panels für das Diagramm
+//        ChartPanel chartPanel = new ChartPanel(chart);
+//        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+//
+//        // Hinzufügen des Panels zum Fenster
+//        setLayout(new BorderLayout());
+//        add(chartPanel, BorderLayout.CENTER);
+//
+//
+//        // Weitere Konstruktor Deklarationen
+//        // Berechnen der Zeit anhand der Frequenz in der Main Methode
+//        timeVariable = (double) 1 / hzInput;
     }
 
 

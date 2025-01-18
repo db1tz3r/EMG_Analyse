@@ -124,7 +124,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
         fftInputArrayList.add(value1);
         for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
             fftInputArrayList.add(rawData.get(i + 1));
-            System.out.println(rawData.get(i + 1));
+            //System.out.println(rawData.get(i + 1));
         }
         fftInputArrayList.add(value4);
 
