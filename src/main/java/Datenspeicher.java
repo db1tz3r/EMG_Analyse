@@ -56,7 +56,7 @@ public class Datenspeicher {
     }
 
     public void startZykluserkennung(int startZyklenerkennungIndex) {
-        double[] ergebnis = zykluserkennung.starteZykluserkennung(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), 7.0, 10.0);
+        double[] ergebnis = zykluserkennung.starteZykluserkennung(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), 7.0);
         if (ergebnis[0] != 0) {
             zyklusArrayWertErgebnis.add(ergebnis[0]);
             zyklusArrayZeitErgebnis.add((int) ergebnis[1]);

@@ -39,44 +39,44 @@ public class ReceiveData {
     }
 
     // Methode, die den Input für den Client verarbeitet
-//    private void handleClient(Socket socket) {
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-//            String line;
-//            // Lies die Daten vom Client und verarbeite sie
-//            while ((line = reader.readLine()) != null) {
-//                //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
-//                // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
-//                //System.out.println(line);
-//                datenspeicher.setInputData(Math.abs(Double.valueOf(line.replace(",",".")))); //Vollgleichrichten der Werte
-//                datenspeicher.start();
-//            }
-//        } catch (IOException e) {
-//            System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());
-//        }
-//    }
-
     private void handleClient(Socket socket) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             String line;
             // Lies die Daten vom Client und verarbeite sie
             while ((line = reader.readLine()) != null) {
-                try {
-                    // Konvertiere die empfangenen Daten und prüfe auf negative Werte
-                    Double value = Double.valueOf(line.replace(",", "."));
-                    if (value >= 0) {
-                        // Nur positive Werte verarbeiten
-                        datenspeicher.setInputData(value); // Werte speichern
-                        datenspeicher.start();
-                    } else {
-                        //System.out.println("Negativer Wert übersprungen: " + value);
-                    }
-                } catch (NumberFormatException e) {
-                    //System.err.println("Ungültiges Zahlenformat empfangen: " + line);
-                }
+                //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
+                // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
+                //System.out.println(line);
+                datenspeicher.setInputData(Math.abs(Double.valueOf(line.replace(",",".")))); //Vollgleichrichten der Werte
+                datenspeicher.start();
             }
         } catch (IOException e) {
             System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());
         }
     }
+
+//    private void handleClient(Socket socket) {
+//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+//            String line;
+//            // Lies die Daten vom Client und verarbeite sie
+//            while ((line = reader.readLine()) != null) {
+//                try {
+//                    // Konvertiere die empfangenen Daten und prüfe auf negative Werte
+//                    Double value = Double.valueOf(line.replace(",", "."));
+//                    if (value >= 0) {
+//                        // Nur positive Werte verarbeiten
+//                        datenspeicher.setInputData(value); // Werte speichern
+//                        datenspeicher.start();
+//                    } else {
+//                        //System.out.println("Negativer Wert übersprungen: " + value);
+//                    }
+//                } catch (NumberFormatException e) {
+//                    //System.err.println("Ungültiges Zahlenformat empfangen: " + line);
+//                }
+//            }
+//        } catch (IOException e) {
+//            System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());
+//        }
+//    }
 
 }
