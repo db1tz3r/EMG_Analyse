@@ -49,8 +49,8 @@ public class Datenspeicher {
             }
         }
 
-        merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
-        merkmalsextraktionManager.run();
+        //merkmalsextraktionManager.setArraysZyklenerkennung(zyklusArrayWertErgebnis, zyklusArrayZeitErgebnis, zyklusArrayInput);
+        //merkmalsextraktionManager.run();
 
         startIndex++;
     }
@@ -58,8 +58,9 @@ public class Datenspeicher {
     public void startZykluserkennung(int startZyklenerkennungIndex) {
         double[] ergebnis = zykluserkennung.starteZykluserkennung(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), 7.0);
         if (ergebnis[0] != 0) {
-            zyklusArrayWertErgebnis.add(ergebnis[0]);
-            zyklusArrayZeitErgebnis.add((int) ergebnis[1]);
+            for (int i = 0; i < ergebnis.length; i++) {
+                zyklusArrayWertErgebnis.add(ergebnis[i]);
+            }
         }
     }
 

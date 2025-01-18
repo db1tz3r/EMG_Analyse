@@ -37,7 +37,6 @@ public class Merkmalsextraktion_Manager implements Runnable {
                     System.out.println("Kompletter Muskelzyklus erkannt");
                     System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
                             startSteigung, endeSteigung, startSenkung, endeSenkung);
-                    System.out.println(zyklusArrayWertErgebnis);
 
                     // Speichere die Werte im Merkmalspeicher
                     merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
