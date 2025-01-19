@@ -5,6 +5,8 @@ import Merkmalsextraktion.FastFourierTransformation;
 import Normalisierung.PeakNormalisierung;
 import Normalisierung.Rms;
 import RandomForest.ModellManager;
+import Segmentation.Zyklenerkennung;
+import Segmentation.Zyklenzusammenfassung;
 import UI.RealTimePlotter;
 import UI.UpdatePlotter;
 
@@ -50,6 +52,9 @@ public class Main {
         //Starten der Zykluserkennung
         Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
 
+        //Starten der Zykluszuasmmenfassung
+        Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
+
         //Starten des Merkmalsspeichers
         Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile, liveDataQueue);
 
@@ -63,7 +68,7 @@ public class Main {
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(polynomialeApproximation, fft, merkmalSpeicher);
 
         // Starten der allgemeinen Speicherklasse
-        Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager);
+        Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
 
         // Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(datenspeicher, port);

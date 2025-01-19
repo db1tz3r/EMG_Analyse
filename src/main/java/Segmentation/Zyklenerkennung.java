@@ -1,3 +1,5 @@
+package Segmentation;
+
 import java.util.ArrayList;
 
 public class Zyklenerkennung {
@@ -17,8 +19,7 @@ public class Zyklenerkennung {
             return new double[]{0, 0, 0, 0, 0, 0, 0, 0}; // Ignoriere 0.0-Werte
         }
 
-        double durchschnittAmplitude = (vorherigerWert + aktuellerWert) / 2.0;
-        double adaptiveSchwelle = durchschnittAmplitude * (schwelleProzent / 100.0);
+        double adaptiveSchwelle = vorherigerWert * (schwelleProzent / 100.0);
 
         int minPunkte = 5; // Mindestens 5 Punkte pro Phase
         double minGesamtabweichung = 20.0; // Mindestamplitude für eine gültige Phase
@@ -49,19 +50,6 @@ public class Zyklenerkennung {
             senkungZeitpunkte.add(zeitpunkt);
         }
 
-        // Überprüfen, ob innerhalb von 10 Werten nach Beginn der Senkung eine höhere Steigung folgt
-        if (merkerSenkung) {
-            zaehlerSeitSenkung++;
-            if (!steigung.isEmpty() && zaehlerSeitSenkung <= 10 && aktuellerWert > steigung.get(steigung.size() - 1)) {
-                // Steigung wird fortgesetzt ab dem neuen höheren Wert
-                merkerSenkung = false;
-                merkerSteigung = true;
-                steigung.add(aktuellerWert);
-                steigungZeitpunkte.add(zeitpunkt);
-                zaehlerSeitSenkung = 0; // Reset des Zählers
-            }
-        }
-
         // Zyklusprüfung
         if (steigung.size() >= minPunkte && senkung.size() >= minPunkte) {
             double startSteigung = steigung.get(0);
@@ -74,9 +62,8 @@ public class Zyklenerkennung {
             int zeitStartSenkung = senkungZeitpunkte.get(0);
             int zeitEndeSenkung = senkungZeitpunkte.get(senkungZeitpunkte.size() - 1);
 
-            if ((endeSteigung - startSteigung) > minGesamtabweichung && (startSenkung - endeSenkung) > minGesamtabweichung) {
-                //System.out.println("Zyklus: StartSteigung: " + startSteigung + " EndeSteigung: " + endeSteigung + " StartSenkung: " + startSenkung + " EndeSenkung: " + endeSenkung);
-
+            // Überprüfen, ob die Zeitpunkte in der richtigen Reihenfolge sind
+            if (zeitStartSteigung < zeitEndeSteigung && zeitEndeSteigung < zeitStartSenkung && zeitStartSenkung < zeitEndeSenkung) {
                 steigung.clear();
                 senkung.clear();
                 steigungZeitpunkte.clear();
@@ -91,5 +78,4 @@ public class Zyklenerkennung {
         vorherigerWert = aktuellerWert;
         return new double[]{0, 0, 0, 0, 0, 0, 0, 0}; // Kein vollständiger Zyklus erkannt
     }
-
 }
