@@ -6,6 +6,7 @@ import Segmentation.Zyklenzusammenfassung;
 import UI.UpdatePlotter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Datenspeicher {
     private UpdatePlotter updatePlotter;
@@ -46,7 +47,8 @@ public class Datenspeicher {
             if ((startPeakNormalisierungIndex % 5) == 0) {
                 startPeakNormalisierung();
                 for (int i = 0; i < 5; i++) {
-                    startSegmentation(startZyklenerkennungIndex, startZyklenerkennungIndex);
+                    startSegmentation(startZyklenerkennungIndex, startZyklenerkennungIndex,
+                            7.0, 5, 20.0, 50, 50);
                     startZyklenerkennungIndex++;
                 }
             }
@@ -58,25 +60,51 @@ public class Datenspeicher {
         startIndex++;
     }
 
-    public void startSegmentation(int startZyklenerkennungIndex, int globalerZeitpunkt) {
-        double[] ergebnis = zykluserkennung.starteZykluserkennung(peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), 7.0, globalerZeitpunkt);
+    private int zyklusAnschliessenNachZeitCount = 0;    // Zähler für die Anzahl an Werten ohne Zyklus
+    private double[] letztesAusgegebenesErgebnis = new double[8];   // Speicher für das letzte ausgegebene Ergebnis
+
+    public void startSegmentation(int startZyklenerkennungIndex, int globalerZeitpunkt, double schwelleProzent, int minPunkte, double minGesamtabweichung , int toleranzZwischenzyklen, int maxWerteOhneZyklus) {
+        // Starte die Zykluserkennung mit dem aktuellen Index und globalem Zeitpunkt
+        double[] ergebnis = zykluserkennung.starteZykluserkennung(
+                peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), schwelleProzent, globalerZeitpunkt, minPunkte, minGesamtabweichung);
 
         if (ergebnis[0] != 0) {
+            zyklusAnschliessenNachZeitCount = 0;
             //System.out.println("Ergebnis: " + ergebnis[0] + " " + ergebnis[1] + " " + ergebnis[2] + " " + ergebnis[3]);
-            //System.out.println(ergebnis[4] + " " + ergebnis[5] + " " + ergebnis[6] + " " + ergebnis[7]);
-            ergebnis  = zyklenzusammenfassung.verarbeiteUndGebeZyklusZurueck(ergebnis);
-            if (ergebnis[0] != 0) {
+            //System.out.println("Zeit: " + ergebnis[4] + " " + ergebnis[5] + " " + ergebnis[6] + " " + ergebnis[7]);
+
+            // Übergabe der erkannten Zyklen an die Zusammenfassungsmethode
+            ergebnis = zyklenzusammenfassung.verarbeiteUndGebeZyklusZurueck(ergebnis, toleranzZwischenzyklen);
+
+            // Überprüfe, ob ein vollständiger Zyklus erkannt wurde
+            if (ergebnis[0] != 0 || ergebnis[1] != 0 || ergebnis[2] != 0 || ergebnis[3] != 0) {
                 for (int i = 0; i < 4; i++) {
                     zyklusArrayWertErgebnis.add(ergebnis[i]);
-                    //System.out.println("Zykluswert: " + ergebnis[i]);
                 }
                 for (int i = 4; i < 8; i++) {
                     zyklusArrayZeitErgebnis.add((int) ergebnis[i]);
-                    //System.out.println("Zykluszeit: " + ergebnis[i]);
+                }
+                // Speichere das letzte ausgegebene Ergebnis zur Vermeidung doppelter Ausgaben
+                letztesAusgegebenesErgebnis = ergebnis.clone();
+            }
+        } else {
+            zyklusAnschliessenNachZeitCount++;
+            if (zyklusAnschliessenNachZeitCount >= maxWerteOhneZyklus) {
+                double[] zusammengefassterZyklus = zyklenzusammenfassung.ausgabeZusammengefassterZyklus();
+                if (!Arrays.equals(zusammengefassterZyklus, letztesAusgegebenesErgebnis)) {
+                    zyklusAnschliessenNachZeitCount = 0;
+                    for (int i = 0; i < 4; i++) {
+                        zyklusArrayWertErgebnis.add(zusammengefassterZyklus[i]);
+                    }
+                    for (int i = 4; i < 8; i++) {
+                        zyklusArrayZeitErgebnis.add((int) zusammengefassterZyklus[i]);
+                    }
+                    letztesAusgegebenesErgebnis = zusammengefassterZyklus.clone();
                 }
             }
         }
     }
+
 
     int peakNormalisierungIndex = 0;
 

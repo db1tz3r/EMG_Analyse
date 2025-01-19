@@ -11,7 +11,6 @@ public class Zyklenzusammenfassung {
 
     private boolean zusammenfassungAktiv = false;
     private int letzteSenkungEndeZeitpunkt = 0;
-    private final int toleranzWerte = 30;
     private double globalStartSteigung = 0;
     private double globalEndeSenkung = 0;
     private double globalEndeSteigung = 0;
@@ -21,7 +20,7 @@ public class Zyklenzusammenfassung {
     private int globalZeitEndeSteigung = 0;
     private int globalZeitStartSenkung = 0;
 
-    public double[] verarbeiteUndGebeZyklusZurueck(double[] zyklusDaten) {
+    public double[] verarbeiteUndGebeZyklusZurueck(double[] zyklusDaten , int toleranzWerte) {
         double startSteigung = zyklusDaten[0];
         double endeSteigung = zyklusDaten[1];
         double startSenkung = zyklusDaten[2];
@@ -79,7 +78,7 @@ public class Zyklenzusammenfassung {
         return new double[]{0, 0, 0, 0, 0, 0, 0, 0};
     }
 
-    private double[] ausgabeZusammengefassterZyklus() {
+    public double[] ausgabeZusammengefassterZyklus() {
         zusammenfassungAktiv = false;
 //        System.out.println("Zykluswertergebnis: " + globalStartSteigung + "| " + globalEndeSteigung + " | " + globalStartSenkung + " | " + globalEndeSenkung);
 //        System.out.println("Zykluszeit: " + globalZeitStartSteigung + " | " + globalZeitEndeSteigung + " | " + globalZeitStartSenkung + " | " + globalZeitEndeSenkung);

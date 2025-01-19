@@ -14,15 +14,12 @@ public class Zyklenerkennung {
     private boolean merkerSenkung = false;
     private int zaehlerSeitSenkung = 0; // Zähler für Werte nach Beginn der Senkung
 
-    public double[] starteZykluserkennung(double aktuellerWert, double schwelleProzent, int zeitpunkt) {
+    public double[] starteZykluserkennung(double aktuellerWert, double schwelleProzent, int zeitpunkt, int minPunkte, double minGesamtabweichung) {
         if (aktuellerWert == 0.0) {
             return new double[]{0, 0, 0, 0, 0, 0, 0, 0}; // Ignoriere 0.0-Werte
         }
 
         double adaptiveSchwelle = vorherigerWert * (schwelleProzent / 100.0);
-
-        int minPunkte = 5; // Mindestens 5 Punkte pro Phase
-        double minGesamtabweichung = 20.0; // Mindestamplitude für eine gültige Phase
 
         // Steigungsphase erkennen
         if ((aktuellerWert > vorherigerWert + adaptiveSchwelle) && Math.abs(aktuellerWert - vorherigerWert) > minGesamtabweichung) {
