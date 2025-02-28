@@ -4,7 +4,7 @@ import Jama.Matrix;
 
 import java.util.ArrayList;
 
-public class PolynomialeApproximation implements Runnable {
+public class PolynomialeApproximation extends Thread {
 
     private static ArrayList<Double> yValues = new ArrayList<>();
     private static ArrayList<Double> coefficientsArrayList = new ArrayList<>();

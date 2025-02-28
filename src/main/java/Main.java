@@ -18,9 +18,9 @@ public class Main {
         int port = 12345; // Port, auf dem der Server lauscht
         int maxWertPeakNormalisierung = 2000;   // maximaler Wert, der vom Arduino/Sensor erreicht werden kann
         int hz = 2000;    // Zahl der Hz in dem die Daten übertragen werden
-        boolean createCsvFile = false; // Soll eine CSV-Datei erstellt werden
+        boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
-        boolean useRamdomForest = true;
+        boolean useRamdomForest = false;
 
 
         // Starten des Random Forest Modells
@@ -37,11 +37,11 @@ public class Main {
         }
 
         // Starten des Plotters
-        RealTimePlotter plotter = new RealTimePlotter(hz);
-        plotter.pack();
-        plotter.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        plotter.setVisible(true);
-        UpdatePlotter updatePlotter = new UpdatePlotter(plotter);
+//        RealTimePlotter plotter = new RealTimePlotter(hz);
+//        plotter.pack();
+//        plotter.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        plotter.setVisible(true);
+//        UpdatePlotter updatePlotter = new UpdatePlotter(plotter);
 
         //Starten der RMS-Klasse
         Rms rms = new Rms();
@@ -65,10 +65,10 @@ public class Main {
         FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
 
         //Starten der Zykluseintilung
-        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(polynomialeApproximation, fft, merkmalSpeicher);
+        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
 
         // Starten der allgemeinen Speicherklasse
-        Datenspeicher datenspeicher = new Datenspeicher(updatePlotter, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
+        Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
 
         // Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(datenspeicher, port);

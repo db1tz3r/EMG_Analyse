@@ -1,12 +1,14 @@
 package Merkmalsextraktion;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FastFourierTransformation extends Thread {
 
     // Variablen
     private double[] inputArray;
     private static Merkmal_Speicher merkmalSpeicher;
+    private int formelTyp;
 
     // Konstruktor
     public FastFourierTransformation(Merkmal_Speicher merkmalSpeicher) {
@@ -17,7 +19,7 @@ public class FastFourierTransformation extends Thread {
     @Override
     public void run() {
         try {
-            calculateFFT(this.inputArray);
+            calculateFFT(this.inputArray, formelTyp);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -80,28 +82,46 @@ public class FastFourierTransformation extends Thread {
         return fft(x);  // FFT auf gepolstertes Array anwenden
     }
 
-    // Methode zur Berechnung der FFT und Ausgabe von Real- und Imaginärteil
-    public static void calculateFFT(double[] input) throws InterruptedException {
+    // Methode zur Berechnung der FFT und Extraktion der Merkmale
+    public static void calculateFFT(double[] input, int formelTyp) throws InterruptedException {
         Complex[] fftResult = fft(input);
 
-        // Ausgabe von Real- und Imaginärteil
-        double[] fftErgebnis = new double[fftResult.length * 2];
-        int counter = 0;
-        for (int i = 0; i < fftResult.length; i++) {
-            double real = fftResult[i].real;
-            double imag = fftResult[i].imag;
-            // Speichern der Werte in ein Arrray zur Weiterverarbeitung
-            for (int j = 0; j < 2; j++) {
-                fftErgebnis[counter] = real;
-                fftErgebnis[counter + 1] = imag;
-            }
-            //System.out.printf("Index %d: Realteil: %.5f, Imaginärteil: %.5f%n", i, real, imag);
-            counter = counter + 2;
+        // Berechnung des Leistungsdichtespektrums (Power Spectral Density, PSD)
+        double[] psd = new double[fftResult.length / 2];
+        double totalPower = 0;
+        for (int i = 0; i < psd.length; i++) {
+            psd[i] = Math.pow(fftResult[i].real, 2) + Math.pow(fftResult[i].imag, 2);
+            totalPower += psd[i];
         }
-        merkmalSpeicher.setFFTValues(fftErgebnis);
+
+        // Berechnung der mittleren Frequenz
+        double meanFrequency = 0;
+        for (int i = 0; i < psd.length; i++) {
+            meanFrequency += i * psd[i];
+        }
+        meanFrequency /= totalPower;
+
+        // Berechnung der Medianfrequenz
+        double cumulativePower = 0;
+        double medianFrequency = 0;
+        for (int i = 0; i < psd.length; i++) {
+            cumulativePower += psd[i];
+            if (cumulativePower >= totalPower / 2) {
+                medianFrequency = i;
+                break;
+            }
+        }
+
+        // Rückgabe der extrahierten Merkmale als Array
+        //System.out.println("Median Frequency: " + medianFrequency + ", Mean Frequency: " + meanFrequency + ", Total Power: " + totalPower);
+        merkmalSpeicher.setFFTValues(new double[]{medianFrequency, meanFrequency, totalPower}, formelTyp);
     }
 
     public void setInput(ArrayList<Double> inputArrayList) {
         this.inputArray = inputArrayList.stream().mapToDouble(i -> (double) i).toArray();
+    }
+
+    public void setFormelTyp(int formelTyp) {
+        this.formelTyp = formelTyp;
     }
 }
