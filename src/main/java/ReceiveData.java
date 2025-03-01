@@ -6,13 +6,12 @@ import java.net.Socket;
 
 public class ReceiveData {
 
-    private Datenspeicher datenspeicher;
-
+    private Manager manager;
     private int dataPort;
 
-    public ReceiveData(Datenspeicher datenspeicher, int dataPort) {
-        this.datenspeicher = datenspeicher;
+    public ReceiveData(Manager manager, int dataPort) {
         this.dataPort = dataPort;
+        this.manager = manager;
     }
 
     // Hauptmethode zum Empfangen von Daten
@@ -47,8 +46,9 @@ public class ReceiveData {
                 //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
                 // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
                 //System.out.println(line);
-                datenspeicher.setInputData(Double.valueOf(line.replace(",","."))); //Vollgleichrichten der Werte
-                datenspeicher.start();
+//                datenspeicher.setInputData(Double.valueOf(line.replace(",",".")));
+//                datenspeicher.start();
+                manager.addRawData(line.replace(",","."));
             }
         } catch (IOException e) {
             System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());

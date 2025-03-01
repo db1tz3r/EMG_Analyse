@@ -223,7 +223,7 @@ public class Merkmal_Speicher {
                             "mittelwert,signalstärke,varianz," +
                             "standardabweichung,energie,kurtosis," +
                             "schiefe,zeroCrossings,laenge," +
-                            "maximalwert,minimalwert2"); // Header der CSV
+                            "maximalwert,minimalwert"); // Header der CSV
                     writer.newLine();
                 }
 

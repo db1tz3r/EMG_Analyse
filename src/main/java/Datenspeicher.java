@@ -38,7 +38,7 @@ public class Datenspeicher {
 
     public void start() {
         //System.out.println("Rohdaten: " + rawData.get(startIndex));
-        fillRMSArray(Math.abs(rawData.get(startIndex))); // Nur positive Werte für RMS und Peak-Normalisierung
+        fillRMSArray(Math.abs(rawData.get(startIndex))); // Nur positive Werte für RMS und Peak-Normalisierung --> Vollgleichrichtung
         if (startIndex > 4) {
             startRMSCalculation(rmsArrayValuesInput);
             fillPeakNormalisierungArray(rmsArrayValuesErgebnis.get(startPeakNormalisierungIndex));

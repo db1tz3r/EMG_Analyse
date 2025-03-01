@@ -36,42 +36,17 @@ public class Main {
             System.exit(0);
         }
 
-        // Starten des Plotters
-//        RealTimePlotter plotter = new RealTimePlotter(hz);
-//        plotter.pack();
-//        plotter.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        plotter.setVisible(true);
-//        UpdatePlotter updatePlotter = new UpdatePlotter(plotter);
 
-        //Starten der RMS-Klasse
-        Rms rms = new Rms();
 
-        //Starten der Peak-Normalisierung-Klasse
-        PeakNormalisierung peakNormalisierung = new PeakNormalisierung(maxWertPeakNormalisierung);
-
-        //Starten der Zykluserkennung
-        Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
-
-        //Starten der Zykluszuasmmenfassung
-        Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
 
         //Starten des Merkmalsspeichers
         Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile, liveDataQueue);
 
-        // Starten der PolynomialApproximation
-        PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
-
-        // starten der FFT
-        FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
-
-        //Starten der Merkmalsextraktion
-        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
-
-        // Starten der allgemeinen Speicherklasse/Manager
-        Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
+        // Starten des Managers
+        Manager manager = new Manager(3, maxWertPeakNormalisierung, merkmalSpeicher);
 
         // Starten der Übertragung des Clients/Sensors
-        ReceiveData receiveData = new ReceiveData(datenspeicher, port);
+        ReceiveData receiveData = new ReceiveData(manager, port);
         receiveData.receiveDatafromClient();
 
     }
