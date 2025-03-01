@@ -42,7 +42,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
                     merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
 
                     // CountdownLatch für die 8 Threads
-                    CountDownLatch latch = new CountDownLatch(8); // 4 Polynomial + 4 FFT
+                    CountDownLatch latch = new CountDownLatch(9); // 1 Klassische + 4 Polynomial + 4 FFT
 
                     // Starte Thread für Klassische Merkmale
                     new Thread(() -> {
