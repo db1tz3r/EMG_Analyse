@@ -21,7 +21,11 @@ public class Merkmal_Speicher {
             , fftAnfangMedoan, fftAnfangMittel, fftAnfangLeistungsdichtespektrum
             , fftMitteMedoan, fftMitteMittel, fftMitteLeistungsdichtespektrum
             , fftEndeMedoan, fftEndeMittel, fftEndeLeistungsdichtespektrum
-            , fftGesamtMedoan, fftGesamtMittel, fftGesamtLeistungsdichtespektrum;
+            , fftGesamtMedoan, fftGesamtMittel, fftGesamtLeistungsdichtespektrum
+            , mittelwert, signalstärke, varianz
+            , standardabweichung, energie, kurtosis
+            , schiefe, zeroCrossings, laenge
+            , maximalwert, minimalwert;
 
     //Array mit Merkmale (erster Wert, Wert MaximumSteigung, letzter Wert, Wert MaximumSenkung,
     //                      Steigungsformel a, Steigungsformel b, Steigungsformel c,
@@ -32,6 +36,12 @@ public class Merkmal_Speicher {
     //                      FFT Mitte Medoan, FFT Mitte Mittel, FFT Mitte Leistungsdichtespektrum,
     //                      FFT Ende Medoan, FFT Ende Mittel, FFT Ende Leistungsdichtespektrum,
     //                      FFT Gesamt Medoan, FFT Gesamt Mittel, FFT Gesamt Leistungsdichtespektrum
+    //                      Mittelwert, Signalstärke, Varianz,
+    //                      Standardabweichung, Energie, Kurtosis,
+    //                      Schiefe, ZeroCrossings, Länge,
+    //                      Maximalwert, Minimalwert
+
+
     private boolean createCsvFile;
     // Weitere Variablen
     private String fileName;
@@ -57,7 +67,11 @@ public class Merkmal_Speicher {
                     String.valueOf(fftAnfangMedoan), String.valueOf(fftAnfangMittel), String.valueOf(fftAnfangLeistungsdichtespektrum),
                     String.valueOf(fftMitteMedoan), String.valueOf(fftMitteMittel), String.valueOf(fftMitteLeistungsdichtespektrum),
                     String.valueOf(fftEndeMedoan), String.valueOf(fftEndeMittel), String.valueOf(fftEndeLeistungsdichtespektrum),
-                    String.valueOf(fftGesamtMedoan), String.valueOf(fftGesamtMittel), String.valueOf(fftGesamtLeistungsdichtespektrum)
+                    String.valueOf(fftGesamtMedoan), String.valueOf(fftGesamtMittel), String.valueOf(fftGesamtLeistungsdichtespektrum),
+                    String.valueOf(mittelwert), String.valueOf(signalstärke), String.valueOf(varianz),
+                    String.valueOf(standardabweichung), String.valueOf(energie), String.valueOf(kurtosis),
+                    String.valueOf(schiefe), String.valueOf(zeroCrossings), String.valueOf(laenge),
+                    String.valueOf(maximalwert), String.valueOf(minimalwert)
             });
         }else {
             // Starte die Klassifikation
@@ -69,7 +83,11 @@ public class Merkmal_Speicher {
                             fftAnfangMedoan, fftAnfangMittel, fftAnfangLeistungsdichtespektrum,
                             fftMitteMedoan, fftMitteMittel, fftMitteLeistungsdichtespektrum,
                             fftEndeMedoan, fftEndeMittel, fftEndeLeistungsdichtespektrum,
-                            fftGesamtMedoan, fftGesamtMittel, fftGesamtLeistungsdichtespektrum};
+                            fftGesamtMedoan, fftGesamtMittel, fftGesamtLeistungsdichtespektrum,
+                            mittelwert, signalstärke, varianz,
+                            standardabweichung, energie, kurtosis,
+                            schiefe, zeroCrossings, laenge,
+                            maximalwert, minimalwert};
 
             // In die Queue einfügen
             liveDataQueue.put(combinedArray);
@@ -129,6 +147,59 @@ public class Merkmal_Speicher {
 
     }
 
+    // Set-Methoden für Klassische Merkmale
+    public void setMittelwert(double mittelwert) {
+        this.mittelwert = mittelwert;
+    }
+
+    public void setSignalstärke(double signalstärke) {
+        this.signalstärke = signalstärke;
+    }
+
+    public void setVarianz(double varianz) {
+        this.varianz = varianz;
+    }
+
+    public void setStandardabweichung(double standardabweichung) {
+        this.standardabweichung = standardabweichung;
+    }
+
+    public void setEnergie(double energie) {
+        this.energie = energie;
+    }
+
+    public void setKurtosis(double kurtosis) {
+        this.kurtosis = kurtosis;
+    }
+
+    public void setSchiefe(double schiefe) {
+        this.schiefe = schiefe;
+    }
+
+    public void setZeroCrossings(int zeroCrossings) {
+        this.zeroCrossings = zeroCrossings;
+    }
+
+    public void setLaenge(int laenge) {
+        this.laenge = laenge;
+    }
+
+    public void setMaximalwert(double maximalwert) {
+        this.maximalwert = maximalwert;
+    }
+
+    public void setMinimalwert(double minimalwert) {
+        this.minimalwert = minimalwert;
+    }
+
+
+
+
+
+
+
+
+
     // Erstellen und befüllen der csv-Datei
     public void createCSVFile(String[] rowData){
         // Erstellen der csv-Datei
@@ -148,7 +219,11 @@ public class Merkmal_Speicher {
                             "fftAnfangMedian,fftAnfangMittel,fftAnfangPSD," +
                             "fftMitteMedian,fftMitteMittel,fftMittePSD," +
                             "fftEndeMedian,fftEndeMittel,fftEndePSD," +
-                            "fftGesamtMedian,fftGesamtMittel,fftGesamtPSD"); // Header der CSV
+                            "fftGesamtMedian,fftGesamtMittel,fftGesamtPSD," +
+                            "mittelwert,signalstärke,varianz," +
+                            "standardabweichung,energie,kurtosis," +
+                            "schiefe,zeroCrossings,laenge," +
+                            "maximalwert,minimalwert2"); // Header der CSV
                     writer.newLine();
                 }
 
@@ -173,5 +248,4 @@ public class Merkmal_Speicher {
         } while (Files.exists(Paths.get(fileName)));
         return fileName;
     }
-
 }

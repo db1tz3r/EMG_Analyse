@@ -1,6 +1,7 @@
 package Merkmalsextraktion;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class Merkmalsextraktion_Manager implements Runnable {
@@ -42,6 +43,13 @@ public class Merkmalsextraktion_Manager implements Runnable {
 
                     // CountdownLatch für die 8 Threads
                     CountDownLatch latch = new CountDownLatch(8); // 4 Polynomial + 4 FFT
+
+                    // Starte Thread für Klassische Merkmale
+                    new Thread(() -> {
+                        KlassischeSignalMerkmale thread = starteKlassischeSignalMerkmale(startSteigung, endeSenkung, merkmalSpeicher);
+                        thread.start();
+                        latch.countDown();
+                    }).start();
 
                     // Starte Threads für polynomiale Approximation
                     new Thread(() -> {
@@ -272,7 +280,36 @@ public class Merkmalsextraktion_Manager implements Runnable {
         return fftThread;
     }
 
+    // Starten der Klassischen Signalmerkmale
+    private KlassischeSignalMerkmale starteKlassischeSignalMerkmale(double value1, double value4, Merkmal_Speicher merkmalSpeicher) {
+        //Arraylist
+        ArrayList<Double> gerichtetesSignal = new ArrayList<>();
 
+        gerichtetesSignal.add(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
+            gerichtetesSignal.add(zyklusArrayInput.get(i + 1));
+            //System.out.println(rawData.get(i + 1));
+        }
+        gerichtetesSignal.add(value4);
+
+        ArrayList<Double> rohSignal = new ArrayList<>();
+
+        rohSignal.add(value1);
+        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
+            rohSignal.add(rawData.get(i + 1));
+            //System.out.println(rawData.get(i + 1));
+        }
+        rohSignal.add(value4);
+
+
+        // Erstelle ein neues Objekt der Klasse KlassischeSignalMerkmale für die Threadverwaltung
+        KlassischeSignalMerkmale klassischeSignalMerkmale = new KlassischeSignalMerkmale(rohSignal, gerichtetesSignal, merkmalSpeicher);
+
+        return klassischeSignalMerkmale;
+    }
+
+
+    // Setter und Getter
     // Befüllen der Arrays der Klasse
     public void setArraysZyklenerkennung (ArrayList<Double> zyklusArrayWertErgebnis, ArrayList<Integer> zyklusArrayZeitErgebnis,
                                           ArrayList<Double> zyklusArrayInput, ArrayList<Double> rawData){
