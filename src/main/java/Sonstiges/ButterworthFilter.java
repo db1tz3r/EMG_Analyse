@@ -1,4 +1,4 @@
-package Merkmalsextraktion;
+package Sonstiges;
 
 public class ButterworthFilter {
 

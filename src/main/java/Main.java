@@ -64,10 +64,10 @@ public class Main {
         // starten der FFT
         FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
 
-        //Starten der Zykluseintilung
+        //Starten der Merkmalsextraktion
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
 
-        // Starten der allgemeinen Speicherklasse
+        // Starten der allgemeinen Speicherklasse/Manager
         Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
 
         // Starten der Übertragung des Clients/Sensors
