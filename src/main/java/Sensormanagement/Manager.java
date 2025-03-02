@@ -1,29 +1,46 @@
-import Merkmalsextraktion.FastFourierTransformation;
+package Sensormanagement;
+
 import Merkmalsextraktion.Merkmal_Speicher;
 import Merkmalsextraktion.Merkmalsextraktion_Manager;
-import Merkmalsextraktion.PolynomialeApproximation;
 import Normalisierung.PeakNormalisierung;
 import Normalisierung.Rms;
 import Segmentation.Zyklenerkennung;
 import Segmentation.Zyklenzusammenfassung;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Manager {
     // Variablen
-    private Merkmal_Speicher merkmalSpeicher;
     List<Datenspeicher> datenspeicherList = new ArrayList<>(); // Liste zur Speicherung der Instanzen
+    private ArrayBlockingQueue<Object> liveDataQueue;   // Queue für die Live-Daten der Klassifizierung
+    List<Merkmal_Speicher> merkmalSpeicherList = new ArrayList<>(); // Liste zur Speicherung der Merkmalspeicher
+    Set<Integer> accessedMerkmalsSpeicherInstances = new CopyOnWriteArraySet<>(); // Set zur Speicherung der Instanzen
+    private List<String> allFeatures = new ArrayList<>(); // Array für alle Merkmale
+    CreateCSV createCSV ; // CSV-Datei-Klasse
+
+    private int anzahlSensoren; // Anzahl der Sensoren
+    private boolean createCsvFile; // Soll eine CSV-Datei erstellt werden
+    private String csvFileName; // Name der CSV-Datei, in der die Merkmale gespeichert werden
 
     // Konstruktor
-    public Manager(int anzahlSensoren, int maxWertPeakNormalisierung, Merkmal_Speicher merkmalSpeicher) {
-        this.merkmalSpeicher = merkmalSpeicher;
+    public Manager(int anzahlSensoren, int maxWertPeakNormalisierung, ArrayBlockingQueue<Object> liveDataQueue, boolean createCsvFile, String csvFileName) {
+        this.liveDataQueue = liveDataQueue;
+        this.anzahlSensoren = anzahlSensoren;
+        this.createCsvFile = createCsvFile;
+        this.csvFileName = csvFileName;
         initDatenspeicher(anzahlSensoren, maxWertPeakNormalisierung);
+
+        // Initalisierung der Erstellung von CSV-Dateien
+        CreateCSV createCSV = new CreateCSV(csvFileName, createCsvFile);
+        this.createCSV = createCSV;
     }
 
-    //Initalisierung der Datenspeicher
+    //Initalisierung der Sensormanagement.Datenspeicher
     public void initDatenspeicher(int anzahlSensoren, int maxWertPeakNormalisierung) {
         ExecutorService executor = Executors.newFixedThreadPool(anzahlSensoren); // Anzahl paralleler Initialisierungen
 
@@ -44,16 +61,17 @@ public class Manager {
                 // Starten der Zykluszusammenfassung
                 Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
 
-                // Starten der PolynomialApproximation
-                PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
+                //Starten des Merkmalspeichers
+                Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher();
 
-                // Starten der FFT
-                FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
+                synchronized (merkmalSpeicherList) {
+                    merkmalSpeicherList.add(merkmalSpeicher); // Speichern für späteren Zugriff
+                }
 
                 // Starten der Merkmalsextraktion
-                Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
+                Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher, this, index);
 
-                // Starten der allgemeinen Speicherklasse/Manager
+                // Starten der allgemeinen Speicherklasse/Sensormanagement.Manager
                 Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
 
                 synchronized (datenspeicherList) {
@@ -93,6 +111,7 @@ public class Manager {
         }
     }
 
+    // Methode zum Splitten eines Strings und Umwandeln in eine Liste von Doubles für mehrere Sensoren
     public static List<Double> splitString(String input) {
         if (input == null || input.isEmpty()) {
             return Collections.emptyList(); // Leere Liste zurückgeben, wenn der String null oder leer ist
@@ -101,6 +120,47 @@ public class Manager {
         return Arrays.stream(input.split("\\|")) // String aufteilen
                 .map(Double::parseDouble)  // In Double umwandeln
                 .collect(Collectors.toList()); // Als Liste sammeln
+    }
+
+    // Methode zum Hinzufügen von Merkmalen aus der jeweiligen Instanz
+    public void setFeaturesFromInstanz(int merkmalsSpeicherID) {
+        // Instanze beim Aufruf hinterlegen
+        if (accessedMerkmalsSpeicherInstances.contains(merkmalsSpeicherID) ||
+                ((accessedMerkmalsSpeicherInstances.size() == anzahlSensoren-1) && !accessedMerkmalsSpeicherInstances.contains(merkmalsSpeicherID))) {
+            // Bisheriger Speicher und Instanzliste löschen
+            accessedMerkmalsSpeicherInstances.clear();
+            allFeatures.clear();
+
+            // Hinzufügen der Merkmale der unterschiedlichen Sensoren/Instanzen zu einem Array
+            for (int i = 0; i < anzahlSensoren; i++) {
+                synchronized (merkmalSpeicherList){
+                    allFeatures.add(merkmalSpeicherList.get(i).getAlleMerkmale());
+                }
+            }
+            // System.out.println("Alle Merkmale: " + allFeatures);
+
+            // Start der Klassifikation oder CSV-Erstellung
+            startClassification();
+
+        } else {
+            accessedMerkmalsSpeicherInstances.add(merkmalsSpeicherID);
+        }
+    }
+
+    // Start der Klassifizierung oder der CSV-Erstellung
+    public void startClassification() {
+        // Start der Klassifizierung oder der CSV-Erstellung
+        if (createCsvFile) {
+            // CSV-Datei erstellen
+            createCSV.createCSVFile(allFeatures, anzahlSensoren);
+        } else {
+            // Klassifikation starten
+            try {
+                liveDataQueue.put(allFeatures);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

@@ -1,3 +1,5 @@
+import Sensormanagement.Manager;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,7 +46,7 @@ public class ReceiveData {
             // Lies die Daten vom Client und verarbeite sie
             while ((line = reader.readLine()) != null) {
                 //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
-                // Konvertiere die empfangenen Daten und speichere sie im Datenspeicher Array
+                // Konvertiere die empfangenen Daten und speichere sie im Sensormanagement.Datenspeicher Array
                 //System.out.println(line);
 //                datenspeicher.setInputData(Double.valueOf(line.replace(",",".")));
 //                datenspeicher.start();

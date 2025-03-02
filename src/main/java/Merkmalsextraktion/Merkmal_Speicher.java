@@ -1,14 +1,9 @@
 package Merkmalsextraktion;
 
-import RandomForest.LiveDataPrediction;
-import smile.regression.RandomForest;
-
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.file.*;
-import java.util.*;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.stream.DoubleStream;
 
 public class Merkmal_Speicher {
 
@@ -41,58 +36,6 @@ public class Merkmal_Speicher {
     //                      Schiefe, ZeroCrossings, Länge,
     //                      Maximalwert, Minimalwert
 
-
-    private boolean createCsvFile;
-    // Weitere Variablen
-    private String fileName;
-    private final ArrayBlockingQueue<Object> liveDataQueue;
-
-    //Konstruktor
-    public Merkmal_Speicher(String csvFileName, boolean createCsvFile, ArrayBlockingQueue<Object> liveDataQueue) {
-        this.createCsvFile = createCsvFile;
-        this.fileName = getNextFileName(csvFileName);
-        this.liveDataQueue = liveDataQueue;
-    }
-
-    // Methode zum Starten der Klassifikation oder der CSV-Datei
-    public void startCSVOrKlassification() throws InterruptedException {
-        if (createCsvFile){
-            // Erstellen der CSV-Datei
-            createCSVFile(new String[]{
-                    "1", String.valueOf(minimumSteigungWert), String.valueOf(maximumSteigungWert), String.valueOf(minimumSenkungWert), String.valueOf(maximumSenkungWert),
-                    String.valueOf(steigungA), String.valueOf(steigungB), String.valueOf(steigungC),
-                    String.valueOf(senkungA), String.valueOf(senkungB), String.valueOf(senkungC),
-                    String.valueOf(mittelA), String.valueOf(mittelB), String.valueOf(mittelC),
-                    String.valueOf(gesamtA), String.valueOf(gesamtB), String.valueOf(gesamtC),
-                    String.valueOf(fftAnfangMedoan), String.valueOf(fftAnfangMittel), String.valueOf(fftAnfangLeistungsdichtespektrum),
-                    String.valueOf(fftMitteMedoan), String.valueOf(fftMitteMittel), String.valueOf(fftMitteLeistungsdichtespektrum),
-                    String.valueOf(fftEndeMedoan), String.valueOf(fftEndeMittel), String.valueOf(fftEndeLeistungsdichtespektrum),
-                    String.valueOf(fftGesamtMedoan), String.valueOf(fftGesamtMittel), String.valueOf(fftGesamtLeistungsdichtespektrum),
-                    String.valueOf(mittelwert), String.valueOf(signalstärke), String.valueOf(varianz),
-                    String.valueOf(standardabweichung), String.valueOf(energie), String.valueOf(kurtosis),
-                    String.valueOf(schiefe), String.valueOf(zeroCrossings), String.valueOf(laenge),
-                    String.valueOf(maximalwert), String.valueOf(minimalwert)
-            });
-        }else {
-            // Starte die Klassifikation
-            double[] combinedArray = {Double.NaN, maximumSteigungWert, minimumSenkungWert, maximumSenkungWert,
-                            steigungA, steigungB, steigungC,
-                            senkungA, senkungB, senkungC,
-                            mittelA, mittelB, mittelC,
-                            gesamtA, gesamtB, gesamtC,
-                            fftAnfangMedoan, fftAnfangMittel, fftAnfangLeistungsdichtespektrum,
-                            fftMitteMedoan, fftMitteMittel, fftMitteLeistungsdichtespektrum,
-                            fftEndeMedoan, fftEndeMittel, fftEndeLeistungsdichtespektrum,
-                            fftGesamtMedoan, fftGesamtMittel, fftGesamtLeistungsdichtespektrum,
-                            mittelwert, signalstärke, varianz,
-                            standardabweichung, energie, kurtosis,
-                            schiefe, zeroCrossings, laenge,
-                            maximalwert, minimalwert};
-
-            // In die Queue einfügen
-            liveDataQueue.put(combinedArray);
-        }
-    }
 
     // Set-Methode für die Min- und Max-Werte
     public void setMinMaxValues(double minimumSteigungWert, double maximumSteigungWert, double minimumSenkungWert, double maximumSenkungWert){
@@ -192,60 +135,30 @@ public class Merkmal_Speicher {
         this.minimalwert = minimalwert;
     }
 
-
-
-
-
-
-
-
-
-    // Erstellen und befüllen der csv-Datei
-    public void createCSVFile(String[] rowData){
-        // Erstellen der csv-Datei
-        try {
-            // Überprüfe, ob die Datei existiert
-            boolean fileExists = Files.exists(Paths.get(fileName));
-
-            // Datei im Anhängemodus öffnen
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
-                // Falls die Datei neu ist, füge die Header hinzu
-                if (!fileExists) {
-                    writer.write("Klasse,minimumSteigungWert,maximumSteigungWert,minimumSenkungWert,maximumSenkungWert," +
-                            "steigungA,steigungB,steigungC," +
-                            "senkungA,senkungB,senkungC," +
-                            "mittelA,mittelB,mittelC," +
-                            "gesamtA,gesamtB,gesamtC," +
-                            "fftAnfangMedian,fftAnfangMittel,fftAnfangPSD," +
-                            "fftMitteMedian,fftMitteMittel,fftMittePSD," +
-                            "fftEndeMedian,fftEndeMittel,fftEndePSD," +
-                            "fftGesamtMedian,fftGesamtMittel,fftGesamtPSD," +
-                            "mittelwert,signalstärke,varianz," +
-                            "standardabweichung,energie,kurtosis," +
-                            "schiefe,zeroCrossings,laenge," +
-                            "maximalwert,minimalwert"); // Header der CSV
-                    writer.newLine();
-                }
-
-                // Schreibe die neue Zeile
-                writer.write(String.join(",", rowData));
-                writer.newLine();
-
-                System.out.println("Daten in Datei geschrieben: " + fileName);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    // Getter Methode zum holen der einzelnen Werte für den gemeinsamen Speicher
+    public String getAlleMerkmale() {
+        return minimumSenkungWert + "," + maximumSenkungWert + "," + minimumSteigungWert + "," + maximumSteigungWert + ","
+                + steigungA + "," + steigungB + "," + steigungC + ","
+                + senkungA + "," + senkungB + "," + senkungC + ","
+                + mittelA + "," + mittelB + "," + mittelC + ","
+                + gesamtA + "," + gesamtB + "," + gesamtC + ","
+                + fftAnfangMedoan + "," + fftAnfangMittel + "," + fftAnfangLeistungsdichtespektrum + ","
+                + fftMitteMedoan + "," + fftMitteMittel + "," + fftMitteLeistungsdichtespektrum + ","
+                + fftEndeMedoan + "," + fftEndeMittel + "," + fftEndeLeistungsdichtespektrum + ","
+                + fftGesamtMedoan + "," + fftGesamtMittel + "," + fftGesamtLeistungsdichtespektrum + ","
+                + mittelwert + "," + signalstärke + "," + varianz + ","
+                + standardabweichung + "," + energie + "," + kurtosis + ","
+                + schiefe + "," + zeroCrossings + "," + laenge + ","
+                + maximalwert + "," + minimalwert;
     }
 
-    // Methode, um den nächsten verfügbaren Dateinamend der csv zu finden
-    private static String getNextFileName(String baseFileName) {
-        int counter = 0;
-        String fileName;
-        do {
-            fileName = baseFileName + (counter == 0 ? "" : "_" + counter) + ".csv";
-            counter++;
-        } while (Files.exists(Paths.get(fileName)));
-        return fileName;
-    }
+
+
+
+
+
+
+
+
+
 }

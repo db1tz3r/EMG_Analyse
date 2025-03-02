@@ -1,16 +1,6 @@
-import Merkmalsextraktion.Merkmal_Speicher;
-import Merkmalsextraktion.Merkmalsextraktion_Manager;
-import Merkmalsextraktion.PolynomialeApproximation;
-import Merkmalsextraktion.FastFourierTransformation;
-import Normalisierung.PeakNormalisierung;
-import Normalisierung.Rms;
 import RandomForest.ModellManager;
-import Segmentation.Zyklenerkennung;
-import Segmentation.Zyklenzusammenfassung;
-import UI.RealTimePlotter;
-import UI.UpdatePlotter;
+import Sensormanagement.Manager;
 
-import javax.swing.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class Main {
@@ -20,7 +10,8 @@ public class Main {
         int hz = 2000;    // Zahl der Hz in dem die Daten übertragen werden
         boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
-        boolean useRamdomForest = false;
+        boolean useRamdomForest = false; // Soll das Random Forest Modell verwendet werden
+        int anzahlSensoren = 3; // Anzahl der Sensoren
 
 
         // Starten des Random Forest Modells
@@ -38,12 +29,9 @@ public class Main {
 
 
 
-
-        //Starten des Merkmalsspeichers
-        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile, liveDataQueue);
-
+        // Initalisierung
         // Starten des Managers
-        Manager manager = new Manager(3, maxWertPeakNormalisierung, merkmalSpeicher);
+        Manager manager = new Manager(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCsvFile, csvFileName);
 
         // Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(manager, port);

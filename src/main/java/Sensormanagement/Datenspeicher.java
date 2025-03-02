@@ -1,3 +1,5 @@
+package Sensormanagement;
+
 import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import Normalisierung.PeakNormalisierung;
 import Normalisierung.Rms;
