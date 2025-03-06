@@ -1,23 +1,26 @@
 package Merkmalsextraktion;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import Sensormanagement.Manager;
 
 public class Merkmalsextraktion_Manager implements Runnable {
 
     private int zyklusArrayWertErgebnisSeizeOld = 0;
     private Merkmal_Speicher merkmalSpeicher;
+    private int merkmalsSpeicherID;
+    private Manager manager;
 
     private ArrayList<Double> rawData = new ArrayList<>();  //Speicher für die Rohdaten aus dem Imput für Fast Fourier Transformation
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>(); //Speicher für die Werte der Zykluserkennung
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Speicher für die Zeitwerte der Zykluserkennung
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
 
-    public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher) {
+    public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher, Manager manager, int merkmalsSpeicherID) {
         this.merkmalSpeicher = merkmalSpeicher;
+        this.merkmalsSpeicherID = merkmalsSpeicherID;
+        this.manager = manager;
     }
-
 
 
     @Override
@@ -108,12 +111,8 @@ public class Merkmalsextraktion_Manager implements Runnable {
                         e.printStackTrace();
                     }
 
-                    // Jetzt sind alle Threads fertig --> Starte die Klassifikation oder die CSV-Datei
-                    try {
-                        merkmalSpeicher.startCSVOrKlassification();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    // Jetzt sind alle Threads fertig --> Füge alle Instanzen global hinzu
+                    manager.setFeaturesFromInstanz(merkmalsSpeicherID);
 
                 } else {
                     //System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");

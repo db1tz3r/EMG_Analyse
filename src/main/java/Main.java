@@ -1,16 +1,6 @@
-import Merkmalsextraktion.Merkmal_Speicher;
-import Merkmalsextraktion.Merkmalsextraktion_Manager;
-import Merkmalsextraktion.PolynomialeApproximation;
-import Merkmalsextraktion.FastFourierTransformation;
-import Normalisierung.PeakNormalisierung;
-import Normalisierung.Rms;
 import RandomForest.ModellManager;
-import Segmentation.Zyklenerkennung;
-import Segmentation.Zyklenzusammenfassung;
-import UI.RealTimePlotter;
-import UI.UpdatePlotter;
+import Sensormanagement.Manager;
 
-import javax.swing.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class Main {
@@ -20,7 +10,8 @@ public class Main {
         int hz = 2000;    // Zahl der Hz in dem die Daten übertragen werden
         boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
-        boolean useRamdomForest = false;
+        boolean useRamdomForest = false; // Soll das Random Forest Modell verwendet werden
+        int anzahlSensoren = 3; // Anzahl der Sensoren
 
 
         // Starten des Random Forest Modells
@@ -36,42 +27,14 @@ public class Main {
             System.exit(0);
         }
 
-        // Starten des Plotters
-//        RealTimePlotter plotter = new RealTimePlotter(hz);
-//        plotter.pack();
-//        plotter.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        plotter.setVisible(true);
-//        UpdatePlotter updatePlotter = new UpdatePlotter(plotter);
 
-        //Starten der RMS-Klasse
-        Rms rms = new Rms();
 
-        //Starten der Peak-Normalisierung-Klasse
-        PeakNormalisierung peakNormalisierung = new PeakNormalisierung(maxWertPeakNormalisierung);
-
-        //Starten der Zykluserkennung
-        Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
-
-        //Starten der Zykluszuasmmenfassung
-        Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
-
-        //Starten des Merkmalsspeichers
-        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher(csvFileName ,createCsvFile, liveDataQueue);
-
-        // Starten der PolynomialApproximation
-        PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
-
-        // starten der FFT
-        FastFourierTransformation fft = new FastFourierTransformation(merkmalSpeicher);
-
-        //Starten der Merkmalsextraktion
-        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
-
-        // Starten der allgemeinen Speicherklasse/Manager
-        Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
+        // Initalisierung
+        // Starten des Managers
+        Manager manager = new Manager(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCsvFile, csvFileName);
 
         // Starten der Übertragung des Clients/Sensors
-        ReceiveData receiveData = new ReceiveData(datenspeicher, port);
+        ReceiveData receiveData = new ReceiveData(manager, port);
         receiveData.receiveDatafromClient();
 
     }
