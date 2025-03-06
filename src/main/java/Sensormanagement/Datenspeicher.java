@@ -9,6 +9,7 @@ import UI.UpdatePlotter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Datenspeicher {
     private UpdatePlotter updatePlotter;
@@ -69,6 +70,7 @@ public class Datenspeicher {
         // Starte die Zykluserkennung mit dem aktuellen Index und globalem Zeitpunkt
         double[] ergebnis = zykluserkennung.starteZykluserkennung(
                 peakNormalisierungArrayErgebnis.get(startZyklenerkennungIndex), schwelleProzent, globalerZeitpunkt, minPunkte, minGesamtabweichung);
+        //System.out.println(peakNormalisierungArrayErgebnis.size());
 
         if (ergebnis[0] != 0) {
             zyklusAnschliessenNachZeitCount = 0;
@@ -145,7 +147,7 @@ public class Datenspeicher {
         rmsArrayValuesErgebnis.add(rmsErgenis);
     }
 
-    public void setInputData(Double inputDataValue) {
-        this.rawData.add(inputDataValue);
+    public void setInputData(List<Double> inputDataValue) {
+        this.rawData.addAll(inputDataValue);
     }
 }
