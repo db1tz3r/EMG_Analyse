@@ -97,6 +97,7 @@ public class Manager {
     // Methode zum Hinzufügen von Rohdaten zur jeweiligen Instanz
     public void addRawData(String input) {
         if (input.contains("|")){
+//            System.out.println(input.chars().filter(ch -> ch == '|').count());    //Schauen wie viele Datensensoren vorhanden sind
             for (int i = 0; i < splitString(input).size(); i++) {
                 synchronized (datenspeicherList){
                     datenspeicherList.get(i).setInputData(splitString(input).get(i));
@@ -105,21 +106,40 @@ public class Manager {
             }
         } else {
             synchronized (datenspeicherList){
-                datenspeicherList.get(0).setInputData(Double.parseDouble(input));
+                datenspeicherList.get(0).setInputData(splitString(input).getFirst());
                 datenspeicherList.get(0).start();
             }
         }
     }
 
-    // Methode zum Splitten eines Strings und Umwandeln in eine Liste von Doubles für mehrere Sensoren
-    public static List<Double> splitString(String input) {
+    // Methode zum Splitten eines Strings und Umwandeln in eine Liste von Listen für mehrere Sensoren
+    public static List<List<Double>> splitString(String input) {
+
+        List<List<Double>> arrays = new ArrayList<>();
+
         if (input == null || input.isEmpty()) {
             return Collections.emptyList(); // Leere Liste zurückgeben, wenn der String null oder leer ist
         }
 
-        return Arrays.stream(input.split("\\|")) // String aufteilen
-                .map(Double::parseDouble)  // In Double umwandeln
-                .collect(Collectors.toList()); // Als Liste sammeln
+        for (String s : input.split("\\|")) {
+            s = s.trim(); // Korrekt trimmen
+
+            List<Double> array = new ArrayList<>();
+
+            for (String v : s.split("\\.")) {
+//                System.out.println("v: " + v);
+                try {
+                    array.add(Double.parseDouble(v.replace(",", "."))); // Konvertierung in Double
+                } catch (NumberFormatException e) {
+//                    System.out.println("Ungültiger Wert: " + v); // Fehlerausgabe
+                }
+            }
+//            System.out.println("Array: " + array);
+
+            arrays.add(array); // Hinzufügen des Arrays zur Liste
+        }
+
+        return arrays;
     }
 
     // Methode zum Hinzufügen von Merkmalen aus der jeweiligen Instanz

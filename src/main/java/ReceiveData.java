@@ -47,10 +47,11 @@ public class ReceiveData {
             while ((line = reader.readLine()) != null) {
                 //System.out.println("Empfangene Nachricht: " + line); // Debug-Ausgabe
                 // Konvertiere die empfangenen Daten und speichere sie im Sensormanagement.Datenspeicher Array
-                //System.out.println(line);
+//                System.out.println("Input: " + line);
+//                System.out.println();
 //                datenspeicher.setInputData(Double.valueOf(line.replace(",",".")));
 //                datenspeicher.start();
-                manager.addRawData(line.replace(",","."));
+                manager.addRawData(line);
             }
         } catch (IOException e) {
             System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());
