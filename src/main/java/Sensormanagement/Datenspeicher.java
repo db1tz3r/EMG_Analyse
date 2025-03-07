@@ -51,7 +51,7 @@ public class Datenspeicher {
                 startPeakNormalisierung();
                 for (int i = 0; i < 5; i++) {
                     startSegmentation(startZyklenerkennungIndex, startZyklenerkennungIndex,
-                            7.0, 5, 20.0, 50, 50);
+                            7.0, 5, 15.0, 120, 120);
                     startZyklenerkennungIndex++;
                 }
             }
