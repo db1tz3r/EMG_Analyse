@@ -11,7 +11,7 @@ public class Main {
         boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
         boolean useRamdomForest = false; // Soll das Random Forest Modell verwendet werden
-        int anzahlSensoren = 2; // Anzahl der Sensoren
+        int anzahlSensoren = 3; // Anzahl der Sensoren
 
 
         // Starten des Random Forest Modells
