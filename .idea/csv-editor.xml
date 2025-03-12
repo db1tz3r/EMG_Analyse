@@ -52,13 +52,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\Merkmale_4.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="\src\Data\rfiris.csv">
           <value>
             <Attribute>

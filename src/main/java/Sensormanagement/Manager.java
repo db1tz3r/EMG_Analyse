@@ -4,7 +4,9 @@ import Merkmalsextraktion.Merkmal_Speicher;
 import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import Normalisierung.PeakNormalisierung;
 import Normalisierung.Rms;
+import Segmentation.Zyklen_Speicher;
 import Segmentation.Zyklenerkennung;
+import Segmentation.Zyklenmanager;
 import Segmentation.Zyklenzusammenfassung;
 
 import java.util.*;
@@ -21,7 +23,8 @@ public class Manager {
     List<Merkmal_Speicher> merkmalSpeicherList = new ArrayList<>(); // Liste zur Speicherung der Merkmalspeicher
     Set<Integer> accessedMerkmalsSpeicherInstances = new CopyOnWriteArraySet<>(); // Set zur Speicherung der Instanzen
     private List<String> allFeatures = new ArrayList<>(); // Array für alle Merkmale
-    CreateCSV createCSV ; // CSV-Datei-Klasse
+    private CreateCSV createCSV ; // CSV-Datei-Klasse
+    private Zyklen_Speicher zyklenSpeicher; // Zyklenspeicher
 
     private int anzahlSensoren; // Anzahl der Sensoren
     private boolean createCsvFile; // Soll eine CSV-Datei erstellt werden
@@ -33,6 +36,10 @@ public class Manager {
         this.anzahlSensoren = anzahlSensoren;
         this.createCsvFile = createCsvFile;
         this.csvFileName = csvFileName;
+
+        // Starten des Zyklen_Speichers
+        this.zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, 100);
+
         initDatenspeicher(anzahlSensoren, maxWertPeakNormalisierung);
 
         // Initalisierung der Erstellung von CSV-Dateien
@@ -61,6 +68,9 @@ public class Manager {
                 // Starten der Zykluszusammenfassung
                 Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
 
+                // Starten des Zyklusmanagers
+                Zyklenmanager zyklenmanager = new Zyklenmanager(zyklenerkennung, zyklenzusammenfassung, zyklenSpeicher, index);
+
                 //Starten des Merkmalspeichers
                 Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher();
 
@@ -72,7 +82,7 @@ public class Manager {
                 Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher, this, index);
 
                 // Starten der allgemeinen Speicherklasse/Sensormanagement.Manager
-                Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, zyklenerkennung, merkmalsextraktionManager, zyklenzusammenfassung);
+                Datenspeicher datenspeicher = new Datenspeicher(/*updatePlotter*/ null, rms, peakNormalisierung, merkmalsextraktionManager, zyklenmanager);
 
                 synchronized (datenspeicherList) {
                     datenspeicherList.add(datenspeicher); // Speichern für späteren Zugriff
@@ -100,6 +110,7 @@ public class Manager {
 //            System.out.println(input.chars().filter(ch -> ch == '|').count());    //Schauen wie viele Datensensoren vorhanden sind
             for (int i = 0; i < splitString(input).size(); i++) {
                 synchronized (datenspeicherList){
+//                    System.out.println(datenspeicherList.isEmpty());
                     datenspeicherList.get(i).setInputData(splitString(input).get(i));
                     datenspeicherList.get(i).start();
                 }
