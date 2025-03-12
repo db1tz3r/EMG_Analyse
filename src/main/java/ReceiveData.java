@@ -1,4 +1,4 @@
-import Sensormanagement.Manager;
+import Management.InitPipeline;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,12 +8,12 @@ import java.net.Socket;
 
 public class ReceiveData {
 
-    private Manager manager;
+    private InitPipeline initPipeline;
     private int dataPort;
 
-    public ReceiveData(Manager manager, int dataPort) {
+    public ReceiveData(InitPipeline initPipeline, int dataPort) {
         this.dataPort = dataPort;
-        this.manager = manager;
+        this.initPipeline = initPipeline;
     }
 
     // Hauptmethode zum Empfangen von Daten
@@ -51,7 +51,7 @@ public class ReceiveData {
 //                System.out.println();
 //                datenspeicher.setInputData(Double.valueOf(line.replace(",",".")));
 //                datenspeicher.start();
-                manager.addRawData(line);
+                initPipeline.addRawData(line);
             }
         } catch (IOException e) {
             System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());
