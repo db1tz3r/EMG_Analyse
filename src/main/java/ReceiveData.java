@@ -1,4 +1,5 @@
 import Management.InitPipeline;
+import Management.SystemManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,13 +8,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ReceiveData {
+    // Objekte
+    private SystemManager systemManager;    // Systemmanager
 
-    private InitPipeline initPipeline;
+    // Variablen
     private int dataPort;
 
-    public ReceiveData(InitPipeline initPipeline, int dataPort) {
+    public ReceiveData(SystemManager systemManager, int dataPort) {
         this.dataPort = dataPort;
-        this.initPipeline = initPipeline;
+        this.systemManager = systemManager;
     }
 
     // Hauptmethode zum Empfangen von Daten
@@ -51,7 +54,7 @@ public class ReceiveData {
 //                System.out.println();
 //                datenspeicher.setInputData(Double.valueOf(line.replace(",",".")));
 //                datenspeicher.start();
-                initPipeline.addRawData(line);
+                systemManager.addRawData(line);
             }
         } catch (IOException e) {
             System.err.println("Fehler beim Verarbeiten der Client-Verbindung: " + e.getMessage());

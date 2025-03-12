@@ -97,17 +97,11 @@ public class PolynomialeApproximation extends Thread {
         merkmalSpeicher.setPolynomialeApproximation(coefficients[0], coefficients[1], coefficients[2], formelTyp);
     }
 
-    public void setMiddleValues(double value) {
-        yValues.add(value);
-    }
 
-    public void setBeginningValue(double value1) {
-        yValues.clear();
-        yValues.add(value1);
-    }
-
-    public void setEndValue(double value2) {
-        yValues.add(value2);
+    // Setter und Getter
+    public void setInputArray(ArrayList<Double> inputArray) {
+        this.yValues.clear();
+        this.yValues.addAll(inputArray);
     }
 
     public void setFormelTyp(int formelTyp) {

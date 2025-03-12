@@ -23,7 +23,7 @@ public class Normalisierung_Manager {
     private int startIndex = 0, startPeakNormalisierungIndex = 0;
 
     public ArrayList<Double> startNormalisierung(ArrayList<Double> rawData) {
-        //System.out.println("Rohdaten: " + rawData.get(startIndex));
+//        System.out.println("Rohdaten: " + rawData.get(startIndex));
         fillRMSArray(Math.abs(rawData.get(startIndex))); // Nur positive Werte für RMS und Peak-Normalisierung --> Vollgleichrichtung
         if (startIndex > 4) {
             startRMSCalculation(rmsArrayValuesInput);
