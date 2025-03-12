@@ -20,18 +20,18 @@ public class Merkmalsextraktion_Manager {
 
 
     public List<List<List<Double>>> startMerkmalsextraktion(List<List<List>> zyklusErgebnis) {
+        List<List<List<Double>>> allFeatures = new ArrayList<>();
+
         // Starte die Merkmalsextraktion für jede Instanz
-        for (int instanzID= 0; instanzID < zyklusErgebnis.size(); instanzID++) {
+        for (int i = 0; i < zyklusErgebnis.size(); i++) {
+            int instanzID = i;  // Instanz-ID
             if (!zyklusErgebnis.isEmpty() && zyklusErgebnis.get(instanzID) != null) {
-                System.out.println(zyklusErgebnis);
+//                System.out.println(zyklusErgebnis);
                 merkmalSpeicher = new Merkmal_Speicher();
 
-                //                    System.out.println("Kompletter Muskelzyklus erkannt");
-                //                    System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
-                //                            startSteigung, endeSteigung, startSenkung, endeSenkung);
-
                 // Speichere die Werte im Merkmalspeicher
-                merkmalSpeicher.setMinMaxValues(getSteigungsArrayGerichtet(zyklusErgebnis, instanzID).getFirst(),
+                merkmalSpeicher.setMinMaxValues(
+                        getSteigungsArrayGerichtet(zyklusErgebnis, instanzID).getFirst(),
                         getSteigungsArrayGerichtet(zyklusErgebnis, instanzID).getLast(),
                         getSenkungsArrayGerichtet(zyklusErgebnis, instanzID).getFirst(),
                         getSenkungsArrayGerichtet(zyklusErgebnis, instanzID).getLast()
@@ -106,18 +106,18 @@ public class Merkmalsextraktion_Manager {
 
                 // Daten zusammenfügen
                 allFeatures.add(merkmalSpeicher.getAlleMerkmale());
-
-                if (instanzID == zyklusErgebnis.size() - 1) {
-//                System.out.println("Alle Merkmale: " + allFeatures);
-                    List<List<List<Double>>> ergebnis = allFeatures;
-                    allFeatures.clear();
-                    return ergebnis;
-
-                }
+//                System.out.println("Merkmale: " + allFeatures);
+            } else {
+                allFeatures.add(Collections.singletonList(Arrays.asList(new Double[39])));
             }
-            allFeatures.add(null);
-            return null;
         }
+
+        // Falls alle Instanzen verarbeitet wurden, gebe das Ergebnis zurück
+        if (!allFeatures.isEmpty() && allFeatures.stream().anyMatch(Objects::nonNull)) {
+//            System.out.println("Ergebnis: " + allFeatures);
+            return allFeatures;
+        }
+
         return null;
     }
 
