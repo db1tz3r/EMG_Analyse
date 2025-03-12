@@ -306,15 +306,4 @@ public class Merkmalsextraktion_Manager implements Runnable {
 
         return klassischeSignalMerkmale;
     }
-
-
-    // Setter und Getter
-    // Befüllen der Arrays der Klasse
-    public void setArraysZyklenerkennung (ArrayList<Double> zyklusArrayWertErgebnis, ArrayList<Integer> zyklusArrayZeitErgebnis,
-                                          ArrayList<Double> zyklusArrayInput, ArrayList<Double> rawData){
-        this.zyklusArrayWertErgebnis = zyklusArrayWertErgebnis;
-        this.zyklusArrayZeitErgebnis = zyklusArrayZeitErgebnis;
-        this.zyklusArrayInput = zyklusArrayInput;
-        this.rawData = rawData;
-    }
 }
