@@ -44,10 +44,10 @@ public class Main {
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
 
         // Starten der Initalisierung der Pipeline
-        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCSV, createCsvFile, merkmalsextraktionManager, merkmalSpeicher);
+        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung);
 
         // Starten des Systemmanagers
-        SystemManager systemManager = new SystemManager(initPipeline, merkmalsextraktionManager, anzahlSensoren);
+        SystemManager systemManager = new SystemManager(initPipeline, merkmalsextraktionManager, anzahlSensoren, createCSV,createCsvFile, liveDataQueue);
 
         // Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(systemManager, port);

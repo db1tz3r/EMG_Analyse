@@ -5,19 +5,27 @@ import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class SystemManager {
     // Objekte
     private Merkmalsextraktion_Manager merkmalsextraktionManager; // Merkmalsextraktion-Manager-Klasse
     private List<InstanzManager> instanzManagerList; // Liste zur Speicherung der Instanzen
+    private CreateCSV createCSV; // CSV-Datei-Klasse
+    private ArrayBlockingQueue<Object> liveDataQueue; // Queue für die Live-Daten der Klassifizierung
 
     // Variablen
     private int anzahlSensoren; // Anzahl der Sensoren und Instanzen
+    private boolean createCsvFile; // Soll eine CSV-Datei erstellt werden
 
     // Konstruktor
-    public SystemManager(InitPipeline initPipeline, Merkmalsextraktion_Manager merkmalsextraktionManager, int anzahlSensoren) {
+    public SystemManager(InitPipeline initPipeline, Merkmalsextraktion_Manager merkmalsextraktionManager, int anzahlSensoren, CreateCSV createCSV, boolean createCsvFile, ArrayBlockingQueue<Object> liveDataQueue) {
         this.merkmalsextraktionManager = merkmalsextraktionManager;
+        this.createCSV = createCSV;
+        this.liveDataQueue = liveDataQueue;
+
         this.anzahlSensoren = anzahlSensoren;
+        this.createCsvFile = createCsvFile;
 
         this.instanzManagerList = initPipeline.getInstanzManagerList();
     }
@@ -37,14 +45,27 @@ public class SystemManager {
                 }
             }
         }
-
         // Prüfe, ob ergebnisPipeline gültig ist, bevor die Merkmalsextraktion gestartet wird
         if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
-            System.out.println("Starte Merkmalsextraktion...");
+//            System.out.println("Starte Merkmalsextraktion...");
             List<List<List<Double>>> ergebnisMerkmalsextraktion = merkmalsextraktionManager.startMerkmalsextraktion(ergebnisPipeline);
 
+            // Prüfe, ob ergebnisMerkmalsextraktion gültig ist, bevor die Klassifikation gestartet wird
             if (ergebnisMerkmalsextraktion != null && !ergebnisMerkmalsextraktion.isEmpty()) {
-                System.out.println("Ergebnis Merkmale: " + ergebnisMerkmalsextraktion);
+//                System.out.println("Ergebnis Merkmale: " + ergebnisMerkmalsextraktion);
+                // Prüfe, ob eine CSV-Datei erstellt werden soll oder die Klassifikation gestartet werden soll
+                if (createCsvFile) {
+                    // CSV-Datei erstellen
+//                    System.out.println("Erstelle CSV-Datei...");
+                    createCSV.createCSVFile(convertResultToString(ergebnisMerkmalsextraktion), anzahlSensoren);
+                } else {
+                    // Klassifikation starten
+                    try {
+                        liveDataQueue.put(convertResultToString(ergebnisMerkmalsextraktion));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         } else {
 //            System.out.println("Fehler: ergebnisPipeline ist null oder leer.");
@@ -110,5 +131,19 @@ public class SystemManager {
 
         return arrays;
     }
+
+    // Methode um aus dem ErgebisMerkmalen eine Liste von Strings zu erstellen
+    public List<String> convertResultToString(List<List<List<Double>>> ergebnisMerkmalsextraktion) {
+        List<String> result = new ArrayList<>();
+        for (List<List<Double>> sensor : ergebnisMerkmalsextraktion) {
+            List<String> sensorResult = new ArrayList<>();
+            for (List<Double> merkmale : sensor) {
+                sensorResult.add(merkmale.toString().replace("[", "").replace("]", "").replace(" ", ""));
+            }
+            result.add(String.join(",", sensorResult));
+        }
+        return result;
+    }
+
 
 }
