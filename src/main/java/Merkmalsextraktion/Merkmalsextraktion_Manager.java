@@ -2,24 +2,24 @@ package Merkmalsextraktion;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
-import Sensormanagement.Manager;
+import Management.InstanzManager;
 
 public class Merkmalsextraktion_Manager implements Runnable {
 
     private int zyklusArrayWertErgebnisSeizeOld = 0;
     private Merkmal_Speicher merkmalSpeicher;
     private int merkmalsSpeicherID;
-    private Manager manager;
+    private InstanzManager instanzManager;
 
     private ArrayList<Double> rawData = new ArrayList<>();  //Speicher für die Rohdaten aus dem Imput für Fast Fourier Transformation
     private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>(); //Speicher für die Werte der Zykluserkennung
     private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Speicher für die Zeitwerte der Zykluserkennung
     private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
 
-    public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher, Manager manager, int merkmalsSpeicherID) {
+    public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher,  int merkmalsSpeicherID) {
         this.merkmalSpeicher = merkmalSpeicher;
         this.merkmalsSpeicherID = merkmalsSpeicherID;
-        this.manager = manager;
+        this.instanzManager = instanzManager;
     }
 
 
@@ -37,9 +37,9 @@ public class Merkmalsextraktion_Manager implements Runnable {
 
                 // Überprüfe, ob die Werte gültige Bedingungen für einen Zyklus erfüllen (Zweite Sicherheitsprüfung)
                 if (endeSteigung > startSteigung && endeSenkung < startSenkung) {
-                    System.out.println("Kompletter Muskelzyklus erkannt");
-                    System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
-                            startSteigung, endeSteigung, startSenkung, endeSenkung);
+//                    System.out.println("Kompletter Muskelzyklus erkannt");
+//                    System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
+//                            startSteigung, endeSteigung, startSenkung, endeSenkung);
 
                     // Speichere die Werte im Merkmalspeicher
                     merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
@@ -112,7 +112,7 @@ public class Merkmalsextraktion_Manager implements Runnable {
                     }
 
                     // Jetzt sind alle Threads fertig --> Füge alle Instanzen global hinzu
-                    manager.setFeaturesFromInstanz(merkmalsSpeicherID);
+                    instanzManager.setFeaturesFromInstanz(merkmalsSpeicherID);
 
                 } else {
                     //System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");

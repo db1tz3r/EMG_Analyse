@@ -1,5 +1,6 @@
 import RandomForest.ModellManager;
-import Sensormanagement.Manager;
+import Management.CreateCSV;
+import Management.InitPipeline;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -30,11 +31,14 @@ public class Main {
 
 
         // Initalisierung
-        // Starten des Managers
-        Manager manager = new Manager(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCsvFile, csvFileName);
+        // Initalisierung der Erstellung von CSV-Dateien
+        CreateCSV createCSV = new CreateCSV(csvFileName, createCsvFile);
+
+        // Starten der Initalisierung der Pipeline
+        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCSV);
 
         // Starten der Übertragung des Clients/Sensors
-        ReceiveData receiveData = new ReceiveData(manager, port);
+        ReceiveData receiveData = new ReceiveData(initPipeline, port);
         receiveData.receiveDatafromClient();
 
     }

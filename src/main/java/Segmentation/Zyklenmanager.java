@@ -55,6 +55,7 @@ public class Zyklenmanager {
                 return checkErgebnis;
             }
         }
+        return null;
     }
 
 
