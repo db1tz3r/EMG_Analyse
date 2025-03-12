@@ -1,309 +1,280 @@
 package Merkmalsextraktion;
 
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 import Management.InstanzManager;
 
-public class Merkmalsextraktion_Manager implements Runnable {
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
-    private int zyklusArrayWertErgebnisSeizeOld = 0;
+public class Merkmalsextraktion_Manager {
+    // Objekte
     private Merkmal_Speicher merkmalSpeicher;
-    private int merkmalsSpeicherID;
-    private InstanzManager instanzManager;
 
-    private ArrayList<Double> rawData = new ArrayList<>();  //Speicher für die Rohdaten aus dem Imput für Fast Fourier Transformation
-    private ArrayList<Double> zyklusArrayWertErgebnis = new ArrayList<Double>(); //Speicher für die Werte der Zykluserkennung
-    private ArrayList<Integer> zyklusArrayZeitErgebnis = new ArrayList<Integer>();  //Speicher für die Zeitwerte der Zykluserkennung
-    private ArrayList<Double> zyklusArrayInput = new ArrayList<Double>();
+    // Variablen
+    private List<List<List<Double>>> allFeatures = new ArrayList<>(); // Array für alle Merkmale
 
-    public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher,  int merkmalsSpeicherID) {
+    public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher) {
         this.merkmalSpeicher = merkmalSpeicher;
-        this.merkmalsSpeicherID = merkmalsSpeicherID;
-        this.instanzManager = instanzManager;
     }
 
 
-    @Override
-    public void run() {
+    public List<List<List<Double>>> startMerkmalsextraktion(List<List<List>> zyklusErgebnis) {
+        // Starte die Merkmalsextraktion für jede Instanz
+        for (int instanzID= 0; instanzID < zyklusErgebnis.size(); instanzID++) {
+            if (!zyklusErgebnis.isEmpty() && zyklusErgebnis.get(instanzID) != null) {
+                System.out.println(zyklusErgebnis);
+                merkmalSpeicher = new Merkmal_Speicher();
 
-        if (zyklusArrayWertErgebnis.size() >= 4 && (zyklusArrayWertErgebnis.size() != zyklusArrayWertErgebnisSeizeOld)) {
-            zyklusArrayWertErgebnisSeizeOld = zyklusArrayWertErgebnis.size();
-            if (zyklusArrayWertErgebnis.size() % 4 == 0) {
-                // Extrahiere die letzten vier Werte
-                double startSteigung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 4);
-                double endeSteigung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 3);
-                double startSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 2);
-                double endeSenkung = zyklusArrayWertErgebnis.get(zyklusArrayWertErgebnis.size() - 1);
+                //                    System.out.println("Kompletter Muskelzyklus erkannt");
+                //                    System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
+                //                            startSteigung, endeSteigung, startSenkung, endeSenkung);
 
-                // Überprüfe, ob die Werte gültige Bedingungen für einen Zyklus erfüllen (Zweite Sicherheitsprüfung)
-                if (endeSteigung > startSteigung && endeSenkung < startSenkung) {
-//                    System.out.println("Kompletter Muskelzyklus erkannt");
-//                    System.out.printf("Start Steigung: %.2f, Ende Steigung: %.2f, Start Senkung: %.2f, Ende Senkung: %.2f%n",
-//                            startSteigung, endeSteigung, startSenkung, endeSenkung);
+                // Speichere die Werte im Merkmalspeicher
+                merkmalSpeicher.setMinMaxValues(getSteigungsArrayGerichtet(zyklusErgebnis, instanzID).getFirst(),
+                        getSteigungsArrayGerichtet(zyklusErgebnis, instanzID).getLast(),
+                        getSenkungsArrayGerichtet(zyklusErgebnis, instanzID).getFirst(),
+                        getSenkungsArrayGerichtet(zyklusErgebnis, instanzID).getLast()
+                );
 
-                    // Speichere die Werte im Merkmalspeicher
-                    merkmalSpeicher.setMinMaxValues(startSteigung, endeSteigung, startSenkung, endeSenkung);
+                // CountdownLatch für die 8 Threads
+                CountDownLatch latch = new CountDownLatch(9); // 1 Klassische + 4 Polynomial + 4 FFT
 
-                    // CountdownLatch für die 8 Threads
-                    CountDownLatch latch = new CountDownLatch(9); // 1 Klassische + 4 Polynomial + 4 FFT
+                // Starte Thread für Klassische Merkmale
+                new Thread(() -> {
+                    KlassischeSignalMerkmale thread = starteKlassischeSignalMerkmale(getGesamtArrayRoh(zyklusErgebnis, instanzID), getGesamtArrayGerichtet(zyklusErgebnis, instanzID), merkmalSpeicher);
+                    thread.start();
+                    latch.countDown();
+                }).start();
 
-                    // Starte Thread für Klassische Merkmale
-                    new Thread(() -> {
-                        KlassischeSignalMerkmale thread = starteKlassischeSignalMerkmale(startSteigung, endeSenkung, merkmalSpeicher);
-                        thread.start();
-                        latch.countDown();
-                    }).start();
+                // Starte Threads für polynomiale Approximation
+                new Thread(() -> {
+                    PolynomialeApproximation thread = startePolynomialeApproximationAnfang(getSteigungsArrayGerichtet(zyklusErgebnis, instanzID), 0);
+                    thread.start();
+                    latch.countDown();
+                }).start();
 
-                    // Starte Threads für polynomiale Approximation
-                    new Thread(() -> {
-                        PolynomialeApproximation thread = startePolynomialeApproximationAnfang(startSteigung, endeSteigung, 0);
-                        thread.start();
-                        latch.countDown();
-                    }).start();
+                new Thread(() -> {
+                    PolynomialeApproximation thread = startePolynomialeApproximationMitte(getMittelArrayGerichtet(zyklusErgebnis, instanzID), 1);
+                    thread.start();
+                    latch.countDown();
+                }).start();
 
-                    new Thread(() -> {
-                        PolynomialeApproximation thread = startePolynomialeApproximationMitte(endeSteigung, startSenkung, 1);
-                        thread.start();
-                        latch.countDown();
-                    }).start();
+                new Thread(() -> {
+                    PolynomialeApproximation thread = startePolynomialeApproximationEnde(getSenkungsArrayGerichtet(zyklusErgebnis, instanzID), 2);
+                    thread.start();
+                    latch.countDown();
+                }).start();
 
-                    new Thread(() -> {
-                        PolynomialeApproximation thread = startePolynomialeApproximationEnde(startSenkung, endeSenkung, 2);
-                        thread.start();
-                        latch.countDown();
-                    }).start();
+                new Thread(() -> {
+                    PolynomialeApproximation thread = startePolynomialeApproximationGesamterZyklus(getGesamtArrayGerichtet(zyklusErgebnis, instanzID), 3);
+                    thread.start();
+                    latch.countDown();
+                }).start();
 
-                    new Thread(() -> {
-                        PolynomialeApproximation thread = startePolynomialeApproximationGesamterZyklus(startSteigung, endeSenkung, 3);
-                        thread.start();
-                        latch.countDown();
-                    }).start();
+                // Starte FFT-Threads
+                new Thread(() -> {
+                    FastFourierTransformation thread = starteFFTAnfang(getSteigungsArrayRoh(zyklusErgebnis, instanzID), 0);
+                    thread.start(); // Wichtig: Starten!
+                    latch.countDown();
+                }).start();
 
-                    // Starte FFT-Threads
-                    new Thread(() -> {
-                        FastFourierTransformation thread = starteFFTAnfang(startSteigung, endeSteigung, 0);
-                        thread.start(); // Wichtig: Starten!
-                        latch.countDown();
-                    }).start();
+                new Thread(() -> {
+                    FastFourierTransformation thread = starteFFTMitte(getMittelArrayRoh(zyklusErgebnis, instanzID), 1);
+                    thread.start(); // Wichtig: Starten!
+                    latch.countDown();
+                }).start();
 
-                    new Thread(() -> {
-                        FastFourierTransformation thread = starteFFTMitte(endeSteigung, startSenkung, 1);
-                        thread.start(); // Wichtig: Starten!
-                        latch.countDown();
-                    }).start();
+                new Thread(() -> {
+                    FastFourierTransformation thread = starteFFTEnde(getSenkungsArrayRoh(zyklusErgebnis, instanzID), 2);
+                    thread.start(); // Wichtig: Starten!
+                    latch.countDown();
+                }).start();
 
-                    new Thread(() -> {
-                        FastFourierTransformation thread = starteFFTEnde(startSenkung, endeSenkung, 2);
-                        thread.start(); // Wichtig: Starten!
-                        latch.countDown();
-                    }).start();
+                new Thread(() -> {
+                    FastFourierTransformation thread = starteFFTGesamt(getGesamtArrayRoh(zyklusErgebnis, instanzID), 3);
+                    thread.start(); // Wichtig: Starten!
+                    latch.countDown();
+                }).start();
 
-                    new Thread(() -> {
-                        FastFourierTransformation thread = starteFFTGesamt(startSteigung, endeSenkung, 3);
-                        thread.start(); // Wichtig: Starten!
-                        latch.countDown();
-                    }).start();
+                // Warten, bis alle Threads fertig sind
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-                    // Warten, bis alle Threads fertig sind
-                    try {
-                        latch.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                // Daten zusammenfügen
+                allFeatures.add(merkmalSpeicher.getAlleMerkmale());
 
-                    // Jetzt sind alle Threads fertig --> Füge alle Instanzen global hinzu
-                    instanzManager.setFeaturesFromInstanz(merkmalsSpeicherID);
+                if (instanzID == zyklusErgebnis.size() - 1) {
+//                System.out.println("Alle Merkmale: " + allFeatures);
+                    List<List<List<Double>>> ergebnis = allFeatures;
+                    allFeatures.clear();
+                    return ergebnis;
 
-                } else {
-                    //System.out.println("Unvollständiger Zyklus oder Rauschen erkannt.");
                 }
             }
+            allFeatures.add(null);
+            return null;
         }
+        return null;
     }
 
-    private PolynomialeApproximation startePolynomialeApproximationAnfang(double value1, double value2, int formelTyp) {
+
+
+
+
+
+
+
+
+
+    // Methoden der Merkmalsextraktion
+    // Starten der Polynomiale Approximation
+    private PolynomialeApproximation startePolynomialeApproximationAnfang(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Erstelle ein neues Objekt der Klasse PolynomialeApproximation für die Threadverwaltung
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
 
-        //System.out.println("Steigungsformel");
-        // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
-        polynomialeApproximation.setBeginningValue(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3)) - 1; i++) {
-            //System.out.println(zyklusArrayInput.get(i + 1));
-            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
-        }
-        polynomialeApproximation.setEndValue(value2);
+        polynomialeApproximation.setInputArray(zyklusArrayInput);
         polynomialeApproximation.setFormelTyp(formelTyp);
+
         return polynomialeApproximation;
     }
 
-    private PolynomialeApproximation startePolynomialeApproximationMitte(double value1, double value2, int formelTyp) {
+    private PolynomialeApproximation startePolynomialeApproximationMitte(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Erstelle ein neues Objekt der Klasse PolynomialeApproximation für die Threadverwaltung
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
 
-        int schleifeAusgelöst = 0;
+        int schleifeAusgeloest = 0;
         //System.out.println("Mittelformel");
         // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
-        polynomialeApproximation.setBeginningValue(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2)) - 1; i++) {
-            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i));
-            schleifeAusgelöst++;
-        }
-        polynomialeApproximation.setEndValue(value2);
-        if (schleifeAusgelöst == 0){
-            System.out.println("Mittelformel nicht berechenbar, da nur 2 oder weniger Werte");
-        }else {
-            polynomialeApproximation.setFormelTyp(formelTyp);
-            return polynomialeApproximation;
-        }
+        polynomialeApproximation.setInputArray(zyklusArrayInput);
+        polynomialeApproximation.setFormelTyp(formelTyp);
+
         return polynomialeApproximation;
     }
 
-    private PolynomialeApproximation startePolynomialeApproximationEnde(double value1, double value2, int formelTyp) {
+    private PolynomialeApproximation startePolynomialeApproximationEnde(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Erstelle ein neues Objekt der Klasse PolynomialeApproximation für die Threadverwaltung
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
 
-        //System.out.println("Senkungsformel");
-        // Starte die Polynomiale Approximation der Steigung mit den Werten aus der Peak Normalisierung
-        polynomialeApproximation.setBeginningValue(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
-            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
-        }
-        polynomialeApproximation.setEndValue(value2);
+        polynomialeApproximation.setInputArray(zyklusArrayInput);
         polynomialeApproximation.setFormelTyp(formelTyp);
+
         return polynomialeApproximation;
     }
 
-    private PolynomialeApproximation startePolynomialeApproximationGesamterZyklus(double value1, double value4, int formelTyp) {
+    private PolynomialeApproximation startePolynomialeApproximationGesamterZyklus(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Erstelle ein neues Objekt der Klasse PolynomialeApproximation für die Threadverwaltung
         PolynomialeApproximation polynomialeApproximation = new PolynomialeApproximation(merkmalSpeicher);
 
-        //System.out.println("Formel gesamter Zyklus");
-        // Starte die Polynomiale Approximation des gesamten Zyklus mit den Werten aus der Peak Normalisierung
-        polynomialeApproximation.setBeginningValue(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
-            polynomialeApproximation.setMiddleValues(zyklusArrayInput.get(i + 1));
-        }
-        polynomialeApproximation.setEndValue(value4);
+        polynomialeApproximation.setInputArray(zyklusArrayInput);
         polynomialeApproximation.setFormelTyp(formelTyp);
+
         return polynomialeApproximation;
     }
 
 
     // Starten der FFT
-    private  FastFourierTransformation starteFFTAnfang(double value1, double value4, int formelTyp) {
+    private  FastFourierTransformation starteFFTAnfang(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Erstelle ein neues Objekt der Klasse FastFourierTransformation für die Threadverwaltung
         FastFourierTransformation fftThread = new FastFourierTransformation(merkmalSpeicher);
 
-        //Arraylist für das Senden der fft Werte
-        ArrayList<Double> fftInputArrayList = new ArrayList<>();
-
-        //System.out.println("FFT: ");
-
-        fftInputArrayList.add(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3)) - 1; i++) {
-            fftInputArrayList.add(rawData.get(i + 1));
-            //System.out.println(rawData.get(i + 1));
-        }
-        fftInputArrayList.add(value4);
-
         fftThread.setFormelTyp(formelTyp);
-        fftThread.setInput(fftInputArrayList);
+        fftThread.setInput(zyklusArrayInput);
 
         return fftThread;
     }
 
-    private FastFourierTransformation starteFFTMitte(double value1, double value4, int formelTyp) {
+    private FastFourierTransformation starteFFTMitte(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Objekt der Klasse FastFourierTransformation für die Threadverwaltung
         FastFourierTransformation fftThread = new FastFourierTransformation(merkmalSpeicher);
 
-        //Arraylist für das Senden der fft Werte
-        ArrayList<Double> fftInputArrayList = new ArrayList<>();
-
-        //System.out.println("FFT: ");
-
-        fftInputArrayList.add(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2)) - 1; i++) {
-            fftInputArrayList.add(rawData.get(i + 1));
-            //System.out.println(rawData.get(i + 1));
-        }
-        fftInputArrayList.add(value4);
-
         fftThread.setFormelTyp(formelTyp);
-        fftThread.setInput(fftInputArrayList);
+        fftThread.setInput(zyklusArrayInput);
 
         return fftThread;
     }
 
-    private FastFourierTransformation starteFFTEnde(double value1, double value4, int formelTyp) {
+    private FastFourierTransformation starteFFTEnde(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Objekt der Klasse FastFourierTransformation für die Threadverwaltung
         FastFourierTransformation fftThread = new FastFourierTransformation(merkmalSpeicher);
 
-        //Arraylist für das Senden der fft Werte
-        ArrayList<Double> fftInputArrayList = new ArrayList<>();
-
-        //System.out.println("FFT: ");
-
-        fftInputArrayList.add(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 3); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 2)) - 1; i++) {
-            fftInputArrayList.add(rawData.get(i + 1));
-            //System.out.println(rawData.get(i + 1));
-        }
-        fftInputArrayList.add(value4);
-
         fftThread.setFormelTyp(formelTyp);
-        fftThread.setInput(fftInputArrayList);
+        fftThread.setInput(zyklusArrayInput);
 
         return fftThread;
     }
 
-    private FastFourierTransformation starteFFTGesamt(double value1, double value4, int formelTyp) {
+    private FastFourierTransformation starteFFTGesamt(ArrayList<Double> zyklusArrayInput, int formelTyp) {
         // Objekt der Klasse FastFourierTransformation für die Threadverwaltung
         FastFourierTransformation fftThread = new FastFourierTransformation(merkmalSpeicher);
 
-        //Arraylist für das Senden der fft Werte
-        ArrayList<Double> fftInputArrayList = new ArrayList<>();
-
-        //System.out.println("FFT: ");
-
-        fftInputArrayList.add(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
-            fftInputArrayList.add(rawData.get(i + 1));
-            //System.out.println(rawData.get(i + 1));
-        }
-        fftInputArrayList.add(value4);
-
         fftThread.setFormelTyp(formelTyp);
-        fftThread.setInput(fftInputArrayList);
+        fftThread.setInput(zyklusArrayInput);
 
         return fftThread;
     }
 
     // Starten der Klassischen Signalmerkmale
-    private KlassischeSignalMerkmale starteKlassischeSignalMerkmale(double value1, double value4, Merkmal_Speicher merkmalSpeicher) {
-        //Arraylist
-        ArrayList<Double> gerichtetesSignal = new ArrayList<>();
-
-        gerichtetesSignal.add(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
-            gerichtetesSignal.add(zyklusArrayInput.get(i + 1));
-            //System.out.println(rawData.get(i + 1));
-        }
-        gerichtetesSignal.add(value4);
-
-        ArrayList<Double> rohSignal = new ArrayList<>();
-
-        rohSignal.add(value1);
-        for (int i = zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4); i < (zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 1) - 1); i++) {
-            rohSignal.add(rawData.get(i + 1));
-            //System.out.println(rawData.get(i + 1));
-        }
-        rohSignal.add(value4);
-
-
+    private KlassischeSignalMerkmale starteKlassischeSignalMerkmale(ArrayList<Double> zyklusArrayInputRoh, ArrayList<Double> zyklusArrayInputGerichtet, Merkmal_Speicher merkmalSpeicher) {
         // Erstelle ein neues Objekt der Klasse KlassischeSignalMerkmale für die Threadverwaltung
-        KlassischeSignalMerkmale klassischeSignalMerkmale = new KlassischeSignalMerkmale(rohSignal, gerichtetesSignal, merkmalSpeicher);
+        KlassischeSignalMerkmale klassischeSignalMerkmale = new KlassischeSignalMerkmale(zyklusArrayInputRoh, zyklusArrayInputGerichtet, merkmalSpeicher);
 
         return klassischeSignalMerkmale;
+    }
+
+
+
+
+
+
+
+    // Getter und Setter
+    // Hauptliste in Steigung, Senkung, Mittel und Gesamt aufteilen
+    public ArrayList<Double> getSteigungsArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
+//        System.out.println("SteigungsArrayGerichtet" + zyklusErgebnis.get(instanzID).get(0));
+        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(0);
+    }
+
+    public ArrayList<Double> getMittelArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
+        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(3);
+    }
+
+    public ArrayList<Double> getSenkungsArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
+        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(6);
+    }
+
+    public ArrayList<Double> getGesamtArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
+        ArrayList<Double> gesamtArrayGerichtet = new ArrayList<>();
+
+        gesamtArrayGerichtet.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(0));
+        gesamtArrayGerichtet.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(3));
+        gesamtArrayGerichtet.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(6));
+
+        return gesamtArrayGerichtet;
+    }
+
+    public ArrayList<Double> getSteigungsArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
+        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(1);
+    }
+
+    public ArrayList<Double> getMittelArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
+        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(4);
+    }
+
+    public ArrayList<Double> getSenkungsArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
+        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(7);
+    }
+
+    public ArrayList<Double> getGesamtArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
+        ArrayList<Double> gesamtArrayRoh = new ArrayList<>();
+
+        gesamtArrayRoh.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(1));
+        gesamtArrayRoh.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(4));
+        gesamtArrayRoh.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(7));
+
+        return gesamtArrayRoh;
     }
 }

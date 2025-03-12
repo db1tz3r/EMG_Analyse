@@ -2,7 +2,9 @@ package Merkmalsextraktion;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class Merkmal_Speicher {
@@ -136,20 +138,16 @@ public class Merkmal_Speicher {
     }
 
     // Getter Methode zum holen der einzelnen Werte für den gemeinsamen Speicher
-    public String getAlleMerkmale() {
-        return minimumSenkungWert + "," + maximumSenkungWert + "," + minimumSteigungWert + "," + maximumSteigungWert + ","
-                + steigungA + "," + steigungB + "," + steigungC + ","
-                + senkungA + "," + senkungB + "," + senkungC + ","
-                + mittelA + "," + mittelB + "," + mittelC + ","
-                + gesamtA + "," + gesamtB + "," + gesamtC + ","
-                + fftAnfangMedoan + "," + fftAnfangMittel + "," + fftAnfangLeistungsdichtespektrum + ","
-                + fftMitteMedoan + "," + fftMitteMittel + "," + fftMitteLeistungsdichtespektrum + ","
-                + fftEndeMedoan + "," + fftEndeMittel + "," + fftEndeLeistungsdichtespektrum + ","
-                + fftGesamtMedoan + "," + fftGesamtMittel + "," + fftGesamtLeistungsdichtespektrum + ","
-                + mittelwert + "," + signalstärke + "," + varianz + ","
-                + standardabweichung + "," + energie + "," + kurtosis + ","
-                + schiefe + "," + zeroCrossings + "," + laenge + ","
-                + maximalwert + "," + minimalwert;
+    public List<List<Double>> getAlleMerkmale() {
+        List<List<Double>> merkmale = new ArrayList<>();
+        merkmale.add(Arrays.asList(minimumSenkungWert, maximumSenkungWert, minimumSteigungWert, maximumSteigungWert,
+                steigungA, steigungB, steigungC, senkungA, senkungB, senkungC, mittelA, mittelB, mittelC,
+                gesamtA, gesamtB, gesamtC, fftAnfangMedoan, fftAnfangMittel, fftAnfangLeistungsdichtespektrum,
+                fftMitteMedoan, fftMitteMittel, fftMitteLeistungsdichtespektrum, fftEndeMedoan, fftEndeMittel,
+                fftEndeLeistungsdichtespektrum, fftGesamtMedoan, fftGesamtMittel, fftGesamtLeistungsdichtespektrum,
+                mittelwert, signalstärke, varianz, standardabweichung, energie, kurtosis, schiefe,
+                (double) zeroCrossings, (double) laenge, maximalwert, minimalwert));
+        return merkmale;
     }
 
 

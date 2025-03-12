@@ -1,3 +1,6 @@
+import Management.SystemManager;
+import Merkmalsextraktion.Merkmal_Speicher;
+import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import RandomForest.ModellManager;
 import Management.CreateCSV;
 import Management.InitPipeline;
@@ -34,11 +37,20 @@ public class Main {
         // Initalisierung der Erstellung von CSV-Dateien
         CreateCSV createCSV = new CreateCSV(csvFileName, createCsvFile);
 
+        //Starten des Merkmalspeichers
+        Merkmal_Speicher merkmalSpeicher = new Merkmal_Speicher();
+
+        // Starten der Merkmalsextraktion
+        Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
+
         // Starten der Initalisierung der Pipeline
-        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCSV);
+        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung, liveDataQueue, createCSV, createCsvFile, merkmalsextraktionManager, merkmalSpeicher);
+
+        // Starten des Systemmanagers
+        SystemManager systemManager = new SystemManager(initPipeline, merkmalsextraktionManager, anzahlSensoren);
 
         // Starten der Übertragung des Clients/Sensors
-        ReceiveData receiveData = new ReceiveData(initPipeline, port);
+        ReceiveData receiveData = new ReceiveData(systemManager, port);
         receiveData.receiveDatafromClient();
 
     }
