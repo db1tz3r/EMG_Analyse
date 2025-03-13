@@ -37,6 +37,7 @@ public class Merkmalsextraktion_Manager {
                         getSenkungsArrayGerichtet(zyklusErgebnis, instanzID).getLast()
                 );
 
+
                 // CountdownLatch für die 8 Threads
                 CountDownLatch latch = new CountDownLatch(9); // 1 Klassische + 4 Polynomial + 4 FFT
 
