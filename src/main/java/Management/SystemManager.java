@@ -39,7 +39,6 @@ public class SystemManager {
         for (int i = 0; i < anzahlSensoren; i++) {
             synchronized (instanzManagerList) {
                 List<List<List>> tempResult = instanzManagerList.get(i).startPipeline();
-//            System.out.println("Pipeline Ergebnis für Sensor " + i + ": " + tempResult);
 
                 if (tempResult != null) {
                     // Speichere die erste gültige Nachricht, falls sie noch nicht existiert
@@ -48,7 +47,9 @@ public class SystemManager {
                     }
 
                     ergebnisPipeline = tempResult;
-//                    System.out.println("Erste gültige Nachricht von Sensor " + i + ": " + tempResult);
+
+                    // **Neue Methode aufrufen, um leere Listen zu entfernen**
+                    ergebnisPipeline = replaceEmptyListsWithNull(ergebnisPipeline);
 
                     // Starte die Merkmalsextraktion sofort, sobald eine gültige Nachricht kommt
                     processMerkmalsextraktion(ergebnisPipeline);
@@ -58,9 +59,9 @@ public class SystemManager {
                 if (i == anzahlSensoren - 1) {
                     // Wenn die letzte Nachricht der ersten gültigen Nachricht entspricht, wird sie nicht weitergegeben
                     if (ersteGueltigeNachricht != null && ergebnisPipeline != null && ersteGueltigeNachricht.equals(ergebnisPipeline)) {
-//                        System.out.println("Letzte Pipeline-Nachricht entspricht der ersten gültigen Nachricht – wird nicht weitergegeben.");
+                        // System.out.println("Letzte Pipeline-Nachricht entspricht der ersten gültigen Nachricht – wird nicht weitergegeben.");
                     } else {
-//                        System.out.println("Letzte Pipeline-Iteration erreicht, endgültiges Ergebnis: " + ergebnisPipeline);
+                        // System.out.println("Letzte Pipeline-Iteration erreicht, endgültiges Ergebnis: " + ergebnisPipeline);
                         if (ergebnisPipeline != null) {
                             processMerkmalsextraktion(ergebnisPipeline);
                         }
@@ -71,10 +72,43 @@ public class SystemManager {
     }
 
     /**
+     * Überprüft `ergebnisPipeline` auf leere `List<List>>` und ersetzt diese durch `null`.
+     */
+    private List<List<List>> replaceEmptyListsWithNull(List<List<List>> pipeline) {
+        if (pipeline == null) return null; // Falls pipeline `null` ist, direkt zurückgeben
+
+        List<List<List>> cleanedPipeline = new ArrayList<>();
+
+        for (List<List> entry : pipeline) {
+            if (entry == null || entry.isEmpty() || containsOnlyEmptyLists(entry)) {
+                cleanedPipeline.add(null); // Leere Listen durch `null` ersetzen
+            } else {
+                cleanedPipeline.add(entry); // Behalte nicht leere Einträge
+            }
+        }
+
+        return cleanedPipeline;
+    }
+
+    /**
+     * Prüft, ob eine `List<List>` nur leere Listen (`[]`) enthält.
+     */
+    private boolean containsOnlyEmptyLists(List<List> list) {
+        if (list == null || list.isEmpty()) return true;
+        for (List innerList : list) {
+            if (innerList != null && !innerList.isEmpty()) {
+                return false; // Mindestens eine Liste enthält Daten → ist nicht leer
+            }
+        }
+        return true; // Alle inneren Listen sind leer
+    }
+
+    /**
      * Startet die Merkmalsextraktion und verarbeitet das Ergebnis weiter.
      */
     private void processMerkmalsextraktion(List<List<List>> ergebnisPipeline) {
         // Prüfe, ob ergebnisPipeline gültig ist
+//        System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
         if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
             System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
 
