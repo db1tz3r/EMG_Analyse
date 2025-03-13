@@ -4,6 +4,7 @@ import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import RandomForest.ModellManager;
 import Management.CreateCSV;
 import Management.InitPipeline;
+import Segmentation.Zyklen_Speicher;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -43,11 +44,14 @@ public class Main {
         // Starten der Merkmalsextraktion
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
 
+        // Starten des Zyklenspeicher
+        Zyklen_Speicher zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, 100);
+
         // Starten der Initalisierung der Pipeline
         InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung);
 
         // Starten des Systemmanagers
-        SystemManager systemManager = new SystemManager(initPipeline, merkmalsextraktionManager, anzahlSensoren, createCSV,createCsvFile, liveDataQueue);
+        SystemManager systemManager = new SystemManager(initPipeline, merkmalsextraktionManager, zyklenSpeicher, anzahlSensoren, createCSV,createCsvFile, liveDataQueue);
 
         // Starten der Übertragung des Clients/Sensors
         ReceiveData receiveData = new ReceiveData(systemManager, port);
