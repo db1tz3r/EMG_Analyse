@@ -33,30 +33,58 @@ public class SystemManager {
     // Start-Methode
     public void start() {
         List<List<List>> ergebnisPipeline = null;
+        List<List<List>> ersteGueltigeNachricht = null; // Speichert die erste gültige Nachricht
 
-        // Start der Pipeline für alle Sensoren
+        // Starte die Pipeline für alle Sensoren
         for (int i = 0; i < anzahlSensoren; i++) {
             synchronized (instanzManagerList) {
                 List<List<List>> tempResult = instanzManagerList.get(i).startPipeline();
-//                System.out.println("Pipeline Ergebnis für Sensor " + i + ": " + tempResult);
+//            System.out.println("Pipeline Ergebnis für Sensor " + i + ": " + tempResult);
 
-                if (i == instanzManagerList.size() - 1) {
+                if (tempResult != null) {
+                    // Speichere die erste gültige Nachricht, falls sie noch nicht existiert
+                    if (ersteGueltigeNachricht == null) {
+                        ersteGueltigeNachricht = tempResult;
+                    }
+
                     ergebnisPipeline = tempResult;
+//                    System.out.println("Erste gültige Nachricht von Sensor " + i + ": " + tempResult);
+
+                    // Starte die Merkmalsextraktion sofort, sobald eine gültige Nachricht kommt
+                    processMerkmalsextraktion(ergebnisPipeline);
+                }
+
+                // Falls die letzte Iteration erreicht ist, wird das letzte gültige Ergebnis überprüft
+                if (i == anzahlSensoren - 1) {
+                    // Wenn die letzte Nachricht der ersten gültigen Nachricht entspricht, wird sie nicht weitergegeben
+                    if (ersteGueltigeNachricht != null && ergebnisPipeline != null && ersteGueltigeNachricht.equals(ergebnisPipeline)) {
+//                        System.out.println("Letzte Pipeline-Nachricht entspricht der ersten gültigen Nachricht – wird nicht weitergegeben.");
+                    } else {
+//                        System.out.println("Letzte Pipeline-Iteration erreicht, endgültiges Ergebnis: " + ergebnisPipeline);
+                        if (ergebnisPipeline != null) {
+                            processMerkmalsextraktion(ergebnisPipeline);
+                        }
+                    }
                 }
             }
         }
-        // Prüfe, ob ergebnisPipeline gültig ist, bevor die Merkmalsextraktion gestartet wird
+    }
+
+    /**
+     * Startet die Merkmalsextraktion und verarbeitet das Ergebnis weiter.
+     */
+    private void processMerkmalsextraktion(List<List<List>> ergebnisPipeline) {
+        // Prüfe, ob ergebnisPipeline gültig ist
         if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
-//            System.out.println("Starte Merkmalsextraktion...");
+            System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
+
             List<List<List<Double>>> ergebnisMerkmalsextraktion = merkmalsextraktionManager.startMerkmalsextraktion(ergebnisPipeline);
 
             // Prüfe, ob ergebnisMerkmalsextraktion gültig ist, bevor die Klassifikation gestartet wird
             if (ergebnisMerkmalsextraktion != null && !ergebnisMerkmalsextraktion.isEmpty()) {
-//                System.out.println("Ergebnis Merkmale: " + ergebnisMerkmalsextraktion);
                 // Prüfe, ob eine CSV-Datei erstellt werden soll oder die Klassifikation gestartet werden soll
                 if (createCsvFile) {
                     // CSV-Datei erstellen
-//                    System.out.println("Erstelle CSV-Datei...");
                     createCSV.createCSVFile(convertResultToString(ergebnisMerkmalsextraktion), anzahlSensoren);
                 } else {
                     // Klassifikation starten
@@ -67,8 +95,6 @@ public class SystemManager {
                     }
                 }
             }
-        } else {
-//            System.out.println("Fehler: ergebnisPipeline ist null oder leer.");
         }
     }
 
