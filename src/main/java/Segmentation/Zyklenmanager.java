@@ -29,7 +29,7 @@ public class Zyklenmanager {
     }
 
     // Methode zum Starten der Zykluserkennung
-    public List<List<List>> startSegmentation(int startZyklenerkennungIndex, int globalerZeitpunkt, double schwelleProzent, int minPunkte, double minGesamtabweichung,
+    public List<ArrayList<Double>> startSegmentation(int startZyklenerkennungIndex, int globalerZeitpunkt, double schwelleProzent, int minPunkte, double minGesamtabweichung,
                                               int toleranzZwischenzyklen, int maxWerteOhneZyklus, ArrayList<Double> peakNormalisierungArrayErgebnis, ArrayList<Double> rohDaten) {
         // Setze die Inputs
         this.rohDaten = rohDaten;
@@ -45,14 +45,7 @@ public class Zyklenmanager {
 //        System.out.println("Zyklenmanager: " + instanzID + " " + tempListWithArrays);
             if (tempListWithArrays != null) {
 //            System.out.println("Zyklenmanager: " + instanzID + " " + tempListWithArrays);
-
-                // Hinzufügen der Listen zu dem Zyklen_Speicher
-                zyklenSpeicher.addArraysToZyklusinstanz(instanzID, tempListWithArrays);
-
-                // Überprüfen auf hintereinanderfolgende Instanzen
-                List<List<List>> checkErgebnis = zyklenSpeicher.checkIntervallFromAllInstanzes(instanzID);
-
-                return checkErgebnis;
+                return tempListWithArrays;
             }
         }
         return null;
@@ -80,13 +73,10 @@ public class Zyklenmanager {
         //System.out.println(peakNormalisierungArrayErgebnis.size());
 
         if (ergebnis[0] != 0) {
-            // Speicher den Merker, dass die Instanz läuft weitergeben
-            zyklenSpeicher.setInstanzZyklusAktive(instanzID, (int) ergebnis[4]);
-
             //Starten der Zykluszusammenfassung
             zyklusAnschliessenNachZeitCount = 0;
-            //System.out.println("Ergebnis: " + ergebnis[0] + " " + ergebnis[1] + " " + ergebnis[2] + " " + ergebnis[3]);
-            //System.out.println("Zeit: " + ergebnis[4] + " " + ergebnis[5] + " " + ergebnis[6] + " " + ergebnis[7]);
+//            System.out.println("Ergebnis: " + ergebnis[0] + " " + ergebnis[1] + " " + ergebnis[2] + " " + ergebnis[3]);
+//            System.out.println("Zeit: " + ergebnis[4] + " " + ergebnis[5] + " " + ergebnis[6] + " " + ergebnis[7]);
 
             // Übergabe der erkannten Zyklen an die Zusammenfassungsmethode
             ergebnis = zyklenzusammenfassung.verarbeiteUndGebeZyklusZurueck(ergebnis, toleranzZwischenzyklen);
@@ -115,6 +105,7 @@ public class Zyklenmanager {
                         zyklusArrayZeitErgebnis.add((int) zusammengefassterZyklus[i]);
                     }
                     letztesAusgegebenesErgebnis = zusammengefassterZyklus.clone();
+//                    System.out.println("Zyklenerkennung " + instanzID + ": " + Arrays.toString(letztesAusgegebenesErgebnis));
                     return true;
                 }
             }

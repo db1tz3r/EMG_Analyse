@@ -22,7 +22,9 @@ public class InstanzManager {
     }
 
     // Start-Methode
-    public List<List<List>> startPipeline() {
+    public List<ArrayList<Double>> startPipeline() {
+//        System.out.println("RawData: " + rawData);
+
         // Überprüfe, ob rawData gültig ist
         if (rawData == null || rawData.isEmpty()) {
 //            System.out.println("Fehler: rawData ist null oder leer!");
@@ -31,35 +33,39 @@ public class InstanzManager {
 
         // Start der Normalisierung
         ArrayList<Double> ergebnisNormalisierung = normalisierungManager.startNormalisierung(rawData);
+//        System.out.println("Ergebnis Normalisierung: " + ergebnisNormalisierung);
 
         // Überprüfe, ob die Normalisierung ein Ergebnis hat
         if (ergebnisNormalisierung == null || ergebnisNormalisierung.isEmpty()) {
 //            System.out.println("Fehler: Ergebnis Normalisierung ist leer!");
             return null;
         }
-//        System.out.println("Ergebnis Normalisierung: " + ergebnisNormalisierung);
 
         // Start der Zyklenerkennung
-        List<List<List>> ergebnisZyklen = new ArrayList<>();
+        List<ArrayList<Double>> ergebnisZyklen = new ArrayList<>();
+        boolean atLeastOneValidResult = false; // Prüft, ob mindestens ein gültiges Ergebnis existiert
+
         for (int i = 0; i < 5; i++) {
-            List<List<List>> tempErgebnis = zyklenmanager.startSegmentation(startZyklenerkennungIndex, startZyklenerkennungIndex,
+            List<ArrayList<Double>> tempErgebnis = zyklenmanager.startSegmentation(startZyklenerkennungIndex, startZyklenerkennungIndex,
                     7.0, 5, 30.0, 120, 120,
                     ergebnisNormalisierung, rawData);
 
             if (tempErgebnis != null && !tempErgebnis.isEmpty()) {
                 ergebnisZyklen.addAll(tempErgebnis);
+                atLeastOneValidResult = true; // Mindestens ein gültiges Ergebnis gefunden
             } else {
-//                System.out.println("Fehler: startSegmentation() hat in Durchlauf " + i + " keine Werte geliefert.");
+//                System.out.println("Warnung: startSegmentation() hat in Durchlauf " + i + " keine Werte geliefert.");
             }
             startZyklenerkennungIndex++;
         }
 
-        // Falls keine Zyklen erkannt wurden, gebe `null` zurück
-        if (ergebnisZyklen.isEmpty()) {
+        // Falls kein Zyklus erkannt wurde oder alle tempErgebnisse `null` waren, gebe `null` zurück
+        if (!atLeastOneValidResult) {
 //            System.out.println("Fehler: Keine Zyklen erkannt.");
             return null;
         }
-//        System.out.println(ergebnisZyklen);
+
+        // Rückgabe der gefundenen Zyklen
         return ergebnisZyklen;
     }
 
@@ -73,7 +79,7 @@ public class InstanzManager {
 
 
     // Setter und Getter
-    public void setInputData(List<Double> inputDataValue) {
-        this.rawData.addAll(inputDataValue);
+    public void setInputData(double inputData) {
+        this.rawData.add(inputData);
     }
 }

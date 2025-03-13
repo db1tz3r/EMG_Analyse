@@ -1,6 +1,7 @@
 package Management;
 
 import Merkmalsextraktion.Merkmalsextraktion_Manager;
+import Segmentation.Zyklen_Speicher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +14,7 @@ public class SystemManager {
     private List<InstanzManager> instanzManagerList; // Liste zur Speicherung der Instanzen
     private CreateCSV createCSV; // CSV-Datei-Klasse
     private ArrayBlockingQueue<Object> liveDataQueue; // Queue für die Live-Daten der Klassifizierung
+    private Zyklen_Speicher zyklusSpeicher = new Zyklen_Speicher(3, 100); // Zyklen-Speicher-Klasse
 
     // Variablen
     private int anzahlSensoren; // Anzahl der Sensoren und Instanzen
@@ -33,84 +35,60 @@ public class SystemManager {
     // Start-Methode
     public void start() {
         List<List<List>> ergebnisPipeline = null;
-        List<List<List>> ersteGueltigeNachricht = null; // Speichert die erste gültige Nachricht
+        List<List<ArrayList<Double>>> lokaleSpeicherung = new ArrayList<>(Collections.nCopies(anzahlSensoren, null)); // Lokale Speicherung
 
         // Starte die Pipeline für alle Sensoren
         for (int i = 0; i < anzahlSensoren; i++) {
             synchronized (instanzManagerList) {
-                List<List<List>> tempResult = instanzManagerList.get(i).startPipeline();
+                List<ArrayList<Double>> tempResult = instanzManagerList.get(i).startPipeline();
+
+                // **Falls tempResult null ist, ersetze es durch eine leere Liste**
+                lokaleSpeicherung.set(i, tempResult != null ? tempResult : new ArrayList<>());
 
                 if (tempResult != null) {
-                    // Speichere die erste gültige Nachricht, falls sie noch nicht existiert
-                    if (ersteGueltigeNachricht == null) {
-                        ersteGueltigeNachricht = tempResult;
-                    }
-
-                    ergebnisPipeline = tempResult;
-
-                    // **Neue Methode aufrufen, um leere Listen zu entfernen**
-                    ergebnisPipeline = replaceEmptyListsWithNull(ergebnisPipeline);
-
-                    // Starte die Merkmalsextraktion sofort, sobald eine gültige Nachricht kommt
-                    processMerkmalsextraktion(ergebnisPipeline);
+//                    System.out.println("Ergebnis Pipeline " + i + ": " + tempResult);
+                } else {
+//                    System.out.println("⚠ WARNUNG: tempResult ist null für Sensor " + i);
                 }
 
-                // Falls die letzte Iteration erreicht ist, wird das letzte gültige Ergebnis überprüft
+                // Falls letzte Iteration erreicht ist → `checkIntervallFromAllInstanzes()` durchführen
                 if (i == anzahlSensoren - 1) {
-                    // Wenn die letzte Nachricht der ersten gültigen Nachricht entspricht, wird sie nicht weitergegeben
-                    if (ersteGueltigeNachricht != null && ergebnisPipeline != null && ersteGueltigeNachricht.equals(ergebnisPipeline)) {
-                        // System.out.println("Letzte Pipeline-Nachricht entspricht der ersten gültigen Nachricht – wird nicht weitergegeben.");
-                    } else {
-                        // System.out.println("Letzte Pipeline-Iteration erreicht, endgültiges Ergebnis: " + ergebnisPipeline);
-                        if (ergebnisPipeline != null) {
-                            processMerkmalsextraktion(ergebnisPipeline);
-                        }
+//                    System.out.println("✅ Alle Pipeline-Ergebnisse gesammelt. Übergabe an checkIntervallFromAllInstanzes...");
+
+                    List<List<List>> zyklusErgebnis = zyklusSpeicher.checkIntervallFromAllInstanzes(i, lokaleSpeicherung);
+
+                    // Falls `zyklusErgebnis` nicht leer ist, weiterverarbeiten
+                    if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
+                        System.out.println("✅ Erfolgreiche Rückgabe von checkIntervallFromAllInstanzes: " + zyklusErgebnis);
+                        ergebnisPipeline = zyklusErgebnis;
                     }
                 }
             }
         }
-    }
 
-    /**
-     * Überprüft `ergebnisPipeline` auf leere `List<List>>` und ersetzt diese durch `null`.
-     */
-    private List<List<List>> replaceEmptyListsWithNull(List<List<List>> pipeline) {
-        if (pipeline == null) return null; // Falls pipeline `null` ist, direkt zurückgeben
-
-        List<List<List>> cleanedPipeline = new ArrayList<>();
-
-        for (List<List> entry : pipeline) {
-            if (entry == null || entry.isEmpty() || containsOnlyEmptyLists(entry)) {
-                cleanedPipeline.add(null); // Leere Listen durch `null` ersetzen
-            } else {
-                cleanedPipeline.add(entry); // Behalte nicht leere Einträge
-            }
+        // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
+        if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
+            processMerkmalsextraktion(ergebnisPipeline);
+        } else {
+//            System.out.println("Kein gültiges ergebnisPipeline für Merkmalsextraktion vorhanden.");
         }
-
-        return cleanedPipeline;
     }
 
-    /**
-     * Prüft, ob eine `List<List>` nur leere Listen (`[]`) enthält.
-     */
-    private boolean containsOnlyEmptyLists(List<List> list) {
-        if (list == null || list.isEmpty()) return true;
-        for (List innerList : list) {
-            if (innerList != null && !innerList.isEmpty()) {
-                return false; // Mindestens eine Liste enthält Daten → ist nicht leer
-            }
-        }
-        return true; // Alle inneren Listen sind leer
-    }
 
-    /**
-     * Startet die Merkmalsextraktion und verarbeitet das Ergebnis weiter.
-     */
+
+
+
+
+
+
+
+
+    //Startet die Merkmalsextraktion und verarbeitet das Ergebnis weiter.
     private void processMerkmalsextraktion(List<List<List>> ergebnisPipeline) {
         // Prüfe, ob ergebnisPipeline gültig ist
 //        System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
         if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
-            System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
+//            System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
 
             List<List<List<Double>>> ergebnisMerkmalsextraktion = merkmalsextraktionManager.startMerkmalsextraktion(ergebnisPipeline);
 
@@ -150,7 +128,7 @@ public class SystemManager {
             for (int i = 0; i < splitString(input).size(); i++) {
                 synchronized (instanzManagerList){
                     instanzManagerList.get(i).setInputData(splitString(input).get(i));
-//                    System.out.println(i + " : " + instanzManagerList.get(i).rawData);
+//                    System.out.println("Instanz: " + i + " Input: " + splitString(input).get(i));
                 }
             }
             start();
@@ -163,33 +141,26 @@ public class SystemManager {
     }
 
     // Methode zum Splitten eines Strings und Umwandeln in eine Liste von Listen für mehrere Sensoren
-    public static List<List<Double>> splitString(String input) {
-
-        List<List<Double>> arrays = new ArrayList<>();
+    public static List<Double> splitString(String input) {
+        List<Double> result = new ArrayList<>(); // Speichert alle Zahlen in einer einzigen Liste
 
         if (input == null || input.isEmpty()) {
-            return Collections.emptyList(); // Leere Liste zurückgeben, wenn der String null oder leer ist
+            return Collections.emptyList(); // Falls der Input leer oder null ist, gib eine leere Liste zurück
         }
 
         for (String s : input.split("\\|")) {
-            s = s.trim(); // Korrekt trimmen
-
-            List<Double> array = new ArrayList<>();
+            s = s.trim(); // Entferne überflüssige Leerzeichen
 
             for (String v : s.split("\\.")) {
-//                System.out.println("v: " + v);
                 try {
-                    array.add(Double.parseDouble(v.replace(",", "."))); // Konvertierung in Double
+                    result.add(Double.parseDouble(v.replace(",", "."))); // Konvertiere zu Double und speichere
                 } catch (NumberFormatException e) {
-//                    System.out.println("Ungültiger Wert: " + v); // Fehlerausgabe
+                    System.out.println("Ungültiger Wert ignoriert: " + v); // Fehlerausgabe für ungültige Werte
                 }
             }
-//            System.out.println("Array: " + array);
-
-            arrays.add(array); // Hinzufügen des Arrays zur Liste
         }
 
-        return arrays;
+        return result; // Gib die gesammelten Zahlen als Liste zurück
     }
 
     // Methode um aus dem ErgebisMerkmalen eine Liste von Strings zu erstellen
