@@ -14,17 +14,18 @@ public class SystemManager {
     private List<InstanzManager> instanzManagerList; // Liste zur Speicherung der Instanzen
     private CreateCSV createCSV; // CSV-Datei-Klasse
     private ArrayBlockingQueue<Object> liveDataQueue; // Queue für die Live-Daten der Klassifizierung
-    private Zyklen_Speicher zyklusSpeicher = new Zyklen_Speicher(3, 100); // Zyklen-Speicher-Klasse
+    private Zyklen_Speicher zyklusSpeicher; //Zyklen-Speicher-Klasse
 
     // Variablen
     private int anzahlSensoren; // Anzahl der Sensoren und Instanzen
     private boolean createCsvFile; // Soll eine CSV-Datei erstellt werden
 
     // Konstruktor
-    public SystemManager(InitPipeline initPipeline, Merkmalsextraktion_Manager merkmalsextraktionManager, int anzahlSensoren, CreateCSV createCSV, boolean createCsvFile, ArrayBlockingQueue<Object> liveDataQueue) {
+    public SystemManager(InitPipeline initPipeline, Merkmalsextraktion_Manager merkmalsextraktionManager, Zyklen_Speicher zyklenSpeicher, int anzahlSensoren, CreateCSV createCSV, boolean createCsvFile, ArrayBlockingQueue<Object> liveDataQueue) {
         this.merkmalsextraktionManager = merkmalsextraktionManager;
         this.createCSV = createCSV;
         this.liveDataQueue = liveDataQueue;
+        this.zyklusSpeicher = zyklenSpeicher;
 
         this.anzahlSensoren = anzahlSensoren;
         this.createCsvFile = createCsvFile;
