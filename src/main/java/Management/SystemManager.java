@@ -56,11 +56,13 @@ public class SystemManager {
                 if (i == anzahlSensoren - 1) {
 //                    System.out.println("✅ Alle Pipeline-Ergebnisse gesammelt. Übergabe an checkIntervallFromAllInstanzes...");
 
-                    List<List<List>> zyklusErgebnis = zyklusSpeicher.checkIntervallFromAllInstanzes(lokaleSpeicherung);
+                    List<List<List>> zyklusErgebnis = new ArrayList<>();    //zyklusSpeicher.checkIntervallFromAllInstanzes(lokaleSpeicherung);
+                    zyklusSpeicher.addLokaleDaten(lokaleSpeicherung);
+                    zyklusSpeicher.findMatchStartpunkt();
 
                     // Falls `zyklusErgebnis` nicht leer ist, weiterverarbeiten
                     if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
-                        System.out.println("✅ Erfolgreiche Rückgabe von checkIntervallFromAllInstanzes: " + zyklusErgebnis);
+//                        System.out.println("✅ Erfolgreiche Rückgabe von checkIntervallFromAllInstanzes: " + zyklusErgebnis);
                         ergebnisPipeline = zyklusErgebnis;
                     }
                 }
