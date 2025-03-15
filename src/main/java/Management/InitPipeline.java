@@ -20,15 +20,17 @@ public class InitPipeline {
     private Zyklen_Speicher zyklenSpeicher; // Zyklenspeicher
 
     // Konstruktor
-    public InitPipeline(int anzahlSensoren, int maxWertPeakNormalisierung) {
+    public InitPipeline(int anzahlSensoren, int maxWertPeakNormalisierung, Zyklen_Speicher zyklenSpeicher,
+                        double schwelleSteigungPorzent, int minBeteiligteWerteSteigung, double minAmplitudeSteigung, int toleranzZwischenZyklen,int  maxWerteOhneZyklus) {
         // Starten des Zyklen_Speichers
-        this.zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, 100);
+        this.zyklenSpeicher = zyklenSpeicher;
 
-        initDatenspeicher(anzahlSensoren, maxWertPeakNormalisierung);
+        initDatenspeicher(anzahlSensoren, maxWertPeakNormalisierung, schwelleSteigungPorzent, minBeteiligteWerteSteigung, minAmplitudeSteigung, toleranzZwischenZyklen, maxWerteOhneZyklus);
     }
 
     //Initalisierung der Pipeline
-    public void initDatenspeicher(int anzahlSensoren, int maxWertPeakNormalisierung) {
+    public void initDatenspeicher(int anzahlSensoren, int maxWertPeakNormalisierung,
+                                    double schwelleSteigungPorzent, int minBeteiligteWerteSteigung, double minAmplitudeSteigung, int toleranzZwischenZyklen,int  maxWerteOhneZyklus) {
         ExecutorService executor = Executors.newFixedThreadPool(anzahlSensoren); // Anzahl paralleler Initialisierungen
 
         for (int i = 0; i < anzahlSensoren; i++) {
@@ -55,7 +57,8 @@ public class InitPipeline {
                 Zyklenmanager zyklenmanager = new Zyklenmanager(zyklenerkennung, zyklenzusammenfassung, zyklenSpeicher, index);
 
                 // Starten des InstanzManagers
-                InstanzManager instanzManager = new InstanzManager(normalisierungManager, zyklenmanager);
+                InstanzManager instanzManager = new InstanzManager(normalisierungManager, zyklenmanager,
+                        schwelleSteigungPorzent, minBeteiligteWerteSteigung, minAmplitudeSteigung, toleranzZwischenZyklen, maxWerteOhneZyklus);
 
                 synchronized (InstanzManagerList) {
                     InstanzManagerList.add(instanzManager); // Speichern für späteren Zugriff

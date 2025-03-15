@@ -14,11 +14,24 @@ public class InstanzManager {
     // Variablen
     private ArrayList<Double> rawData = new ArrayList<>();
     private int startZyklenerkennungIndex = 0;  // Startindex für die Zyklenerkennung
+    // Zyklenmanager Variablen
+    private double schwelleSteigungPorzent; // Schwelle für die Steigung in Prozent
+    private int minBeteiligteWerteSteigung; // Mindestanzahl an beteiligten Werten für die Steigung
+    private double minAmplitudeSteigung; // Mindestamplitude für die Steigung
+    private int toleranzZwischenZyklen; // Toleranz für die Zwischenzyklen
+    private int maxWerteOhneZyklus; // Maximale Anzahl an Werten ohne Zyklus
 
     // Konstruktor
-    public InstanzManager(Normalisierung_Manager normalisierungManager, Zyklenmanager zyklenmanager) {
+    public InstanzManager(Normalisierung_Manager normalisierungManager, Zyklenmanager zyklenmanager,
+                          double schwelleSteigungPorzent, int minBeteiligteWerteSteigung, double minAmplitudeSteigung, int toleranzZwischenZyklen,int  maxWerteOhneZyklus) {
         this.normalisierungManager = normalisierungManager;
         this.zyklenmanager = zyklenmanager;
+
+        this.schwelleSteigungPorzent = schwelleSteigungPorzent;
+        this.minBeteiligteWerteSteigung = minBeteiligteWerteSteigung;
+        this.minAmplitudeSteigung = minAmplitudeSteigung;
+        this.toleranzZwischenZyklen = toleranzZwischenZyklen;
+        this.maxWerteOhneZyklus = maxWerteOhneZyklus;
     }
 
     // Start-Methode
@@ -47,7 +60,8 @@ public class InstanzManager {
 
         for (int i = 0; i < 5; i++) {
             List<ArrayList<Double>> tempErgebnis = zyklenmanager.startSegmentation(startZyklenerkennungIndex, startZyklenerkennungIndex,
-                    7.0, 5, 30.0, 120, 120,
+                    schwelleSteigungPorzent, minBeteiligteWerteSteigung, minAmplitudeSteigung, toleranzZwischenZyklen, maxWerteOhneZyklus,
+                    //7.0, 5, 30.0, 120, 120,
                     ergebnisNormalisierung, rawData);
 
             if (tempErgebnis != null && !tempErgebnis.isEmpty()) {

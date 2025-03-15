@@ -28,7 +28,7 @@ public class Zyklen_Speicher {
     }
 
     // Methode zum Überprüfen auf gleiche Intervalle der Instanzen
-    public List<List<List>> checkIntervallFromAllInstanzes(int sensorId, List<List<ArrayList<Double>>> lokaleDaten) {
+    public List<List<List>> checkIntervallFromAllInstanzes(List<List<ArrayList<Double>>> lokaleDaten) {
         List<List<List>> result = new ArrayList<>(Collections.nCopies(instanzZyklusAktive.size(), null));
 
         boolean containsRealData = false;
