@@ -41,6 +41,7 @@ public class Zyklenmanager {
 
         // Arrays generieren aus den einzelnen Daten
         if (zyklusErkannt) {
+            zyklenSpeicher.setStartzeitpunkt(instanzID, zyklusArrayZeitErgebnis.get(zyklusArrayWertErgebnis.size() - 4) - 1);
             List<ArrayList<Double>> tempListWithArrays = generateListWithArrays();
 //        System.out.println("Zyklenmanager: " + instanzID + " " + tempListWithArrays);
             if (tempListWithArrays != null) {

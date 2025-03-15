@@ -24,7 +24,7 @@ public class Main {
         int toleranzZwischenZyklen = 120; // Toleranz für die Zwischenzyklen
         int maxWerteOhneZyklus = 120; // Maximale Anzahl an Werten ohne Zyklus
         // Variablen zyklenSpeicher
-        int toleranceZwischenStartpunkt = 10000; // Toleranz für den Startpunkt
+        int toleranceZwischenStartpunkt = 100; // Toleranz für den Startpunkt
 
 
         // Starten des Random Forest Modells
