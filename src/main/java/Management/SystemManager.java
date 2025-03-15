@@ -56,7 +56,7 @@ public class SystemManager {
                 if (i == anzahlSensoren - 1) {
 //                    System.out.println("✅ Alle Pipeline-Ergebnisse gesammelt. Übergabe an checkIntervallFromAllInstanzes...");
 
-                    List<List<List>> zyklusErgebnis = zyklusSpeicher.checkIntervallFromAllInstanzes(i, lokaleSpeicherung);
+                    List<List<List>> zyklusErgebnis = zyklusSpeicher.checkIntervallFromAllInstanzes(lokaleSpeicherung);
 
                     // Falls `zyklusErgebnis` nicht leer ist, weiterverarbeiten
                     if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {

@@ -17,6 +17,14 @@ public class Main {
         String csvFileName = "src/Data/Merkmale"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
         boolean useRamdomForest = false; // Soll das Random Forest Modell verwendet werden
         int anzahlSensoren = 3; // Anzahl der Sensoren
+        // Varianblen Zyklenerkennung
+        double schwelleSteigungPorzent = 7.0; // Schwelle für die Steigung
+        int minBeteiligteWerteSteigung = 5; // Mindestanzahl an beteiligten Werten für die Steigung
+        int minAmplitudeSteigung = 30; // Mindestamplitude für die Steigung
+        int toleranzZwischenZyklen = 120; // Toleranz für die Zwischenzyklen
+        int maxWerteOhneZyklus = 120; // Maximale Anzahl an Werten ohne Zyklus
+        // Variablen zyklenSpeicher
+        int toleranceZwischenStartpunkt = 10000; // Toleranz für den Startpunkt
 
 
         // Starten des Random Forest Modells
@@ -45,10 +53,11 @@ public class Main {
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
 
         // Starten des Zyklenspeicher
-        Zyklen_Speicher zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, 100);
+        Zyklen_Speicher zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, toleranceZwischenStartpunkt);
 
         // Starten der Initalisierung der Pipeline
-        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung);
+        InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung, zyklenSpeicher,
+                schwelleSteigungPorzent, minBeteiligteWerteSteigung, minAmplitudeSteigung, toleranzZwischenZyklen, maxWerteOhneZyklus);
 
         // Starten des Systemmanagers
         SystemManager systemManager = new SystemManager(initPipeline, merkmalsextraktionManager, zyklenSpeicher, anzahlSensoren, createCSV,createCsvFile, liveDataQueue);
