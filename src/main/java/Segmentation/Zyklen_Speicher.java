@@ -1,23 +1,26 @@
 package Segmentation;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Zyklen_Speicher {
 
     // Variablen
+    private List<Map<Double, List<ArrayList<Double>>>> lokaleDatenSpeicher = new ArrayList<>(); // Globaler Speicher für lokaleDaten
     private List<List<List>> instanzList = new ArrayList<>(); // Liste zur Speicherung der Instanzen
     private List<ArrayList<Integer>> instanzZyklusAktive = new ArrayList<>(); // Array zur Speicherung der Intervalle
     private int toleranceStart; // Toleranz für die Intervalle
     private Map<Integer, List<Double>> startzeitpunkte = new ConcurrentHashMap<>(); // Globaler Speicher für Startzeitpunkte
-    private List<List<ArrayList<Double>>> lokaleDatenSpeicher = new ArrayList<>(); // Globaler Speicher für lokaleDaten
+    private Map<Double, Map<Integer, Double>> fehlendeDatenSpeicher = new ConcurrentHashMap<>(); // Speicher für unvollständige Matches (Startzeitpunkt-spezifisch)
 
     // Konstruktor
     public Zyklen_Speicher(int anzahlInstanzen, int toleranceStart) {
         for (int i = 0; i < anzahlInstanzen; i++) {
             instanzList.add(new ArrayList<>());
             instanzZyklusAktive.add(new ArrayList<>());
-            lokaleDatenSpeicher.add(new ArrayList<>());
+            lokaleDatenSpeicher.add(new HashMap<>());
         }
         this.toleranceStart = toleranceStart;
     }
@@ -26,70 +29,25 @@ public class Zyklen_Speicher {
     public void addLokaleDaten(List<List<ArrayList<Double>>> neueDaten) {
         for (int i = 0; i < neueDaten.size(); i++) {
             if (i >= lokaleDatenSpeicher.size()) {
-                lokaleDatenSpeicher.add(new ArrayList<>());
+                lokaleDatenSpeicher.add(new HashMap<>());
             }
-            lokaleDatenSpeicher.get(i).addAll(neueDaten.get(i));
-        }
-    }
-
-    // Methode zum Überprüfen auf gleiche Intervalle der Instanzen
-    public List<List<List>> checkIntervallFromAllInstanzes(List<List<ArrayList<Double>>> lokaleDaten) {
-        List<List<List>> result = new ArrayList<>(Collections.nCopies(instanzZyklusAktive.size(), null));
-        boolean allInstancesNullOrEmpty = true;
-
-        for (int i = 0; i < instanzZyklusAktive.size(); i++) {
-            if (lokaleDaten.get(i) != null && !lokaleDaten.get(i).isEmpty()) {
-                result.set(i, new ArrayList<>(lokaleDaten.get(i)));
-                allInstancesNullOrEmpty = false;
+            List<ArrayList<Double>> daten = neueDaten.get(i);
+            if (daten.size() > 2 && daten.get(2).size() > 0) {
+                double identifier = roundDouble(daten.get(2).get(0));
+                lokaleDatenSpeicher.get(i).put(identifier, daten);
+//                System.out.println("Daten hinzugefügt für Instanz " + i + " mit Identifier " + identifier);
             }
         }
-
-        if (allInstancesNullOrEmpty) {
-            return new ArrayList<>();
-        }
-
-        Map<Double, List<Integer>> valueToInstances = new HashMap<>();
-        List<String> matchResults = new ArrayList<>();
-
-        for (int i = 0; i < result.size(); i++) {
-            if (result.get(i) != null && result.get(i).size() > 3 && result.get(i).get(3).size() > 0) {
-                double value = (double) result.get(i).get(3).get(0);
-
-                for (Map.Entry<Double, List<Integer>> entry : valueToInstances.entrySet()) {
-                    if (Math.abs(entry.getKey() - value) <= toleranceStart && !entry.getValue().contains(i)) {
-                        entry.getValue().add(i);
-                        matchResults.add("Übereinstimmung gefunden für Wert: " + value + " mit Toleranz: " + toleranceStart + " Beteiligte Instanzen: " + entry.getValue());
-                    }
-                }
-
-                valueToInstances.putIfAbsent(value, new ArrayList<>());
-                valueToInstances.get(value).add(i);
-            }
-        }
-
-        for (String match : matchResults) {
-            System.out.println(match);
-        }
-
-        return result;
-    }
-
-    // Methode zum Hinzufügen eines Startzeitpunkts zu einer Instanz
-    public void setStartzeitpunkt(int ID, double Startzeitpunkt) {
-        startzeitpunkte.putIfAbsent(ID, new ArrayList<>());
-        startzeitpunkte.get(ID).add(Startzeitpunkt);
-    }
-
-    // Getter-Methode für Startzeitpunkte
-    public List<Double> getStartzeitpunkte(int ID) {
-        return startzeitpunkte.getOrDefault(ID, new ArrayList<>());
     }
 
     // Methode zur Überprüfung, ob mehrere Startzeitpunkte innerhalb der Toleranz übereinstimmen und sie anschließend zu entfernen
-    public List<String> findMatchStartpunkt() {
-        Map<Double, List<Integer>> matchedInstances = new HashMap<>();
-        List<String> matchResults = new ArrayList<>();
+    public List<List<List>> findMatchStartpunkt() {
+//        System.out.println("Starte findMatchStartpunkt...");
+        Map<Double, Map<Integer, Double>> matchedInstances = new HashMap<>();
+        List<List<List>> combinedResults = new ArrayList<>();
         List<Integer> instanzKeys = new ArrayList<>(startzeitpunkte.keySet());
+
+//        System.out.println("Verfügbare Startzeitpunkte: " + startzeitpunkte);
 
         Set<Double> toRemove = new HashSet<>(); // Speichert Werte, die nach dem Match entfernt werden
 
@@ -106,37 +64,140 @@ public class Zyklen_Speicher {
 
                     for (double start2 : starts2) {
                         if (Math.abs(start1 - start2) <= toleranceStart) {
-                            matchedInstances.putIfAbsent(start1, new ArrayList<>());
-                            if (!matchedInstances.get(start1).contains(instanz1)) {
-                                matchedInstances.get(start1).add(instanz1);
-                            }
-                            if (!matchedInstances.get(start1).contains(instanz2)) {
-                                matchedInstances.get(start1).add(instanz2);
-                            }
+                            matchedInstances.putIfAbsent(roundDouble(start1), new HashMap<>());
+                            matchedInstances.get(roundDouble(start1)).put(instanz1, start1);
+                            matchedInstances.get(roundDouble(start1)).put(instanz2, start2);
+                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
 
                             // Markiere beide Werte zum Entfernen
-                            toRemove.add(start1);
-                            toRemove.add(start2);
+                            toRemove.add(roundDouble(start1));
+                            toRemove.add(roundDouble(start2));
                         }
                     }
                 }
             }
         }
 
-        // Entferne die gefundenen Werte aus dem Speicher, nachdem alle Iterationen abgeschlossen sind
         for (int instanzID : startzeitpunkte.keySet()) {
             startzeitpunkte.get(instanzID).removeIf(toRemove::contains);
         }
 
-        for (Map.Entry<Double, List<Integer>> entry : matchedInstances.entrySet()) {
-            matchResults.add("Startzeitpunkt-Match gefunden für Wert: " + entry.getKey() +
-                    " mit Instanzen: " + entry.getValue() + " innerhalb der Toleranz " + toleranceStart);
+//        System.out.println("Matched Instances: " + matchedInstances);
+
+        combinedResults = getCombinedMatchData(matchedInstances);
+        return combinedResults;
+    }
+
+    private List<List<List>> getCombinedMatchData(Map<Double, Map<Integer, Double>> matchedInstances) {
+        return processMatchData(matchedInstances, false);
+    }
+
+    public List<List<List>> checkFehlendeDaten() {
+//        System.out.println("Prüfe erneut auf fehlende Daten...");
+        Iterator<Map.Entry<Double, Map<Integer, Double>>> iterator = fehlendeDatenSpeicher.entrySet().iterator();
+        Map<Double, Map<Integer, Double>> neuGefundeneDaten = new HashMap<>();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Double, Map<Integer, Double>> entry = iterator.next();
+            boolean alleDatenJetztVerfügbar = true;
+
+            for (Map.Entry<Integer, Double> instanzEntry : entry.getValue().entrySet()) {
+                int instanzID = instanzEntry.getKey();
+                double specificStart = instanzEntry.getValue();
+
+                // Prüfen, ob die Daten inzwischen vorhanden sind
+                if (instanzID >= lokaleDatenSpeicher.size() ||
+                        !lokaleDatenSpeicher.get(instanzID).containsKey(roundDouble(specificStart))) {
+                    alleDatenJetztVerfügbar = false;
+                    break;
+                }
+            }
+
+            // Falls alle Daten nun vorhanden sind, fügen wir sie zur Verarbeitung hinzu
+            if (alleDatenJetztVerfügbar) {
+                neuGefundeneDaten.put(entry.getKey(), entry.getValue());
+                iterator.remove(); // Entferne die Daten aus dem Speicher
+            }
         }
 
-        for (String match : matchResults) {
-            System.out.println(match);
+        return processMatchData(neuGefundeneDaten, true);
+    }
+
+    private List<List<List>> processMatchData(Map<Double, Map<Integer, Double>> matchedInstances, boolean isCheckingMissing) {
+        List<List<List>> combinedResults = new ArrayList<>();
+        Iterator<Map.Entry<Double, Map<Integer, Double>>> iterator = matchedInstances.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Double, Map<Integer, Double>> entry = iterator.next();
+            System.out.println("\u001B[34mVerarbeite Match für Prozess: " + entry.getKey() + "\u001B[0m");
+            System.out.println("Instanzen und erwartete Startzeitpunkte: " + entry.getValue());
+            List<List> matchData = new ArrayList<>(Collections.nCopies(lokaleDatenSpeicher.size(), null));
+            boolean allDataAvailable = true;
+            List<Integer> fehlendeInstanzen = new ArrayList<>();
+
+            for (Map.Entry<Integer, Double> instanzEntry : entry.getValue().entrySet()) {
+                int instanzID = instanzEntry.getKey();
+                double specificStart = instanzEntry.getValue();
+                System.out.println("Verfügbare Keys für Instanz " + instanzID + ": " + lokaleDatenSpeicher.get(instanzID).keySet());
+                if (!lokaleDatenSpeicher.get(instanzID).containsKey(roundDouble(specificStart))) {
+//                    System.out.println("Fehlende Datenprüfung: Instanz " + instanzID + " hat nicht den Identifier " + specificStart);
+//                    System.out.println("Verfügbare Keys für Instanz " + instanzID + ": " + lokaleDatenSpeicher.get(instanzID).keySet());
+                    allDataAvailable = false;
+                    fehlendeInstanzen.add(instanzID);
+                }
+            }
+
+            if (!allDataAvailable) {
+                System.out.println("\u001B[31mÜberspringe Prozess für " + entry.getKey() + " wegen missenden Daten.\u001B[0m");
+//                System.out.println("Daten fehlen für Identifier " + entry.getKey() + " von Instanzen: " + fehlendeInstanzen);
+//                System.out.println("Fehlende Daten: " + fehlendeDatenSpeicher);
+//                System.out.println("Verfügbare Keys für Instanz " + fehlendeInstanzen.get(0) + ": " + lokaleDatenSpeicher.get(fehlendeInstanzen.get(0)).keySet());
+//                System.out.println("Verfügbare Keys für Instanz " + fehlendeInstanzen.getLast() + ": " + lokaleDatenSpeicher.get(fehlendeInstanzen.getLast()).keySet());
+//                System.out.println("Lokale Daten: " + lokaleDatenSpeicher);
+                if (!isCheckingMissing) {
+                    fehlendeDatenSpeicher.put(entry.getKey(), entry.getValue());
+                }
+                continue;
+            }
+
+            for (Map.Entry<Integer, Double> instanzEntry : entry.getValue().entrySet()) {
+                int instanzID = instanzEntry.getKey();
+                double specificStart = instanzEntry.getValue();
+                matchData.set(instanzID, new ArrayList<>(lokaleDatenSpeicher.get(instanzID).get(roundDouble(specificStart))));
+                System.out.println("\u001B[32mErfolgreich Daten erhalten von Instanz " + instanzID + " with Identifier " + specificStart + "\u001B[0m");
+                System.out.println("Lösche Key: " + specificStart + " von Instanz " + instanzID);
+                lokaleDatenSpeicher.get(instanzID).remove(roundDouble(specificStart));
+                System.out.println("Lösche key: " + specificStart + " von Instanz " + instanzID);
+            }
+
+            combinedResults.add(matchData);
+            iterator.remove();
+            System.out.println("Fertiger Prozess für Instanz: " + entry.getKey());
+            System.out.println("Aktuelle Kombinierter Output: " + combinedResults);
+        }
+        return combinedResults;
+    }
+
+    public void startMatching() {
+        List<List<List>> initialMatches = findMatchStartpunkt();
+        if (!initialMatches.isEmpty()) {
+            System.out.println("Erste Matching-Ergebnisse verarbeitet.");
         }
 
-        return matchResults;
+        List<List<List>> checkedMissing = checkFehlendeDaten();
+        if (!checkedMissing.isEmpty()) {
+            System.out.println("Fehlende Daten wurden gefunden und verarbeitet.");
+        }
+    }
+
+    //Setter und Getter
+    // Methode zum Hinzufügen eines Startzeitpunkts zu einer Instanz
+    public void setStartzeitpunkt(int ID, double Startzeitpunkt) {
+        startzeitpunkte.putIfAbsent(ID, new ArrayList<>());
+        startzeitpunkte.get(ID).add(Startzeitpunkt);
+    }
+
+    private double roundDouble(double value) {
+        return new BigDecimal(value).setScale(5, RoundingMode.HALF_UP).doubleValue();
     }
 }
