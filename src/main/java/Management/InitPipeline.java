@@ -11,6 +11,7 @@ import Segmentation.Zyklenmanager;
 import Segmentation.Zyklenzusammenfassung;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,64 +31,45 @@ public class InitPipeline {
 
     //Initalisierung der Pipeline
     public void initDatenspeicher(int anzahlSensoren, int maxWertPeakNormalisierung,
-                                    double schwelleSteigungPorzent, int minBeteiligteWerteSteigung, double minAmplitudeSteigung, int toleranzZwischenZyklen,int  maxWerteOhneZyklus) {
-        ExecutorService executor = Executors.newFixedThreadPool(anzahlSensoren); // Anzahl paralleler Initialisierungen
+                                  double schwelleSteigungPorzent, int minBeteiligteWerteSteigung,
+                                  double minAmplitudeSteigung, int toleranzZwischenZyklen, int maxWerteOhneZyklus) {
+        ExecutorService executor = Executors.newSingleThreadExecutor(); // Single Thread für synchrone Initialisierung
 
-        for (int i = 0; i < anzahlSensoren; i++) {
-            int index = i; // Verhindert Lambda-Variable-Probleme
-            executor.submit(() -> {
+        // Definierte Reihenfolge: 0 → 1 → 2
+        int[] startReihenfolge = {0, 1, 2};
+
+        List<Callable<Void>> tasks = new ArrayList<>();
+        for (int index : startReihenfolge) {
+            tasks.add(() -> {
                 System.out.println("Starte Pipeline-Initialisierung " + index);
 
-                // Starten der RMS-Klasse
                 Rms rms = new Rms();
-
-                // Starten der Peak-Normalisierung-Klasse
                 PeakNormalisierung peakNormalisierung = new PeakNormalisierung(maxWertPeakNormalisierung);
-
-                // Starten der allgemeinen Speicherklasse/Sensormanagement.Manager
-                Normalisierung_Manager normalisierungManager = new Normalisierung_Manager(/*updatePlotter*/ null, rms, peakNormalisierung);
-
-                // Starten der Zykluserkennung
+                Normalisierung_Manager normalisierungManager = new Normalisierung_Manager(null, rms, peakNormalisierung);
                 Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
-
-                // Starten der Zykluszusammenfassung
                 Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
-
-                // Starten des Zyklusmanagers
                 Zyklenmanager zyklenmanager = new Zyklenmanager(zyklenerkennung, zyklenzusammenfassung, zyklenSpeicher, index);
 
-                // Starten des InstanzManagers
                 InstanzManager instanzManager = new InstanzManager(normalisierungManager, zyklenmanager,
                         schwelleSteigungPorzent, minBeteiligteWerteSteigung, minAmplitudeSteigung, toleranzZwischenZyklen, maxWerteOhneZyklus);
 
                 synchronized (InstanzManagerList) {
-                    InstanzManagerList.add(instanzManager); // Speichern für späteren Zugriff
+                    InstanzManagerList.add(instanzManager);
                 }
 
-                // Endlosschleife, um den Thread am Leben zu halten
-                while (true) {
-                    try {
-                        Thread.sleep(1000); // Verhindert hohe CPU-Auslastung
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        System.out.println("Thread " + index + " wurde unterbrochen.");
-                        break;
-                    }
-                }
-
-                System.out.println("Pipeline " + index + " geschlossen!");
+                System.out.println("Pipeline " + index + " gestartet!");
+                return null;
             });
         }
+
+        try {
+            executor.invokeAll(tasks); // Wartet darauf, dass alle Tasks der Reihe nach abgeschlossen werden
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            executor.shutdown();
+        }
     }
-
-
-
-
-
-
-
-
-
 
     // Setter und Getter
     public List<InstanzManager> getInstanzManagerList() {
