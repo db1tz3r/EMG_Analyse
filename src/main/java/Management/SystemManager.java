@@ -4,6 +4,7 @@ import Merkmalsextraktion.Merkmalsextraktion_Manager;
 import Segmentation.Zyklen_Speicher;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -35,7 +36,7 @@ public class SystemManager {
 
     // Start-Methode
     public void start() {
-        List<List<List>> ergebnisPipeline = null;
+        List<List<List>> ergebnisPipeline = new ArrayList<>();
         List<List<ArrayList<Double>>> lokaleSpeicherung = new ArrayList<>(Collections.nCopies(anzahlSensoren, null)); // Lokale Speicherung
 
         // Starte die Pipeline für alle Sensoren
@@ -46,52 +47,37 @@ public class SystemManager {
                 // **Falls tempResult null ist, ersetze es durch eine leere Liste**
                 lokaleSpeicherung.set(i, tempResult != null ? tempResult : new ArrayList<>());
 
-                if (tempResult != null) {
-//                    System.out.println("Ergebnis Pipeline " + i + ": " + tempResult);
-                } else {
-//                    System.out.println("⚠ WARNUNG: tempResult ist null für Sensor " + i);
-                }
-
                 // Falls letzte Iteration erreicht ist → `checkIntervallFromAllInstanzes()` durchführen
                 if (i == anzahlSensoren - 1) {
-//                    System.out.println("✅ Alle Pipeline-Ergebnisse gesammelt. Übergabe an checkIntervallFromAllInstanzes...");
-
-                    List<List<List>> zyklusErgebnis = new ArrayList<>();    //zyklusSpeicher.checkIntervallFromAllInstanzes(lokaleSpeicherung);
                     zyklusSpeicher.addLokaleDaten(lokaleSpeicherung);
-                    zyklusSpeicher.startMatching();
+                    List<List<List<List<Double>>>> zyklusErgebnis = zyklusSpeicher.startMatching();
+
+                    if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
+                        System.out.println("ZyklusErgebnis: " + zyklusErgebnis);
+                    }
 
                     // Falls `zyklusErgebnis` nicht leer ist, weiterverarbeiten
-                    if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
-//                        System.out.println("✅ Erfolgreiche Rückgabe von checkIntervallFromAllInstanzes: " + zyklusErgebnis);
-                        ergebnisPipeline = zyklusErgebnis;
-                    }
+//                    if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
+//                        for (List<List<Double>> zyklusErgebnisSensor : zyklusErgebnis) {
+//                            for (List<Double> zyklusErgebnisInstanz : zyklusErgebnisSensor) {
+//                                ergebnisPipeline.add(Collections.singletonList(zyklusErgebnisInstanz));
+//                            }
+//                        }
+//
+//                        // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
+//                        if (!ergebnisPipeline.isEmpty()) {
+//                            processMerkmalsextraktion(ergebnisPipeline);
+//                        }
+//                    }
                 }
             }
         }
-
-        // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
-        if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
-            processMerkmalsextraktion(ergebnisPipeline);
-        } else {
-//            System.out.println("Kein gültiges ergebnisPipeline für Merkmalsextraktion vorhanden.");
-        }
     }
-
-
-
-
-
-
-
-
-
 
     //Startet die Merkmalsextraktion und verarbeitet das Ergebnis weiter.
     private void processMerkmalsextraktion(List<List<List>> ergebnisPipeline) {
         // Prüfe, ob ergebnisPipeline gültig ist
-//        System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
         if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
-//            System.out.println("Ergebnis Pipeline: " + ergebnisPipeline);
 
             List<List<List<Double>>> ergebnisMerkmalsextraktion = merkmalsextraktionManager.startMerkmalsextraktion(ergebnisPipeline);
 
@@ -113,25 +99,12 @@ public class SystemManager {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
     // Methode zum Hinzufügen von Rohdaten zur jeweiligen Instanz
     public void addRawData(String input) {
         if (input.contains("|")){
-//            System.out.println(input.chars().filter(ch -> ch == '|').count());    //Schauen wie viele Datensensoren vorhanden sind
             for (int i = 0; i < splitString(input).size(); i++) {
                 synchronized (instanzManagerList){
                     instanzManagerList.get(i).setInputData(splitString(input).get(i));
-//                    System.out.println("Instanz: " + i + " Input: " + splitString(input).get(i));
                 }
             }
             start();
@@ -178,6 +151,4 @@ public class SystemManager {
         }
         return result;
     }
-
-
 }
