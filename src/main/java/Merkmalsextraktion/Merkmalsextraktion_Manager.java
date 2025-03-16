@@ -12,14 +12,14 @@ public class Merkmalsextraktion_Manager {
     private Merkmal_Speicher merkmalSpeicher;
 
     // Variablen
-    private List<List<List<Double>>> allFeatures = new ArrayList<>(); // Array für alle Merkmale
+    private List<List<List<Double>>> allFeatures = new ArrayList<List<List<Double>>>(); // Array für alle Merkmale
 
     public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher) {
         this.merkmalSpeicher = merkmalSpeicher;
     }
 
 
-    public List<List<List<Double>>> startMerkmalsextraktion(List<List<List>> zyklusErgebnis) {
+    public List<List<List<Double>>> startMerkmalsextraktion(List<List<List<Double>>> zyklusErgebnis) {
         List<List<List<Double>>> allFeatures = new ArrayList<>();
 
         // Starte die Merkmalsextraktion für jede Instanz
@@ -234,47 +234,47 @@ public class Merkmalsextraktion_Manager {
 
     // Getter und Setter
     // Hauptliste in Steigung, Senkung, Mittel und Gesamt aufteilen
-    public ArrayList<Double> getSteigungsArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
+    public ArrayList<Double> getSteigungsArrayGerichtet(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
         System.out.println("SteigungsArrayGerichtet" + zyklusErgebnis.get(instanzID).get(0));
-        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(0);
+        return new ArrayList<>(zyklusErgebnis.get(instanzID).get(0));
     }
 
-    public ArrayList<Double> getMittelArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
-        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(3);
+    public ArrayList<Double> getMittelArrayGerichtet(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
+        return new ArrayList<>(zyklusErgebnis.get(instanzID).get(3));
     }
 
-    public ArrayList<Double> getSenkungsArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
-        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(6);
+    public ArrayList<Double> getSenkungsArrayGerichtet(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
+        return new ArrayList<>(zyklusErgebnis.get(instanzID).get(6));
     }
 
-    public ArrayList<Double> getGesamtArrayGerichtet(List<List<List>> zyklusErgebnis, int instanzID) {
+    public ArrayList<Double> getGesamtArrayGerichtet(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
         ArrayList<Double> gesamtArrayGerichtet = new ArrayList<>();
 
-        gesamtArrayGerichtet.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(0));
-        gesamtArrayGerichtet.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(3));
-        gesamtArrayGerichtet.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(6));
+        gesamtArrayGerichtet.addAll(new ArrayList<>(zyklusErgebnis.get(instanzID).get(0)));
+        gesamtArrayGerichtet.addAll(new ArrayList<>(zyklusErgebnis.get(instanzID).get(3)));
+        gesamtArrayGerichtet.addAll(new ArrayList<>(zyklusErgebnis.get(instanzID).get(6)));
 
         return gesamtArrayGerichtet;
     }
 
-    public ArrayList<Double> getSteigungsArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
-        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(1);
+    public ArrayList<Double> getSteigungsArrayRoh(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
+        return new ArrayList<>(zyklusErgebnis.get(instanzID).get(1));
     }
 
-    public ArrayList<Double> getMittelArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
-        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(4);
+    public ArrayList<Double> getMittelArrayRoh(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
+        return new ArrayList<>(zyklusErgebnis.get(instanzID).get(4));
     }
 
-    public ArrayList<Double> getSenkungsArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
-        return (ArrayList<Double>) zyklusErgebnis.get(instanzID).get(7);
+    public ArrayList<Double> getSenkungsArrayRoh(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
+        return new ArrayList<>(zyklusErgebnis.get(instanzID).get(7));
     }
 
-    public ArrayList<Double> getGesamtArrayRoh(List<List<List>> zyklusErgebnis, int instanzID) {
+    public ArrayList<Double> getGesamtArrayRoh(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
         ArrayList<Double> gesamtArrayRoh = new ArrayList<>();
 
-        gesamtArrayRoh.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(1));
-        gesamtArrayRoh.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(4));
-        gesamtArrayRoh.addAll((ArrayList<Double>) zyklusErgebnis.get(instanzID).get(7));
+        gesamtArrayRoh.addAll(new ArrayList<>(zyklusErgebnis.get(instanzID).get(1)));
+        gesamtArrayRoh.addAll(new ArrayList<>(zyklusErgebnis.get(instanzID).get(4)));
+        gesamtArrayRoh.addAll(new ArrayList<>(zyklusErgebnis.get(instanzID).get(7)));
 
         return gesamtArrayRoh;
     }
