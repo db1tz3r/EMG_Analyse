@@ -36,7 +36,6 @@ public class SystemManager {
 
     // Start-Methode
     public void start() {
-        List<List<List>> ergebnisPipeline = new ArrayList<>();
         List<List<ArrayList<Double>>> lokaleSpeicherung = new ArrayList<>(Collections.nCopies(anzahlSensoren, null)); // Lokale Speicherung
 
         // Starte die Pipeline für alle Sensoren
@@ -54,28 +53,23 @@ public class SystemManager {
 
                     if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
                         System.out.println("ZyklusErgebnis: " + zyklusErgebnis);
-                    }
 
-                    // Falls `zyklusErgebnis` nicht leer ist, weiterverarbeiten
-//                    if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
-//                        for (List<List<Double>> zyklusErgebnisSensor : zyklusErgebnis) {
-//                            for (List<Double> zyklusErgebnisInstanz : zyklusErgebnisSensor) {
-//                                ergebnisPipeline.add(Collections.singletonList(zyklusErgebnisInstanz));
-//                            }
-//                        }
-//
-//                        // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
-//                        if (!ergebnisPipeline.isEmpty()) {
-//                            processMerkmalsextraktion(ergebnisPipeline);
-//                        }
-//                    }
+                        System.out.println("ZyklusErgebnis Größe: " + zyklusErgebnis.size());
+                        System.out.println("ZyklusErgebnis Instanz Größe: " + zyklusErgebnis.get(0).size());
+                        for (List<List<List<Double>>> zyklusErgebnisInstanz : zyklusErgebnis) {
+                                // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
+                                if (!zyklusErgebnisInstanz.isEmpty()) {
+                                    processMerkmalsextraktion(zyklusErgebnisInstanz);
+                                }
+                            }
+                    }
                 }
             }
         }
     }
 
     //Startet die Merkmalsextraktion und verarbeitet das Ergebnis weiter.
-    private void processMerkmalsextraktion(List<List<List>> ergebnisPipeline) {
+    private void processMerkmalsextraktion(List<List<List<Double>>> ergebnisPipeline) {
         // Prüfe, ob ergebnisPipeline gültig ist
         if (ergebnisPipeline != null && !ergebnisPipeline.isEmpty()) {
 
