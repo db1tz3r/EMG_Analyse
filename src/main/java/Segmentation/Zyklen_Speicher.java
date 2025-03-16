@@ -67,7 +67,7 @@ public class Zyklen_Speicher {
                             matchedInstances.putIfAbsent(roundDouble(start1), new HashMap<>());
                             matchedInstances.get(roundDouble(start1)).put(instanz1, start1);
                             matchedInstances.get(roundDouble(start1)).put(instanz2, start2);
-                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
+//                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
 
                             // Markiere beide Werte zum Entfernen
                             toRemove.add(roundDouble(start1));
@@ -129,8 +129,8 @@ public class Zyklen_Speicher {
 
         while (iterator.hasNext()) {
             Map.Entry<Double, Map<Integer, Double>> entry = iterator.next();
-            System.out.println("\u001B[34mVerarbeite Match für Prozess: " + entry.getKey() + "\u001B[0m");
-            System.out.println("Instanzen und erwartete Startzeitpunkte: " + entry.getValue());
+//            System.out.println("\u001B[34mVerarbeite Match für Prozess: " + entry.getKey() + "\u001B[0m");
+//            System.out.println("Instanzen und erwartete Startzeitpunkte: " + entry.getValue());
             List<List> matchData = new ArrayList<>(Collections.nCopies(lokaleDatenSpeicher.size(), null));
             boolean allDataAvailable = true;
             List<Integer> fehlendeInstanzen = new ArrayList<>();
@@ -138,7 +138,7 @@ public class Zyklen_Speicher {
             for (Map.Entry<Integer, Double> instanzEntry : entry.getValue().entrySet()) {
                 int instanzID = instanzEntry.getKey();
                 double specificStart = instanzEntry.getValue();
-                System.out.println("Verfügbare Keys für Instanz " + instanzID + ": " + lokaleDatenSpeicher.get(instanzID).keySet());
+//                System.out.println("Verfügbare Keys für Instanz " + instanzID + ": " + lokaleDatenSpeicher.get(instanzID).keySet());
                 if (!lokaleDatenSpeicher.get(instanzID).containsKey(roundDouble(specificStart))) {
 //                    System.out.println("Fehlende Datenprüfung: Instanz " + instanzID + " hat nicht den Identifier " + specificStart);
 //                    System.out.println("Verfügbare Keys für Instanz " + instanzID + ": " + lokaleDatenSpeicher.get(instanzID).keySet());
@@ -148,7 +148,7 @@ public class Zyklen_Speicher {
             }
 
             if (!allDataAvailable) {
-                System.out.println("\u001B[31mÜberspringe Prozess für " + entry.getKey() + " wegen missenden Daten.\u001B[0m");
+//                System.out.println("\u001B[31mÜberspringe Prozess für " + entry.getKey() + " wegen missenden Daten.\u001B[0m");
 //                System.out.println("Daten fehlen für Identifier " + entry.getKey() + " von Instanzen: " + fehlendeInstanzen);
 //                System.out.println("Fehlende Daten: " + fehlendeDatenSpeicher);
 //                System.out.println("Verfügbare Keys für Instanz " + fehlendeInstanzen.get(0) + ": " + lokaleDatenSpeicher.get(fehlendeInstanzen.get(0)).keySet());
@@ -164,39 +164,119 @@ public class Zyklen_Speicher {
                 int instanzID = instanzEntry.getKey();
                 double specificStart = instanzEntry.getValue();
                 matchData.set(instanzID, new ArrayList<>(lokaleDatenSpeicher.get(instanzID).get(roundDouble(specificStart))));
-                System.out.println("\u001B[32mErfolgreich Daten erhalten von Instanz " + instanzID + " with Identifier " + specificStart + "\u001B[0m");
-                System.out.println("Lösche Key: " + specificStart + " von Instanz " + instanzID);
+//                System.out.println("\u001B[32mErfolgreich Daten erhalten von Instanz " + instanzID + " with Identifier " + specificStart + "\u001B[0m");
+//                System.out.println("Daten: " + matchData.get(instanzID));
+//                System.out.println("Lösche Key: " + specificStart + " von Instanz " + instanzID);
                 lokaleDatenSpeicher.get(instanzID).remove(roundDouble(specificStart));
-                System.out.println("Lösche key: " + specificStart + " von Instanz " + instanzID);
+//                System.out.println("Lösche key: " + specificStart + " von Instanz " + instanzID);
             }
 
             combinedResults.add(matchData);
             iterator.remove();
-            System.out.println("Fertiger Prozess für Instanz: " + entry.getKey());
+//            System.out.println("Fertiger Prozess für Instanz: " + entry.getKey());
 //            System.out.println("Aktuelle Kombinierter Output: " + combinedResults);
         }
         return combinedResults;
     }
 
-    public List<List<List>> startMatching() {
-        List<List<List>> initialMatches = findMatchStartpunkt();
-        if (!initialMatches.isEmpty()) {
-//            System.out.println("Erste Matching-Ergebnisse verarbeitet.");
+    public List<List<List<List<Double>>>> startMatching() {
+        List<List<List<Double>>> initialMatches = replaceEmptyWithNull(convertToDoubleList(findMatchStartpunkt()));
+
+        List<List<List<Double>>> checkedMissing = null;
+        int maxIterations = fehlendeDatenSpeicher.size(); // Anzahl der Versuche entspricht der Größe von fehlendeDatenSpeicher
+
+        for (int i = 0; i < maxIterations; i++) {
+            List<List<List<Double>>> currentCheck = replaceEmptyWithNull(convertToDoubleList(checkFehlendeDaten()));
+            if (currentCheck == null || currentCheck.isEmpty()) {
+                break; // Falls keine neuen Daten mehr gefunden werden, abbrechen
+            }
+            if (checkedMissing == null) {
+                checkedMissing = new ArrayList<>();
+            }
+            checkedMissing.addAll(currentCheck);
         }
 
-        List<List<List>> checkedMissing = checkFehlendeDaten();
-        if (!checkedMissing.isEmpty()) {
-//            System.out.println("Fehlende Daten wurden gefunden und verarbeitet.");
+        List<List<List<List<Double>>>> combinedResults = new ArrayList<>();
+
+        if (initialMatches != null) {
+            combinedResults.add(initialMatches);
+        }
+        if (checkedMissing != null) {
+            combinedResults.add(checkedMissing);
         }
 
-        // Kombiniere die Ergebnisse und gib sie zurück
-        List<List<List>> combinedResults = new ArrayList<>();
-        combinedResults.addAll(initialMatches);
-        combinedResults.addAll(checkedMissing);
-        if (!combinedResults.isEmpty()) {
-            System.out.println("Kombinierte Ergebnisse Endergebnis: " + combinedResults);
+        return combinedResults.isEmpty() ? null : combinedResults;
+    }
+
+    // Hilfsmethode zum Ersetzen leerer Listen durch null
+    private List<List<List<Double>>> replaceEmptyWithNull(List<List<List<Double>>> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
         }
-        return combinedResults;
+
+        List<List<List<Double>>> cleanedList = new ArrayList<>();
+        for (List<List<Double>> match : list) {
+            if (match == null || match.isEmpty()) {
+                cleanedList.add(null);
+            } else {
+                List<List<Double>> cleanedMatch = new ArrayList<>();
+                for (List<Double> instanz : match) {
+                    cleanedMatch.add((instanz == null || instanz.isEmpty()) ? null : instanz);
+                }
+                cleanedList.add(cleanedMatch);
+            }
+        }
+        return cleanedList;
+    }
+
+    public List<List<List<Double>>> convertToDoubleList(List<List<List>> rawList) {
+//        if (!rawList.isEmpty()) {
+//            System.out.println("Konvertiere zu Double-Liste...");
+//            System.out.println("Raw List: " + rawList);
+//        }
+
+        List<List<List<Double>>> convertedMatch = null;
+        for (List<List> match : rawList) {
+
+            convertedMatch = new ArrayList<>();
+
+            for (List<?> instanz : match) {
+                if (instanz == null) {
+                    convertedMatch.add(null);
+                    continue;
+                }
+
+                List<List<Double>> instanzDaten = new ArrayList<>();
+
+                for (Object obj : instanz) {
+                    if (obj instanceof List<?>) {
+                        List<Double> nestedList = new ArrayList<>();
+                        for (Object nestedObj : (List<?>) obj) {
+                            if (nestedObj instanceof Double) {
+                                nestedList.add((Double) nestedObj);
+                            } else if (nestedObj instanceof Number) {
+                                nestedList.add(((Number) nestedObj).doubleValue());
+                            } else {
+                                System.out.println("⚠ WARNUNG: Unerwarteter Typ in verschachtelter Liste: " + nestedObj.getClass().getSimpleName() + " → " + nestedObj);
+                            }
+                        }
+                        instanzDaten.add(nestedList);
+                    } else if (obj instanceof Double) {
+                        instanzDaten.add(Collections.singletonList((Double) obj));
+                    } else if (obj instanceof Number) {
+                        instanzDaten.add(Collections.singletonList(((Number) obj).doubleValue()));
+                    } else {
+                        System.out.println("⚠ WARNUNG: Unerwarteter Typ in der Liste: " + obj.getClass().getSimpleName() + " → " + obj);
+                    }
+                }
+
+                // Hier wird sichergestellt, dass die Originalstruktur erhalten bleibt!
+                convertedMatch.add(instanzDaten.isEmpty() ? null : instanzDaten);
+            }
+        }
+
+//        System.out.println("Converted List: " + convertedMatch);
+        return convertedMatch;
     }
 
     //Setter und Getter
