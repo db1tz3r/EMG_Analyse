@@ -173,21 +173,30 @@ public class Zyklen_Speicher {
             combinedResults.add(matchData);
             iterator.remove();
             System.out.println("Fertiger Prozess für Instanz: " + entry.getKey());
-            System.out.println("Aktuelle Kombinierter Output: " + combinedResults);
+//            System.out.println("Aktuelle Kombinierter Output: " + combinedResults);
         }
         return combinedResults;
     }
 
-    public void startMatching() {
+    public List<List<List>> startMatching() {
         List<List<List>> initialMatches = findMatchStartpunkt();
         if (!initialMatches.isEmpty()) {
-            System.out.println("Erste Matching-Ergebnisse verarbeitet.");
+//            System.out.println("Erste Matching-Ergebnisse verarbeitet.");
         }
 
         List<List<List>> checkedMissing = checkFehlendeDaten();
         if (!checkedMissing.isEmpty()) {
-            System.out.println("Fehlende Daten wurden gefunden und verarbeitet.");
+//            System.out.println("Fehlende Daten wurden gefunden und verarbeitet.");
         }
+
+        // Kombiniere die Ergebnisse und gib sie zurück
+        List<List<List>> combinedResults = new ArrayList<>();
+        combinedResults.addAll(initialMatches);
+        combinedResults.addAll(checkedMissing);
+        if (!combinedResults.isEmpty()) {
+            System.out.println("Kombinierte Ergebnisse Endergebnis: " + combinedResults);
+        }
+        return combinedResults;
     }
 
     //Setter und Getter

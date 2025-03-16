@@ -59,7 +59,6 @@ public class SystemManager {
                     List<List<List>> zyklusErgebnis = new ArrayList<>();    //zyklusSpeicher.checkIntervallFromAllInstanzes(lokaleSpeicherung);
                     zyklusSpeicher.addLokaleDaten(lokaleSpeicherung);
                     zyklusSpeicher.startMatching();
-                    //System.out.println("Zyklen: " + zyklusSpeicher.getFehlendeDatenSpeicher());
 
                     // Falls `zyklusErgebnis` nicht leer ist, weiterverarbeiten
                     if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
