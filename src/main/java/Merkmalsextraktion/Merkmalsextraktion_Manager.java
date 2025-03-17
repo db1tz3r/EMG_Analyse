@@ -235,7 +235,7 @@ public class Merkmalsextraktion_Manager {
     // Getter und Setter
     // Hauptliste in Steigung, Senkung, Mittel und Gesamt aufteilen
     public ArrayList<Double> getSteigungsArrayGerichtet(List<List<List<Double>>> zyklusErgebnis, int instanzID) {
-        System.out.println("SteigungsArrayGerichtet" + zyklusErgebnis.get(instanzID).get(0));
+//        System.out.println("SteigungsArrayGerichtet" + zyklusErgebnis.get(instanzID).get(0));
         return new ArrayList<>(zyklusErgebnis.get(instanzID).get(0));
     }
 
