@@ -27,16 +27,14 @@ public class Zyklen_Speicher {
 
     // Methode zum Starten des Matchings
     public List<List<List<List<Double>>>> startMatching() {
-//        System.out.println(startzeitpunkte);
         List<List<List<Double>>> initialMatches = replaceEmptyWithNull(convertToDoubleList(findMatchStartpunkt()));
-
         List<List<List<Double>>> checkedMissing = null;
-        int maxIterations = fehlendeDatenSpeicher.size(); // Anzahl der Versuche entspricht der Größe von fehlendeDatenSpeicher
+        int maxIterations = fehlendeDatenSpeicher.size();
 
         for (int i = 0; i < maxIterations; i++) {
             List<List<List<Double>>> currentCheck = replaceEmptyWithNull(convertToDoubleList(checkFehlendeDaten()));
             if (currentCheck == null || currentCheck.isEmpty()) {
-                break; // Falls keine neuen Daten mehr gefunden werden, abbrechen
+                break;
             }
             if (checkedMissing == null) {
                 checkedMissing = new ArrayList<>();
@@ -46,14 +44,13 @@ public class Zyklen_Speicher {
 
         List<List<List<List<Double>>>> checkNoMatch = new ArrayList<>();
         for (int instanzID : startzeitpunkte.keySet()) {
-            List<Double> startwerte = new ArrayList<>(startzeitpunkte.get(instanzID)); // Kopie, um Änderungen zu vermeiden
+            List<Double> startwerte = new ArrayList<>(startzeitpunkte.get(instanzID));
             for (double startwert : startwerte) {
                 if (startwerte.indexOf(startwert) < (startwerte.size() - 1) && startwerte.size() > 1) {
                     List<List<List<Double>>> noMatchesResults = pruefeStartzeitpunkte(instanzID, startwert, startwerte);
                     if (noMatchesResults != null && !noMatchesResults.isEmpty()) {
 //                        System.out.println("Keine Matches gefunden für Startwert " + startwert + ": " + noMatchesResults);
-
-                        checkNoMatch.addAll(Collections.singleton(noMatchesResults));
+                        checkNoMatch.add(noMatchesResults);
                     }
                 }
             }
@@ -67,11 +64,14 @@ public class Zyklen_Speicher {
         if (checkedMissing != null) {
             combinedResults.add(checkedMissing);
         }
-
         if (!checkNoMatch.isEmpty()) {
             combinedResults.addAll(checkNoMatch);
         }
 
+        // Entferne äußere Listen, die nur `null` enthalten
+        combinedResults.removeIf(list -> list == null || list.stream().allMatch(Objects::isNull));
+
+        // Falls nach der Bereinigung die Liste leer ist, gib `null` zurück
         return combinedResults.isEmpty() ? null : combinedResults;
     }
 
@@ -117,6 +117,7 @@ public class Zyklen_Speicher {
                     startzeitpunkte.get(instanzID).remove(Double.valueOf(fruehererZeitpunkt));
                     // Entferne die Daten aus lokaleDatenSpeicher
                     lokaleDatenSpeicher.get(instanzID).remove(roundDouble(fruehererZeitpunkt));
+                    System.out.println(lokaleDatenSpeicher.get(instanzID).remove(roundDouble(fruehererZeitpunkt)));
 
 //                    System.out.println("\u001B[32mStartzeitpunkt " + fruehererZeitpunkt + " von Instanz " + instanzID + " einzelt ausgegeben.\u001B[0m");
                 }
@@ -153,7 +154,7 @@ public class Zyklen_Speicher {
                             matchedInstances.putIfAbsent(roundDouble(start1), new HashMap<>());
                             matchedInstances.get(roundDouble(start1)).put(instanz1, start1);
                             matchedInstances.get(roundDouble(start1)).put(instanz2, start2);
-                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
+//                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
 
                             // Markiere beide Werte zum Entfernen
                             toRemove.add(roundDouble(start1));

@@ -57,11 +57,12 @@ public class SystemManager {
 //                        System.out.println("ZyklusErgebnis Größe: " + zyklusErgebnis.size());
 //                        System.out.println("ZyklusErgebnis Instanz Größe: " + zyklusErgebnis.get(0).size());
                         for (List<List<List<Double>>> zyklusErgebnisInstanz : zyklusErgebnis) {
-                                // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
-                                if (!zyklusErgebnisInstanz.isEmpty()) {
-                                    processMerkmalsextraktion(zyklusErgebnisInstanz);
-                                }
+                            // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
+//                            System.out.println("ZyklusErgebnisInstanz: " + zyklusErgebnisInstanz);
+                            if (!zyklusErgebnisInstanz.isEmpty() && zyklusErgebnisInstanz != null) {
+                                processMerkmalsextraktion(zyklusErgebnisInstanz);
                             }
+                        }
                     }
                 }
             }
