@@ -14,6 +14,7 @@ public class Zyklen_Speicher {
     private int toleranceStart; // Toleranz für die Intervalle
     private Map<Integer, List<Double>> startzeitpunkte = new ConcurrentHashMap<>(); // Globaler Speicher für Startzeitpunkte
     private Map<Double, Map<Integer, Double>> fehlendeDatenSpeicher = new ConcurrentHashMap<>(); // Speicher für unvollständige Matches (Startzeitpunkt-spezifisch)
+    private int anzahlInstanzen; // Anzahl der Instanzen
 
     // Konstruktor
     public Zyklen_Speicher(int anzahlInstanzen, int toleranceStart) {
@@ -23,6 +24,7 @@ public class Zyklen_Speicher {
             lokaleDatenSpeicher.add(new HashMap<>());
         }
         this.toleranceStart = toleranceStart;
+        this.anzahlInstanzen = anzahlInstanzen;
     }
 
     // Methode zum Starten des Matchings
@@ -42,20 +44,6 @@ public class Zyklen_Speicher {
             checkedMissing.addAll(currentCheck);
         }
 
-        List<List<List<List<Double>>>> checkNoMatch = new ArrayList<>();
-        for (int instanzID : startzeitpunkte.keySet()) {
-            List<Double> startwerte = new ArrayList<>(startzeitpunkte.get(instanzID));
-            for (double startwert : startwerte) {
-                if (startwerte.indexOf(startwert) < (startwerte.size() - 1) && startwerte.size() > 1) {
-                    List<List<List<Double>>> noMatchesResults = pruefeStartzeitpunkte(instanzID, startwert, startwerte);
-                    if (noMatchesResults != null && !noMatchesResults.isEmpty()) {
-//                        System.out.println("Keine Matches gefunden für Startwert " + startwert + ": " + noMatchesResults);
-                        checkNoMatch.add(noMatchesResults);
-                    }
-                }
-            }
-        }
-
         List<List<List<List<Double>>>> combinedResults = new ArrayList<>();
 
         if (initialMatches != null) {
@@ -64,8 +52,21 @@ public class Zyklen_Speicher {
         if (checkedMissing != null) {
             combinedResults.add(checkedMissing);
         }
-        if (!checkNoMatch.isEmpty()) {
-            combinedResults.addAll(checkNoMatch);
+        Iterator<Map.Entry<Integer, List<Double>>> iterator = startzeitpunkte.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, List<Double>> entry = iterator.next();
+            int instanzID = entry.getKey();
+            List<Double> starts = new ArrayList<>(entry.getValue()); // Kopie der Liste, um direkte Modifikation zu vermeiden
+
+            for (double start : starts) {
+                combinedResults.add(getStartzeitpunktDaten(instanzID, start));
+//                System.out.println("Startzeitpunkte: " + startzeitpunkte);
+            }
+
+            // Falls alle Startzeitpunkte entfernt wurden, lösche die gesamte Instanz
+            if (entry.getValue().isEmpty()) {
+                iterator.remove(); // Entfernt den Eintrag sicher aus `startzeitpunkte`
+            }
         }
 
         // Entferne äußere Listen, die nur `null` enthalten
@@ -75,57 +76,40 @@ public class Zyklen_Speicher {
         return combinedResults.isEmpty() ? null : combinedResults;
     }
 
+    private List<List<List<Double>>> getStartzeitpunktDaten(int instanzID, double start) {
+//        System.out.println("Hole Startzeitpunkt für Instanz " + instanzID + " mit Startzeitpunkt " + start);
 
-// Methode zur Überprüfung, ob ein früherer Startzeitpunkt innerhalb der Toleranz zu einem späteren liegt
-    public boolean istStartzeitpunktInnerhalbDerToleranz(double fruehererZeitpunkt, double spaetererZeitpunkt) {
-        if (fruehererZeitpunkt >= spaetererZeitpunkt) {
-            throw new IllegalArgumentException("Der frühere Zeitpunkt muss tatsächlich früher sein als der spätere.");
+        // Überprüfung, ob Instanz vorhanden ist
+        if (lokaleDatenSpeicher.get(instanzID) == null) {
+//            System.out.println("Instanz " + instanzID + " existiert nicht." + lokaleDatenSpeicher.get(instanzID).get(start));
+            return null; // Falls die Instanz nicht existiert, gebe null zurück.
         }
-        double differenz = spaetererZeitpunkt - fruehererZeitpunkt;
-        return differenz <= toleranceStart;
-    }
 
-    // Methode zur Überprüfung von Startzeitpunkten für alle Instanzen mit Berücksichtigung des fehlendeDatenSpeicher
-    public List<List<List<Double>>> pruefeStartzeitpunkte(int instanzID, double startwert, List<Double> startwerte) {
-        List<List<List<Double>>> ergebnisListe = new ArrayList<>(Collections.nCopies(lokaleDatenSpeicher.size(), null));
+        // Überprüfung, ob Startzeitpunkt existiert
+        if (lokaleDatenSpeicher.get(instanzID).get(start) == null) {
+//            System.out.println("Lokale Daten für Instanz " + instanzID + " mit Startzeitpunkt " + start + " existieren nicht." + lokaleDatenSpeicher.get(instanzID).get(start));
+            return null; // Falls der Startzeitpunkt nicht existiert, gebe null zurück.
+        }
+//        System.out.println("Lokale Daten für Instanz " + instanzID + " mit Startzeitpunkt " + start + " existieren." + lokaleDatenSpeicher.get(instanzID).get(start));
 
-//        System.out.println("Prüfe Startzeitpunkte für Instanz: " + instanzID);
-
-        double fruehererZeitpunkt = startwerte.get(startwerte.indexOf(startwert));
-        double spaetererZeitpunkt = startwerte.get(startwerte.indexOf(startwert) + 1);
-
-        if (!istStartzeitpunktInnerhalbDerToleranz(fruehererZeitpunkt, spaetererZeitpunkt)) {
-//            System.out.println("⚠ WARNUNG: Startzeitpunkte für Instanz " + instanzID + " überschreiten die Toleranz! ("
-//                    + fruehererZeitpunkt + " -> " + spaetererZeitpunkt + ")");
-
-            // Überprüfen, ob der frühere Startpunkt in fehlendeDatenSpeicher enthalten ist
-            if (fehlendeDatenSpeicher.containsKey(fruehererZeitpunkt)) {
-//                System.out.println("✔ Der überschrittene Startpunkt " + fruehererZeitpunkt + " befindet sich in fehlendeDatenSpeicher.");
+        // Formatieren des Outputs
+        List<List<List<Double>>> ergebnis = new ArrayList<>();
+        for (int i = 0; i < anzahlInstanzen; i++) {
+            if (i == instanzID) {
+                System.out.println(lokaleDatenSpeicher.get(instanzID).get(start));
+                ergebnis.add(Collections.unmodifiableList(lokaleDatenSpeicher.get(instanzID).get(start)));
             } else {
-//                System.out.println("❌ Der überschrittene Startpunkt " + fruehererZeitpunkt + " ist NICHT in fehlendeDatenSpeicher.");
-
-                // Falls nicht vorhanden, lade Daten aus lokaleDatenSpeicher und speichere in der Ergebnisliste
-                if (instanzID < lokaleDatenSpeicher.size() && lokaleDatenSpeicher.get(instanzID).containsKey(roundDouble(fruehererZeitpunkt))) {
-                    List<ArrayList<Double>> daten = lokaleDatenSpeicher.get(instanzID).get(roundDouble(fruehererZeitpunkt));
-                    List<List<Double>> formatierteDaten = new ArrayList<>();
-                    for (ArrayList<Double> eintrag : daten) {
-                        formatierteDaten.add(new ArrayList<>(eintrag));
-                    }
-
-                    ergebnisListe.set(instanzID, formatierteDaten);
-                    // Entferne den Startzeitpunkt aus startzeitpunkte
-                    startzeitpunkte.get(instanzID).remove(Double.valueOf(fruehererZeitpunkt));
-                    // Entferne die Daten aus lokaleDatenSpeicher
-                    lokaleDatenSpeicher.get(instanzID).remove(roundDouble(fruehererZeitpunkt));
-                    System.out.println(lokaleDatenSpeicher.get(instanzID).remove(roundDouble(fruehererZeitpunkt)));
-
-//                    System.out.println("\u001B[32mStartzeitpunkt " + fruehererZeitpunkt + " von Instanz " + instanzID + " einzelt ausgegeben.\u001B[0m");
-                }
+                ergebnis.add(null);
             }
         }
 
-        return ergebnisListe;
+        // Entferne den Startzeitpunkt aus dem Speicher
+        startzeitpunkte.get(instanzID).remove(start);
+        lokaleDatenSpeicher.get(instanzID).remove(start);
+
+        return ergebnis;
     }
+
 
     // Methode zur Überprüfung, ob mehrere Startzeitpunkte innerhalb der Toleranz übereinstimmen und sie anschließend zu entfernen
     public List<List<List>> findMatchStartpunkt() {
@@ -154,7 +138,7 @@ public class Zyklen_Speicher {
                             matchedInstances.putIfAbsent(roundDouble(start1), new HashMap<>());
                             matchedInstances.get(roundDouble(start1)).put(instanz1, start1);
                             matchedInstances.get(roundDouble(start1)).put(instanz2, start2);
-//                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
+                            System.out.println("\u001B[32mMatch gefunden: " + start1 + " mit Instanzen: " + matchedInstances.get(roundDouble(start1)) + "\u001B[0m");
 
                             // Markiere beide Werte zum Entfernen
                             toRemove.add(roundDouble(start1));

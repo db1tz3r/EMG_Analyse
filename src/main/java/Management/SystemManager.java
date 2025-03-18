@@ -54,7 +54,7 @@ public class SystemManager {
                     if (zyklusErgebnis != null && !zyklusErgebnis.isEmpty()) {
 //                        System.out.println("ZyklusErgebnis: " + zyklusErgebnis);
 
-//                        System.out.println("ZyklusErgebnis Größe: " + zyklusErgebnis.size());
+                        System.out.println("ZyklusErgebnis Größe: " + zyklusErgebnis.size());
 //                        System.out.println("ZyklusErgebnis Instanz Größe: " + zyklusErgebnis.get(0).size());
                         for (List<List<List<Double>>> zyklusErgebnisInstanz : zyklusErgebnis) {
                             // Falls `ergebnisPipeline` existiert, Merkmalsextraktion starten
