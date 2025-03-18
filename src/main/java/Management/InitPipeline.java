@@ -41,7 +41,7 @@ public class InitPipeline {
         List<Callable<Void>> tasks = new ArrayList<>();
         for (int index : startReihenfolge) {
             tasks.add(() -> {
-                System.out.println("Starte Pipeline-Initialisierung " + index);
+//                System.out.println("Starte Pipeline-Initialisierung " + index);
 
                 Rms rms = new Rms();
                 PeakNormalisierung peakNormalisierung = new PeakNormalisierung(maxWertPeakNormalisierung);
