@@ -24,7 +24,8 @@ public class Main {
         int toleranzZwischenZyklen = 120; // Toleranz für die Zwischenzyklen
         int maxWerteOhneZyklus = 120; // Maximale Anzahl an Werten ohne Zyklus
         // Variablen zyklenSpeicher
-        int toleranceZwischenStartpunkt = 100; // Toleranz für den Startpunkt
+        int toleranceZwischenStartpunkt = 200; // Toleranz für den Startpunkt
+        int maxUnmatchedTries = 150; // Maximale Anzahl an Versuchen, um einen Zyklusmatch zu finden
 
 
         // Starten des Random Forest Modells
@@ -53,7 +54,7 @@ public class Main {
         Merkmalsextraktion_Manager merkmalsextraktionManager = new Merkmalsextraktion_Manager(merkmalSpeicher);
 
         // Starten des Zyklenspeicher
-        Zyklen_Speicher zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, toleranceZwischenStartpunkt);
+        Zyklen_Speicher zyklenSpeicher = new Zyklen_Speicher(anzahlSensoren, toleranceZwischenStartpunkt, maxUnmatchedTries);
 
         // Starten der Initalisierung der Pipeline
         InitPipeline initPipeline = new InitPipeline(anzahlSensoren, maxWertPeakNormalisierung, zyklenSpeicher,

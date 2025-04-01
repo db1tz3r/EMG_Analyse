@@ -15,9 +15,12 @@ public class Zyklen_Speicher {
     private Map<Integer, List<Double>> startzeitpunkte = new ConcurrentHashMap<>(); // Globaler Speicher für Startzeitpunkte
     private Map<Double, Map<Integer, Double>> fehlendeDatenSpeicher = new ConcurrentHashMap<>(); // Speicher für unvollständige Matches (Startzeitpunkt-spezifisch)
     private int anzahlInstanzen; // Anzahl der Instanzen
+    private Map<Integer, Map<Double, Integer>> unmatchedCounter = new HashMap<>();  // Zähler für nicht-gematchte Startzeitpunkte
+    private final int maxUnmatchedTries; // Anzahl der Versuche, bevor nicht-gematchte Daten zurückgegeben werden
+
 
     // Konstruktor
-    public Zyklen_Speicher(int anzahlInstanzen, int toleranceStart) {
+    public Zyklen_Speicher(int anzahlInstanzen, int toleranceStart, int maxUnmatchedTries) {
         for (int i = 0; i < anzahlInstanzen; i++) {
             instanzList.add(new ArrayList<>());
             instanzZyklusAktive.add(new ArrayList<>());
@@ -25,14 +28,20 @@ public class Zyklen_Speicher {
         }
         this.toleranceStart = toleranceStart;
         this.anzahlInstanzen = anzahlInstanzen;
+        this.maxUnmatchedTries = maxUnmatchedTries;
     }
 
     // Methode zum Starten des Matchings
     public List<List<List<List<Double>>>> startMatching() {
+        // Schauen, ob in den eingekommenen Daten ein Match vorliegt
         List<List<List<Double>>> initialMatches = replaceEmptyWithNull(convertToDoubleList(findMatchStartpunkt()));
+        if (initialMatches != null && !initialMatches.isEmpty()) {
+//            System.out.println("Initial Matches: " + initialMatches);
+        }
         List<List<List<Double>>> checkedMissing = null;
         int maxIterations = fehlendeDatenSpeicher.size();
 
+        // Iteriere über die fehlenden Daten, um sie zu überprüfen auf Matches
         for (int i = 0; i < maxIterations; i++) {
             List<List<List<Double>>> currentCheck = replaceEmptyWithNull(convertToDoubleList(checkFehlendeDaten()));
             if (currentCheck == null || currentCheck.isEmpty()) {
@@ -48,10 +57,13 @@ public class Zyklen_Speicher {
 
         if (initialMatches != null) {
             combinedResults.add(initialMatches);
+//            System.out.println("Initial Matches hinzufügen: " + initialMatches);
+//            System.out.println("Combined Results: " + combinedResults);
         }
         if (checkedMissing != null) {
             combinedResults.add(checkedMissing);
         }
+        // Nicht Matchende Startzeitpunkte ausgeben
         Iterator<Map.Entry<Integer, List<Double>>> iterator = startzeitpunkte.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, List<Double>> entry = iterator.next();
@@ -69,6 +81,21 @@ public class Zyklen_Speicher {
             }
         }
 
+        // Aktualisiere Zähler für nicht-gematchte Startzeitpunkte
+        for (Map.Entry<Integer, List<Double>> entry : startzeitpunkte.entrySet()) {
+            int instanzID = entry.getKey();
+            for (double start : entry.getValue()) {
+                double roundedStart = roundDouble(start);
+                unmatchedCounter.putIfAbsent(instanzID, new HashMap<>());
+                Map<Double, Integer> counterMap = unmatchedCounter.get(instanzID);
+                counterMap.put(roundedStart, counterMap.getOrDefault(roundedStart, 0) + 1);
+            }
+        }
+
+        if (!combinedResults.isEmpty() && combinedResults.get(0) != null) {
+//            System.out.println("Combined Results: " + combinedResults);
+        }
+
         // Entferne äußere Listen, die nur `null` enthalten
         combinedResults.removeIf(list -> list == null || list.stream().allMatch(Objects::isNull));
 
@@ -77,38 +104,51 @@ public class Zyklen_Speicher {
     }
 
     private List<List<List<Double>>> getStartzeitpunktDaten(int instanzID, double start) {
-//        System.out.println("Hole Startzeitpunkt für Instanz " + instanzID + " mit Startzeitpunkt " + start);
+        double roundedStart = roundDouble(start);
 
-        // Überprüfung, ob Instanz vorhanden ist
-        if (lokaleDatenSpeicher.get(instanzID) == null) {
-//            System.out.println("Instanz " + instanzID + " existiert nicht." + lokaleDatenSpeicher.get(instanzID).get(start));
-            return null; // Falls die Instanz nicht existiert, gebe null zurück.
+        // Prüfen, ob dieser Startzeitpunkt in fehlendeDatenSpeicher existiert
+        for (Map.Entry<Double, Map<Integer, Double>> entry : fehlendeDatenSpeicher.entrySet()) {
+            Map<Integer, Double> instanzenMap = entry.getValue();
+            if (instanzenMap.containsKey(instanzID) &&
+                    roundDouble(instanzenMap.get(instanzID)) == roundedStart) {
+                return null;
+            }
         }
 
-        // Überprüfung, ob Startzeitpunkt existiert
-        if (lokaleDatenSpeicher.get(instanzID).get(start) == null) {
-//            System.out.println("Lokale Daten für Instanz " + instanzID + " mit Startzeitpunkt " + start + " existieren nicht." + lokaleDatenSpeicher.get(instanzID).get(start));
-            return null; // Falls der Startzeitpunkt nicht existiert, gebe null zurück.
+        // Prüfen, ob der Zähler zu niedrig ist → dann noch nicht zurückgeben
+        int versuche = unmatchedCounter.getOrDefault(instanzID, Collections.emptyMap())
+                .getOrDefault(roundedStart, 0);
+        if (versuche < maxUnmatchedTries) {
+            return null;
         }
-//        System.out.println("Lokale Daten für Instanz " + instanzID + " mit Startzeitpunkt " + start + " existieren." + lokaleDatenSpeicher.get(instanzID).get(start));
 
-        // Formatieren des Outputs
+        // Falls Instanz oder Daten fehlen, gib null zurück
+        if (instanzID >= lokaleDatenSpeicher.size() ||
+                !lokaleDatenSpeicher.get(instanzID).containsKey(roundedStart)) {
+            return null;
+        }
+
+        // Ausgabe vorbereiten
         List<List<List<Double>>> ergebnis = new ArrayList<>();
         for (int i = 0; i < anzahlInstanzen; i++) {
             if (i == instanzID) {
-                System.out.println(lokaleDatenSpeicher.get(instanzID).get(start));
-                ergebnis.add(Collections.unmodifiableList(lokaleDatenSpeicher.get(instanzID).get(start)));
+                ergebnis.add(Collections.unmodifiableList(
+                        lokaleDatenSpeicher.get(instanzID).get(roundedStart)
+                ));
             } else {
                 ergebnis.add(null);
             }
         }
 
-        // Entferne den Startzeitpunkt aus dem Speicher
-        startzeitpunkte.get(instanzID).remove(start);
-        lokaleDatenSpeicher.get(instanzID).remove(start);
+        // Daten entfernen
+        startzeitpunkte.get(instanzID).remove(Double.valueOf(start));
+        lokaleDatenSpeicher.get(instanzID).remove(roundedStart);
+        unmatchedCounter.get(instanzID).remove(roundedStart); // Counter zurücksetzen
 
         return ergebnis;
     }
+
+
 
 
     // Methode zur Überprüfung, ob mehrere Startzeitpunkte innerhalb der Toleranz übereinstimmen und sie anschließend zu entfernen
@@ -153,9 +193,12 @@ public class Zyklen_Speicher {
             startzeitpunkte.get(instanzID).removeIf(toRemove::contains);
         }
 
-//        System.out.println("Matched Instances: " + matchedInstances);
-
         combinedResults = getCombinedMatchData(matchedInstances);
+
+//        if (!combinedResults.isEmpty()){
+//            System.out.println("Daten: " + combinedResults);
+//        }
+
         return combinedResults;
     }
 
