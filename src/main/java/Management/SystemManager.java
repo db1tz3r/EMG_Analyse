@@ -86,7 +86,7 @@ public class SystemManager {
                 } else {
                     // Klassifikation starten
                     try {
-                        liveDataQueue.put(convertResultToString(ergebnisMerkmalsextraktion));
+                        liveDataQueue.put(convertResultToString(replaceNullsWithZero(ergebnisMerkmalsextraktion)));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -94,6 +94,35 @@ public class SystemManager {
             }
         }
     }
+
+    public static List<List<List<Double>>> replaceNullsWithZero(List<List<List<Double>>> daten) {
+        List<List<List<Double>>> cleaned = new ArrayList<>();
+
+        for (List<List<Double>> sensor : daten) {
+            if (sensor == null) {
+                // Ersetze kompletten Sensor-Block durch leere 0.0-Daten
+                cleaned.add(Collections.singletonList(Collections.singletonList(0.0)));
+                continue;
+            }
+
+            List<List<Double>> sensorCleaned = new ArrayList<>();
+            for (List<Double> merkmale : sensor) {
+                if (merkmale == null) {
+                    sensorCleaned.add(Collections.singletonList(0.0));
+                } else {
+                    List<Double> werte = new ArrayList<>();
+                    for (Double d : merkmale) {
+                        werte.add(d == null ? 0.0 : d);
+                    }
+                    sensorCleaned.add(werte);
+                }
+            }
+            cleaned.add(sensorCleaned);
+        }
+
+        return cleaned;
+    }
+
 
     // Methode zum Hinzufügen von Rohdaten zur jeweiligen Instanz
     public void addRawData(String input) {

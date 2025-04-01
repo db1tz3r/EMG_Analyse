@@ -3,39 +3,55 @@ package RandomForest;
 import smile.data.DataFrame;
 import smile.data.formula.Formula;
 import smile.data.measure.NominalScale;
+import smile.data.type.DataTypes;
+import smile.data.vector.DoubleVector;
 import smile.data.vector.IntVector;
 import smile.data.vector.StringVector;
 import smile.io.Read;
 import org.apache.commons.csv.CSVFormat;
 import smile.classification.RandomForest;
 
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataTraining {
 
     public static RandomForest trainRandomForest(String csvPath) {
         try {
-            // Load CSV file
             DataFrame data = Read.csv(csvPath, CSVFormat.DEFAULT.withHeader());
-            System.out.println("Data loaded:");
-            System.out.println(data.structure());
 
-            // Force the column "class" to be a StringVector
-            data = data.merge(StringVector.of("class_fixed", data.column("Klasse").toStringArray()));
+            // String → Double + Null zu 0.0
+            data = convertStringsToDoubleAndReplaceNaN(data);
 
-            // Create a NominalScale for the target variable
-            NominalScale scale = new NominalScale("Finger1", "Finger2");
+            // Klasse umwandeln
+            String[] klassen = Arrays.stream(data.stringVector("Klasse").toArray())
+                    .filter(Objects::nonNull).distinct().toArray(String[]::new);
 
-            // Convert the target variable `class_fixed` to numeric values
-            data = data.merge(IntVector.of("class_numeric", data.stringVector("class_fixed").factorize(scale).toIntArray()));
+            NominalScale scale = new NominalScale(klassen);
+            int[] target = data.stringVector("Klasse").factorize(scale).toIntArray();
 
-            // Update DataFrame: Remove old string target variables
-            data = data.drop("Klasse").drop("class_fixed");
-            System.out.println("After conversion:");
-            System.out.println(data.structure());
+            System.out.println("🎯 Klassenzuordnung (Label → Index):");
+            for (int i = 0; i < klassen.length; i++) {
+                System.out.println(klassen[i] + " → " + i);
+            }
 
-            // Define target variable
+            System.out.println("📦 Target-Vektor Beispiel:");
+            System.out.println(Arrays.toString(Arrays.copyOf(target, 20))); // erste 20 anzeigen
+
+            Map<Integer, Long> counts = Arrays.stream(target)
+                    .boxed()
+                    .collect(Collectors.groupingBy(i -> i, Collectors.counting()));
+
+            System.out.println("📊 Klassenverteilung im Training (numeric):");
+            counts.forEach((k, v) -> System.out.println("Klasse " + k + ": " + v));
+
+
+
+            data = data.drop("Klasse").merge(IntVector.of("class_numeric", target));
+
+            // Modelltraining
             Formula formula = Formula.lhs("class_numeric");
+
 
             // Create properties and set the number of trees
             Properties properties = new Properties();
@@ -51,4 +67,26 @@ public class DataTraining {
             return null; // Return null if training fails
         }
     }
+
+    public static DataFrame convertStringsToDoubleAndReplaceNaN(DataFrame df) {
+        for (String col : df.names()) {
+            if (df.column(col).type() == DataTypes.StringType && !col.equalsIgnoreCase("Klasse")) {
+                String[] values = df.stringVector(col).toArray();
+                double[] converted = new double[values.length];
+
+                for (int i = 0; i < values.length; i++) {
+                    try {
+                        converted[i] = Double.parseDouble(values[i].trim().replace(",", "."));
+                    } catch (Exception e) {
+                        converted[i] = 0.0; // ➤ hier wird auch gleich ersetzt!
+                    }
+                }
+
+                df = df.drop(col).merge(DoubleVector.of(col, converted));
+            }
+        }
+
+        return df;
+    }
+
 }

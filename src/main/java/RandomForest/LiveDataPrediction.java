@@ -55,7 +55,22 @@ public class LiveDataPrediction {
 
             // Vorhersagen für live eingehende Daten
             while (true) {
-                double[] liveInstance = (double[]) liveDataQueue.take(); // Hole die nächste Instanz aus der Queue
+                @SuppressWarnings("unchecked")
+                List<String> rawInstance = (List<String>) liveDataQueue.take();
+                System.out.println("🔍 Live-Daten:");
+                System.out.println(rawInstance);
+
+
+                double[] liveInstance = rawInstance.stream()
+                        .mapToDouble(s -> {
+                            try {
+                                return Double.parseDouble(s.trim().replace(",", "."));
+                            } catch (Exception e) {
+                                return 0.0; // fallback für ungültige Werte
+                            }
+                        })
+                        .toArray();
+
                 //System.out.println(Arrays.toString(liveInstance));
 
                 int i = 0;
@@ -84,6 +99,28 @@ public class LiveDataPrediction {
 
                 // Vorhersage ausgeben
                 System.out.println("Vorhersage für die eingehenden Daten: " + prediction);
+
+                int numClasses = rf.numClasses();
+                int[] votes = new int[numClasses];
+
+// Gehe durch alle Bäume und zähle die Vorhersagen
+                for (var tree : rf.trees()) {
+                    int predictionP = tree.predict(tupleInstance);
+                    votes[predictionP]++;
+                }
+
+// Normalisiere zu Wahrscheinlichkeiten
+                double[] probs = new double[numClasses];
+                for (int j = 0; j < numClasses; j++) {
+                    probs[j] = (double) votes[j] / rf.trees().length;
+                }
+
+                System.out.println("🔢 Geschätzte Wahrscheinlichkeiten: " + Arrays.toString(probs));
+
+                System.out.println("Starkes Feature: " + Arrays.toString(rf.importance()));
+
+
+
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
