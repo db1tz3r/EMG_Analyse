@@ -67,7 +67,7 @@ public class CreateCSV {
                 }
 
                 // Schreibe die neue Zeile
-                writer.write("1," + String.join(",", input));
+                writer.write("Finger1," + String.join(",", input));
                 writer.newLine();
 
                 System.out.println("Daten in Datei geschrieben: " + fileName);
