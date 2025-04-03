@@ -11,6 +11,7 @@ import smile.io.Read;
 import org.apache.commons.csv.CSVFormat;
 import smile.classification.RandomForest;
 import smile.base.cart.SplitRule;
+import smile.validation.metric.Accuracy;
 
 import java.util.*;
 import java.util.stream.Collectors;
