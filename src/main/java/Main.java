@@ -14,7 +14,7 @@ public class Main {
         int maxWertPeakNormalisierung = 2000;   // maximaler Wert, der vom Arduino/Sensor erreicht werden kann
         int hz = 2000;    // Zahl der Hz in dem die Daten übertragen werden
         boolean createCsvFile = false; // Soll eine CSV-Datei erstellt werden
-        String csvFileName = "src/Data/Merkmale_3"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
+        String csvFileName = "src/Data/Merkmale_2"; // Name der CSV-Datei, in der die Merkmale gespeichert werden
         boolean useRamdomForest = true; // Soll das Random Forest Modell verwendet werden
         int anzahlSensoren = 2; // Anzahl der Sensoren
         // Varianblen Zyklenerkennung

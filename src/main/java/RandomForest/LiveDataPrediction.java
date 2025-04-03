@@ -33,14 +33,20 @@ public class LiveDataPrediction {
                 List<String> rawInstance = (List<String>) liveDataQueue.take();
                 System.out.println("📥 Rohdaten: " + rawInstance);
 
-                // 🔧 Nur ein Element → splitten
-                String[] parts = rawInstance.get(0).split(",");
+                // 🔧 Jetzt alle Elemente in rawInstance betrachten und aufsplitten
+                // Die Elemente in `rawInstance` sind Strings, daher müssen wir jedes dieser Elemente splitten
+                List<String> processedRawInstance = new ArrayList<>();
+                for (String data : rawInstance) {
+                    String[] parts = data.split(",");
+                    processedRawInstance.addAll(Arrays.asList(parts));
+                }
 
-                // 🔄 In double[] umwandeln
-                double[] liveInstance = Arrays.stream(parts)
+                // 🔄 Umwandlung in double[]
+                double[] liveInstance = processedRawInstance.stream()
                         .mapToDouble(s -> {
                             try {
-                                return Double.parseDouble(s.trim().replace(",", ".")); // falls Kommas dezimaltrennend
+                                // Bei Bedarf Komma durch Punkt ersetzen und in double konvertieren
+                                return Double.parseDouble(s.trim().replace(",", "."));
                             } catch (Exception e) {
                                 System.err.println("⚠️ Fehler beim Parsen: '" + s + "' → " + e.getMessage());
                                 return 0.0;
@@ -59,8 +65,7 @@ public class LiveDataPrediction {
 
                 System.out.println("🔍 Live-Daten:");
                 System.out.println(Arrays.toString(liveInstance));
-                System.out.println("📢 Vorhersage: Finger " + (prediction+1));
-
+                System.out.println("📢 Vorhersage: Finger " + (prediction + 1));
 
                 // Feature Importance
                 System.out.println("🧭 Feature Importance: " + Arrays.toString(rf.importance()));
