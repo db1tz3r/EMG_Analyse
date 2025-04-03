@@ -59,7 +59,7 @@ public class LiveDataPrediction {
 
                 System.out.println("🔍 Live-Daten:");
                 System.out.println(Arrays.toString(liveInstance));
-                System.out.println("📢 Vorhersage: " + prediction);
+                System.out.println("📢 Vorhersage: Finger " + (prediction+1));
 
 
                 // Feature Importance

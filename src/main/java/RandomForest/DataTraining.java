@@ -49,8 +49,11 @@ public class DataTraining {
                     1.0                 // subsample ratio
             );
 
-            return rf;
+            // Model Evaluation (Precision, Recall, F1-Score, etc.)
+            int[] predictions = rf.predict(data);
+            ModelEvaluator.evaluateModel(target, predictions);
 
+            return rf;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
