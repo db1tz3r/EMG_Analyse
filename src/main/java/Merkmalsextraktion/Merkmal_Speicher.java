@@ -24,7 +24,7 @@ public class Merkmal_Speicher {
             , schiefe, zeroCrossings, laenge
             , maximalwert, minimalwert;
 
-    //Array mit Merkmale (erster Wert, Wert MaximumSteigung, letzter Wert, Wert MaximumSenkung,
+    //Array mit Ringfinger.csv (erster Wert, Wert MaximumSteigung, letzter Wert, Wert MaximumSenkung,
     //                      Steigungsformel a, Steigungsformel b, Steigungsformel c,
     //                      Senkungsformel a, Senkungsformel b, Senkungsformel c,
     //                      Mittelformel a, Mittelformel b, Mittelformel c,
@@ -92,7 +92,7 @@ public class Merkmal_Speicher {
 
     }
 
-    // Set-Methoden für Klassische Merkmale
+    // Set-Methoden für Klassische Ringfinger.csv
     public void setMittelwert(double mittelwert) {
         this.mittelwert = mittelwert;
     }

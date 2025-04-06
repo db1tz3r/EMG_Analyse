@@ -39,7 +39,7 @@ public class KlassischeSignalMerkmale extends Thread {
         schiefe = berechneSchiefe(rohSignal);
         zeroCrossings = berechneZeroCrossings(rohSignal);
 
-        // Speichern der Merkmale
+        // Speichern der Ringfinger.csv
         merkmalSpeicher.setMittelwert(mittelwert);
         merkmalSpeicher.setSignalstärke(signalstärke);
         merkmalSpeicher.setLaenge(laenge);

@@ -51,7 +51,7 @@ public class DataTraining {
 
             // Model Evaluation (Precision, Recall, F1-Score, etc.)
             int[] predictions = rf.predict(data);
-            ModelEvaluator.evaluateModel(target, predictions);
+            //ModelEvaluator.evaluateModel(target, predictions);
 
             return rf;
         } catch (Exception e) {

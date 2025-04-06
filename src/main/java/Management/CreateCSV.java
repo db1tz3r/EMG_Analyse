@@ -12,10 +12,11 @@ public class CreateCSV {
     // Variablen
     private final String fileName;
     private boolean createCsvFile;
+    private int counter;
 
     // Konstruktor
     public CreateCSV(String csvFileName, boolean createCsvFile) {
-        this.fileName = getNextFileName(csvFileName);
+        this.fileName = getNextFileName(csvFileName) + ".csv"; // Erstelle einen neuen Dateinamen
         this.createCsvFile = createCsvFile;
     }
 
@@ -71,6 +72,8 @@ public class CreateCSV {
                 writer.newLine();
 
                 System.out.println("Daten in Datei geschrieben: " + fileName);
+                System.out.println("Anzahl der geschriebenen Daten: " + (counter + 1));
+                counter++;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,9 +85,9 @@ public class CreateCSV {
         int counter = 0;
         String fileName;
         do {
-            fileName = baseFileName + (counter == 0 ? "" : "_" + counter) + ".csv";
+            fileName = baseFileName + (counter == 0 ? "" : "_" + counter);
             counter++;
-        } while (Files.exists(Paths.get(fileName)));
+        } while (Files.exists(Paths.get(fileName + ".csv")));
         return fileName;
     }
 

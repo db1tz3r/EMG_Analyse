@@ -12,7 +12,7 @@ public class Merkmalsextraktion_Manager {
     private Merkmal_Speicher merkmalSpeicher;
 
     // Variablen
-    private List<List<List<Double>>> allFeatures = new ArrayList<List<List<Double>>>(); // Array für alle Merkmale
+    private List<List<List<Double>>> allFeatures = new ArrayList<List<List<Double>>>(); // Array für alle Ringfinger.csv
 
     public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher) {
         this.merkmalSpeicher = merkmalSpeicher;
@@ -41,7 +41,7 @@ public class Merkmalsextraktion_Manager {
                 // CountdownLatch für die 8 Threads
                 CountDownLatch latch = new CountDownLatch(9); // 1 Klassische + 4 Polynomial + 4 FFT
 
-                // Starte Thread für Klassische Merkmale
+                // Starte Thread für Klassische Ringfinger.csv
                 new Thread(() -> {
                     KlassischeSignalMerkmale thread = starteKlassischeSignalMerkmale(getGesamtArrayRoh(zyklusErgebnis, instanzID), getGesamtArrayGerichtet(zyklusErgebnis, instanzID), merkmalSpeicher);
                     thread.start();
@@ -107,7 +107,7 @@ public class Merkmalsextraktion_Manager {
 
                 // Daten zusammenfügen
                 allFeatures.add(merkmalSpeicher.getAlleMerkmale());
-//                System.out.println("Merkmale: " + allFeatures);
+//                System.out.println("Ringfinger.csv: " + allFeatures);
             } else {
                 allFeatures.add(Collections.singletonList(Arrays.asList(new Double[39])));
             }
