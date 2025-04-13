@@ -3,35 +3,7 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="\src\Data\1Senor2Finger\Kleinerfinger.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\1Senor2Finger\Merkmale.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\1Senor2Finger\Ringfinger.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\2Sensor2Finger\.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\2Sensor2Finger\Merkmale.csv">
+        <entry key="\src\Data.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -66,6 +38,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\Data\3Finger\2Sensor\Ringfinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\3Finger\3Sensor\Kleinerfinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\Data\3Finger\3Sensor\Merkmale.csv">
           <value>
             <Attribute>
@@ -80,28 +66,14 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\3Finger\3Sensor\Zeigefinger.csv">
+        <entry key="\src\Data\3Finger\3Sensor\Ringfinger.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\3Sensor2Finger\Kleinerfinger.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\3Sensor2Finger\Merkmale.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\3Sensor2Finger\Ringfinger.csv">
+        <entry key="\src\Data\4Finger\2Sensor\Kleinerfinger.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -115,7 +87,28 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\Data\4Finger\2Sensor\Mittelfinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\4Finger\2Sensor\Ringfinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\Data\4Finger\2Sensor\Zeigefinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\4Finger\3Sensor\Kleinerfinger.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -136,7 +129,28 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\Data\4Finger\3Sensor\Ringfinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\Data\4Finger\3Sensor\Zeigefinger.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\5Finger\3Sensor\Daumen.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\Data\5Finger\3Sensor\Kleinerfinger.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -157,14 +171,14 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\5Finger\3Sensor\Zeigefinger.csv">
+        <entry key="\src\Data\5Finger\3Sensor\Ringfinger.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\Kleinerfinger.csv">
+        <entry key="\src\Data\5Finger\3Sensor\Zeigefinger.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -178,14 +192,7 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\src\Data\Ringfinger.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="\src\Data\Zeigefinger.csv">
+        <entry key="\src\Data\Merkmale_1.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
