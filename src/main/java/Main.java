@@ -13,9 +13,9 @@ public class Main {
         int port = 12345; // Port, auf dem der Server lauscht
         int maxWertPeakNormalisierung = 2000;   // maximaler Wert, der vom Arduino/Sensor erreicht werden kann
         int hz = 2000;    // Zahl der Hz in dem die Daten übertragen werden
-        boolean createCsvFile = true; // Soll eine CSV-Datei erstellt werden
-        String csvFileName = "src/Data/Merkmale"; // Pfad und Datei, in der die Ringfinger.csv gespeichert werden
-        boolean useRamdomForest = false; // Soll das Random Forest Modell verwendet werden
+        boolean createCsvFile = false; // Soll eine CSV-Datei erstellt werden
+        String csvFileName = "src/Data/5Finger/3Sensor/Merkmale"; // Pfad und Datei, in der die Ringfinger.csv gespeichert werden
+        boolean useRamdomForest = true; // Soll das Random Forest Modell verwendet werden
         int anzahlSensoren = 3; // Anzahl der Sensoren
         // Varianblen Zyklenerkennung
         double schwelleSteigungPorzent = 7.0; // Schwelle für die Steigung
