@@ -1,11 +1,8 @@
 package Normalisierung;
 
-import UI.UpdatePlotter;
-
 import java.util.ArrayList;
 
 public class Normalisierung_Manager {
-    private UpdatePlotter updatePlotter;
     private Rms rms;
     private PeakNormalisierung peakNormalisierung;
 
@@ -14,8 +11,7 @@ public class Normalisierung_Manager {
     private double[] peakNormaisierungArrayValuesInput = new double[5];
     private ArrayList<Double> peakNormalisierungArrayErgebnis = new ArrayList<>();
 
-    public Normalisierung_Manager(UpdatePlotter updatePlotter, Rms rms, PeakNormalisierung peakNormalisierung) {
-        this.updatePlotter = updatePlotter;
+    public Normalisierung_Manager(Rms rms, PeakNormalisierung peakNormalisierung) {
         this.rms = rms;
         this.peakNormalisierung = peakNormalisierung;
     }

@@ -45,7 +45,7 @@ public class InitPipeline {
 
                 Rms rms = new Rms();
                 PeakNormalisierung peakNormalisierung = new PeakNormalisierung(maxWertPeakNormalisierung);
-                Normalisierung_Manager normalisierungManager = new Normalisierung_Manager(null, rms, peakNormalisierung);
+                Normalisierung_Manager normalisierungManager = new Normalisierung_Manager(rms, peakNormalisierung);
                 Zyklenerkennung zyklenerkennung = new Zyklenerkennung();
                 Zyklenzusammenfassung zyklenzusammenfassung = new Zyklenzusammenfassung();
                 Zyklenmanager zyklenmanager = new Zyklenmanager(zyklenerkennung, zyklenzusammenfassung, zyklenSpeicher, index);
