@@ -1,8 +1,6 @@
 package Merkmalsextraktion;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class FastFourierTransformation extends Thread {
 
@@ -83,7 +81,7 @@ public class FastFourierTransformation extends Thread {
         return fft(x);  // FFT auf gepolstertes Array anwenden
     }
 
-    // Methode zur Berechnung der FFT und Extraktion der Ringfinger.csv
+    // Methode zur Berechnung der FFT
     public static void calculateFFT(double[] input, int formelTyp) throws InterruptedException {
         Complex[] fftResult = fft(input);
 
@@ -113,7 +111,7 @@ public class FastFourierTransformation extends Thread {
             }
         }
 
-        // Rückgabe der extrahierten Ringfinger.csv als Array
+        // Rückgabe als Array
         //System.out.println("Median Frequency: " + medianFrequency + ", Mean Frequency: " + meanFrequency + ", Total Power: " + totalPower);
         merkmalSpeicher.setFFTValues(new double[]{medianFrequency, meanFrequency, totalPower}, formelTyp);
     }

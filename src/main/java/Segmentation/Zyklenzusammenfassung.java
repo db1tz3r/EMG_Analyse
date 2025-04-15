@@ -4,23 +4,29 @@ import java.util.ArrayList;
 
 public class Zyklenzusammenfassung {
 
-    private ArrayList<Double> steigungGesamt = new ArrayList<>();
-    private ArrayList<Double> senkungGesamt = new ArrayList<>();
-    private ArrayList<Integer> steigungZeitpunkteGesamt = new ArrayList<>();
-    private ArrayList<Integer> senkungZeitpunkteGesamt = new ArrayList<>();
+    // Listen zur Speicherung der Steigungs- und Senkungswerte sowie deren Zeitpunkte
+    private ArrayList<Double> steigungGesamt = new ArrayList<>(); // Gesamte Steigungswerte
+    private ArrayList<Double> senkungGesamt = new ArrayList<>(); // Gesamte Senkungswerte
+    private ArrayList<Integer> steigungZeitpunkteGesamt = new ArrayList<>(); // Zeitpunkte der Steigungen
+    private ArrayList<Integer> senkungZeitpunkteGesamt = new ArrayList<>(); // Zeitpunkte der Senkungen
 
-    private boolean zusammenfassungAktiv = false;
-    private int letzteSenkungEndeZeitpunkt = 0;
-    private double globalStartSteigung = 0;
-    private double globalEndeSenkung = 0;
-    private double globalEndeSteigung = 0;
-    private double globalStartSenkung = 0;
-    private int globalZeitStartSteigung = 0;
-    private int globalZeitEndeSenkung = 0;
-    private int globalZeitEndeSteigung = 0;
-    private int globalZeitStartSenkung = 0;
+    // Statusvariablen für die Zusammenfassung
+    private boolean zusammenfassungAktiv = false; // Gibt an, ob eine Zusammenfassung aktiv ist
+    private int letzteSenkungEndeZeitpunkt = 0; // Zeitstempel des letzten Endes einer Senkung
 
-    public double[] verarbeiteUndGebeZyklusZurueck(double[] zyklusDaten , int toleranzWerte) {
+    // Globale Variablen zur Speicherung der aktuellen Zyklusdaten
+    private double globalStartSteigung = 0; // Startwert der Steigung
+    private double globalEndeSteigung = 0; // Endwert der Steigung
+    private double globalStartSenkung = 0; // Startwert der Senkung
+    private double globalEndeSenkung = 0; // Endwert der Senkung
+    private int globalZeitStartSteigung = 0; // Startzeitpunkt der Steigung
+    private int globalZeitEndeSteigung = 0; // Endzeitpunkt der Steigung
+    private int globalZeitStartSenkung = 0; // Startzeitpunkt der Senkung
+    private int globalZeitEndeSenkung = 0; // Endzeitpunkt der Senkung
+
+    // Methode zur Verarbeitung eines Zyklus und Rückgabe der zusammengefassten Daten
+    public double[] verarbeiteUndGebeZyklusZurueck(double[] zyklusDaten, int toleranzWerte) {
+        // Extrahiert die Zyklusdaten aus dem Eingabearray
         double startSteigung = zyklusDaten[0];
         double endeSteigung = zyklusDaten[1];
         double startSenkung = zyklusDaten[2];
@@ -31,7 +37,9 @@ public class Zyklenzusammenfassung {
         int zeitStartSenkung = (int) zyklusDaten[6];
         int zeitEndeSenkung = (int) zyklusDaten[7];
 
+        // Überprüft, ob die Zusammenfassung aktiv ist und die Toleranz eingehalten wird
         if (zusammenfassungAktiv && (zeitStartSteigung - letzteSenkungEndeZeitpunkt) <= toleranzWerte) {
+            // Fügt die neuen Werte zur bestehenden Zusammenfassung hinzu
             steigungGesamt.add(startSenkung);
             steigungGesamt.add(endeSteigung);
             steigungZeitpunkteGesamt.add(zeitStartSenkung);
@@ -42,6 +50,8 @@ public class Zyklenzusammenfassung {
             senkungZeitpunkteGesamt.clear();
             senkungZeitpunkteGesamt.add(zeitStartSenkung);
             senkungZeitpunkteGesamt.add(zeitEndeSenkung);
+
+            // Aktualisiert die globalen Variablen
             globalEndeSteigung = endeSteigung;
             globalStartSenkung = startSenkung;
             globalEndeSenkung = endeSenkung;
@@ -49,9 +59,12 @@ public class Zyklenzusammenfassung {
             globalZeitStartSenkung = zeitStartSenkung;
             globalZeitEndeSenkung = zeitEndeSenkung;
         } else {
+            // Gibt die zusammengefassten Daten zurück, wenn die Zusammenfassung abgeschlossen ist
             if (zusammenfassungAktiv) {
                 return ausgabeZusammengefassterZyklus();
             }
+
+            // Initialisiert eine neue Zusammenfassung
             steigungGesamt.clear();
             senkungGesamt.clear();
             steigungZeitpunkteGesamt.clear();
@@ -64,6 +77,8 @@ public class Zyklenzusammenfassung {
             senkungGesamt.add(endeSenkung);
             senkungZeitpunkteGesamt.add(zeitStartSenkung);
             senkungZeitpunkteGesamt.add(zeitEndeSenkung);
+
+            // Setzt die globalen Variablen
             globalStartSteigung = startSteigung;
             globalEndeSteigung = endeSteigung;
             globalStartSenkung = startSenkung;
@@ -74,14 +89,17 @@ public class Zyklenzusammenfassung {
             globalZeitEndeSenkung = zeitEndeSenkung;
             zusammenfassungAktiv = true;
         }
+
+        // Aktualisiert den letzten Endzeitpunkt der Senkung
         letzteSenkungEndeZeitpunkt = zeitEndeSenkung;
+
+        // Gibt ein leeres Array zurück, wenn die Zusammenfassung noch nicht abgeschlossen ist
         return new double[]{0, 0, 0, 0, 0, 0, 0, 0};
     }
 
+    // Methode zur Ausgabe der zusammengefassten Zyklusdaten
     public double[] ausgabeZusammengefassterZyklus() {
-        zusammenfassungAktiv = false;
-//        System.out.println("Zykluswertergebnis: " + globalStartSteigung + "| " + globalEndeSteigung + " | " + globalStartSenkung + " | " + globalEndeSenkung);
-//        System.out.println("Zykluszeit: " + globalZeitStartSteigung + " | " + globalZeitEndeSteigung + " | " + globalZeitStartSenkung + " | " + globalZeitEndeSenkung);
+        zusammenfassungAktiv = false; // Deaktiviert die Zusammenfassung
         return new double[]{
                 globalStartSteigung, globalEndeSteigung,
                 globalStartSenkung, globalEndeSenkung,

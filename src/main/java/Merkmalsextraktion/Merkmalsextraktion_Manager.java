@@ -1,18 +1,14 @@
 package Merkmalsextraktion;
 
-import Management.InstanzManager;
-
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Merkmalsextraktion_Manager {
     // Objekte
     private Merkmal_Speicher merkmalSpeicher;
 
     // Variablen
-    private List<List<List<Double>>> allFeatures = new ArrayList<List<List<Double>>>(); // Array für alle Ringfinger.csv
+    private List<List<List<Double>>> allFeatures = new ArrayList<List<List<Double>>>(); // Array für alle Ringfinger
 
     public Merkmalsextraktion_Manager(Merkmal_Speicher merkmalSpeicher) {
         this.merkmalSpeicher = merkmalSpeicher;
@@ -41,7 +37,7 @@ public class Merkmalsextraktion_Manager {
                 // CountdownLatch für die 8 Threads
                 CountDownLatch latch = new CountDownLatch(9); // 1 Klassische + 4 Polynomial + 4 FFT
 
-                // Starte Thread für Klassische Ringfinger.csv
+                // Starte Thread für Klassische Merkmale
                 new Thread(() -> {
                     KlassischeSignalMerkmale thread = starteKlassischeSignalMerkmale(getGesamtArrayRoh(zyklusErgebnis, instanzID), getGesamtArrayGerichtet(zyklusErgebnis, instanzID), merkmalSpeicher);
                     thread.start();
