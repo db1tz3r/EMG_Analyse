@@ -36,10 +36,10 @@ public class InitPipeline {
         ExecutorService executor = Executors.newSingleThreadExecutor(); // Single Thread für synchrone Initialisierung
 
         // Definierte Reihenfolge: 0 → 1 → 2
-        int[] startReihenfolge = {0, 1, 2};
 
         List<Callable<Void>> tasks = new ArrayList<>();
-        for (int index : startReihenfolge) {
+        for (int i = 0; i < anzahlSensoren; i++) {
+            int index = i; // Lokale Variable für den Lambda-Ausdruck
             tasks.add(() -> {
 //                System.out.println("Starte Pipeline-Initialisierung " + index);
 
