@@ -35,8 +35,6 @@ public class InitPipeline {
                                   double minAmplitudeSteigung, int toleranzZwischenZyklen, int maxWerteOhneZyklus) {
         ExecutorService executor = Executors.newSingleThreadExecutor(); // Single Thread für synchrone Initialisierung
 
-        // Definierte Reihenfolge: 0 → 1 → 2
-
         List<Callable<Void>> tasks = new ArrayList<>();
         for (int i = 0; i < anzahlSensoren; i++) {
             int index = i; // Lokale Variable für den Lambda-Ausdruck

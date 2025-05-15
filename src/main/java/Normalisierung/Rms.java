@@ -19,5 +19,3 @@ public class Rms {
         return Math.sqrt(meanOfSquares);
     }
 }
-
-R
